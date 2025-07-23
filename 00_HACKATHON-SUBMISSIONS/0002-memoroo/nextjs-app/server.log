@@ -1,0 +1,40 @@
+
+> memoroo@0.1.0 dev
+> next dev
+
+   ▲ Next.js 14.0.0
+   - Local:        http://localhost:3000
+
+ ✓ Ready in 1734ms
+ ✓ Compiled /api/flashcards/route in 182ms (31 modules)
+Flashcards API error: TypeError: fetch failed
+    at node:internal/deps/undici/undici:12637:11
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5) {
+  cause: Error: connect ECONNREFUSED ::1:11434
+      at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1555:16)
+      at TCPConnectWrap.callbackTrampoline (node:internal/async_hooks:128:17) {
+    errno: -61,
+    code: 'ECONNREFUSED',
+    syscall: 'connect',
+    address: '::1',
+    port: 11434
+  }
+}
+ ✓ Compiled in 86ms (31 modules)
+ ○ Compiling /page ...
+ ✓ Compiled /page in 2.6s (456 modules)
+ ✓ Compiled in 190ms (224 modules)
+ ✓ Compiled /api/quiz/route in 188ms (435 modules)
+ ✓ Compiled /api/study-buddy/route in 77ms (225 modules)
+ ✓ Compiled in 193ms (224 modules)
+ ✓ Compiled in 183ms (425 modules)
+ ✓ Compiled in 106ms (224 modules)
+ ✓ Compiled /api/flashcards/route in 155ms (223 modules)
+Could not parse JSON, returning formatted response
+ ✓ Compiled in 285ms (447 modules)
+ ✓ Compiled in 137ms (224 modules)
+JSON parsing failed: Unexpected token ' in JSON at position 57
+ ✓ Compiled in 330ms (447 modules)
+Clean JSON parsing failed: Unexpected end of JSON input
+ ✓ Compiled in 245ms (447 modules)
+Clean JSON parsing failed: Unexpected token ] in JSON at position 1152
