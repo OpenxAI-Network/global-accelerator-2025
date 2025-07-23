@@ -33,26 +33,86 @@ Student's Question: ${question}
 
 Provide a helpful, educational response:`
 
-    const response = await fetch('http://127.0.0.1:11434/api/generate', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        model: 'llama3.2:1b',
-        prompt: prompt,
-        stream: false,
-      }),
+    // Create streaming response for real-time user feedback
+    const encoder = new TextEncoder()
+    const readable = new ReadableStream({
+      async start(controller) {
+        try {
+          const response = await fetch('http://127.0.0.1:11434/api/generate', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              model: 'llama3.2:1b',
+              prompt: prompt,
+              stream: true,
+            }),
+          })
+
+          if (!response.ok) {
+            throw new Error('Failed to get response from Ollama')
+          }
+
+          const reader = response.body?.getReader()
+          if (!reader) {
+            throw new Error('No response body')
+          }
+
+          let fullResponse = ''
+          const decoder = new TextDecoder()
+
+          while (true) {
+            const { done, value } = await reader.read()
+            if (done) break
+
+            const chunk = decoder.decode(value)
+            const lines = chunk.split('\n').filter(line => line.trim())
+            
+            for (const line of lines) {
+              try {
+                const data = JSON.parse(line)
+                if (data.response) {
+                  fullResponse += data.response
+                  // Send progress update to client
+                  controller.enqueue(encoder.encode(`data: ${JSON.stringify({
+                    type: 'progress',
+                    content: data.response,
+                    fullContent: fullResponse
+                  })}\n\n`))
+                }
+                
+                if (data.done) {
+                  // Send final answer
+                  controller.enqueue(encoder.encode(`data: ${JSON.stringify({
+                    type: 'complete',
+                    answer: fullResponse || 'I could not process your question. Please try again!'
+                  })}\n\n`))
+                  controller.close()
+                  return
+                }
+              } catch (parseError) {
+                continue
+              }
+            }
+          }
+        } catch (error) {
+          console.error('Study buddy streaming error:', error)
+          controller.enqueue(encoder.encode(`data: ${JSON.stringify({
+            type: 'error',
+            error: 'Failed to get study buddy response'
+          })}\n\n`))
+          controller.close()
+        }
+      }
     })
 
-    if (!response.ok) {
-      throw new Error('Failed to get response from Ollama')
-    }
-
-    const data = await response.json()
-    
-    return NextResponse.json({ 
-      answer: data.response || 'I could not process your question. Please try again!' 
+    return new Response(readable, {
+      headers: {
+        'Content-Type': 'text/event-stream',
+        'Cache-Control': 'no-cache',
+        'Connection': 'keep-alive',
+      },
     })
   } catch (error) {
     console.error('Study Buddy API error:', error)

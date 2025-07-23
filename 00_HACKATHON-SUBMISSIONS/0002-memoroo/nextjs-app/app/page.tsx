@@ -23,6 +23,8 @@ export default function LearnAI() {
   const [flashcards, setFlashcards] = useState<Flashcard[]>([])
   const [currentCard, setCurrentCard] = useState(0)
   const [flipped, setFlipped] = useState(false)
+  const [streamingProgress, setStreamingProgress] = useState('')
+  const [performanceInfo, setPerformanceInfo] = useState('')
   
   // Quiz states
   const [quizText, setQuizText] = useState('')
@@ -41,6 +43,12 @@ export default function LearnAI() {
     if (!notes.trim()) return
     
     setLoading(true)
+    setFlashcards([]) // Clear existing flashcards
+    setStreamingProgress('Starting generation...')
+    setPerformanceInfo('')
+    
+    const startTime = performance.now()
+    
     try {
       const response = await fetch('/api/flashcards', {
         method: 'POST',
@@ -48,22 +56,80 @@ export default function LearnAI() {
         body: JSON.stringify({ notes })
       })
       
-      const data = await response.json()
-      if (data.flashcards) {
-        setFlashcards(data.flashcards)
-        setCurrentCard(0)
-        setFlipped(false)
+      if (!response.ok) {
+        throw new Error('Failed to start flashcard generation')
       }
+      
+      const reader = response.body?.getReader()
+      if (!reader) {
+        throw new Error('No response body')
+      }
+      
+      const decoder = new TextDecoder()
+      
+      while (true) {
+        const { done, value } = await reader.read()
+        if (done) break
+        
+        const chunk = decoder.decode(value)
+        const lines = chunk.split('\n').filter(line => line.trim().startsWith('data: '))
+        
+        for (const line of lines) {
+          try {
+            const jsonStr = line.replace('data: ', '')
+            const data = JSON.parse(jsonStr)
+            
+            switch (data.type) {
+              case 'progress':
+                // Show streaming progress to user
+                const charCount = data.fullContent.length
+                setStreamingProgress(`Generating... ${charCount} characters received`)
+                console.log('Generating...', charCount, 'characters so far')
+                break
+                
+              case 'complete':
+                if (data.flashcards) {
+                  setFlashcards(data.flashcards)
+                  setCurrentCard(0)
+                  setFlipped(false)
+                  
+                  // Show performance info
+                  const endTime = performance.now()
+                  const duration = Math.round(endTime - startTime)
+                  const cacheStatus = data.cached ? '⚡ (cached)' : '🧠 (generated)'
+                  setPerformanceInfo(`${cacheStatus} ${duration}ms - ${data.flashcards.length} flashcards`)
+                }
+                setLoading(false)
+                setStreamingProgress('')
+                return // Exit the loop
+                
+              case 'error':
+                console.error('Streaming error:', data.error)
+                setLoading(false)
+                setStreamingProgress('')
+                setPerformanceInfo('')
+                return // Exit the loop
+            }
+          } catch (parseError) {
+            console.error('Error parsing streaming data:', parseError)
+          }
+        }
+      }
+      
     } catch (error) {
       console.error('Error generating flashcards:', error)
+      setLoading(false)
+      setStreamingProgress('')
+      setPerformanceInfo('')
     }
-    setLoading(false)
   }
 
   const generateQuiz = async () => {
     if (!quizText.trim()) return
     
     setLoading(true)
+    setStreamingProgress('Starting quiz generation...')
+    
     try {
       const response = await fetch('/api/quiz', {
         method: 'POST',
@@ -71,24 +137,72 @@ export default function LearnAI() {
         body: JSON.stringify({ text: quizText })
       })
       
-      const data = await response.json()
-      if (data.quiz) {
-        setQuiz(data.quiz)
-        setCurrentQuestion(0)
-        setSelectedAnswer(null)
-        setShowResults(false)
-        setScore(0)
+      if (!response.ok) {
+        throw new Error('Failed to start quiz generation')
       }
+      
+      const reader = response.body?.getReader()
+      if (!reader) {
+        throw new Error('No response body')
+      }
+      
+      const decoder = new TextDecoder()
+      
+      while (true) {
+        const { done, value } = await reader.read()
+        if (done) break
+        
+        const chunk = decoder.decode(value)
+        const lines = chunk.split('\n').filter(line => line.trim().startsWith('data: '))
+        
+        for (const line of lines) {
+          try {
+            const jsonStr = line.replace('data: ', '')
+            const data = JSON.parse(jsonStr)
+            
+            switch (data.type) {
+              case 'progress':
+                const charCount = data.fullContent.length
+                setStreamingProgress(`Generating quiz... ${charCount} characters received`)
+                break
+                
+              case 'complete':
+                if (data.quiz) {
+                  setQuiz(data.quiz)
+                  setCurrentQuestion(0)
+                  setSelectedAnswer(null)
+                  setShowResults(false)
+                  setScore(0)
+                }
+                setLoading(false)
+                setStreamingProgress('')
+                return
+                
+              case 'error':
+                console.error('Quiz streaming error:', data.error)
+                setLoading(false)
+                setStreamingProgress('')
+                return
+            }
+          } catch (parseError) {
+            console.error('Error parsing quiz streaming data:', parseError)
+          }
+        }
+      }
+      
     } catch (error) {
       console.error('Error generating quiz:', error)
+      setLoading(false)
+      setStreamingProgress('')
     }
-    setLoading(false)
   }
 
   const askStudyBuddy = async () => {
     if (!question.trim()) return
     
     setLoading(true)
+    setStreamingProgress('Thinking...')
+    
     try {
       const response = await fetch('/api/study-buddy', {
         method: 'POST',
@@ -96,17 +210,64 @@ export default function LearnAI() {
         body: JSON.stringify({ question })
       })
       
-      const data = await response.json()
-      if (data.answer) {
-        const newChat = { question, answer: data.answer }
-        setChatHistory(prev => [...prev, newChat])
-        setAnswer(data.answer)
-        setQuestion('')
+      if (!response.ok) {
+        throw new Error('Failed to start study buddy response')
       }
+      
+      const reader = response.body?.getReader()
+      if (!reader) {
+        throw new Error('No response body')
+      }
+      
+      const decoder = new TextDecoder()
+      let currentAnswer = ''
+      
+      while (true) {
+        const { done, value } = await reader.read()
+        if (done) break
+        
+        const chunk = decoder.decode(value)
+        const lines = chunk.split('\n').filter(line => line.trim().startsWith('data: '))
+        
+        for (const line of lines) {
+          try {
+            const jsonStr = line.replace('data: ', '')
+            const data = JSON.parse(jsonStr)
+            
+            switch (data.type) {
+              case 'progress':
+                currentAnswer = data.fullContent
+                setStreamingProgress(`Responding... ${currentAnswer.length} characters`)
+                break
+                
+              case 'complete':
+                if (data.answer) {
+                  const newChat = { question, answer: data.answer }
+                  setChatHistory(prev => [...prev, newChat])
+                  setAnswer(data.answer)
+                  setQuestion('')
+                }
+                setLoading(false)
+                setStreamingProgress('')
+                return
+                
+              case 'error':
+                console.error('Study buddy streaming error:', data.error)
+                setLoading(false)
+                setStreamingProgress('')
+                return
+            }
+          } catch (parseError) {
+            console.error('Error parsing study buddy streaming data:', parseError)
+          }
+        }
+      }
+      
     } catch (error) {
       console.error('Error asking study buddy:', error)
+      setLoading(false)
+      setStreamingProgress('')
     }
-    setLoading(false)
   }
 
   const nextCard = () => {
@@ -195,6 +356,18 @@ export default function LearnAI() {
                   >
                     {loading ? 'Generating...' : 'Generate Flashcards'}
                   </button>
+                  
+                  {streamingProgress && (
+                    <div className="mt-2 text-white/80 text-sm animate-pulse">
+                      ⚡ {streamingProgress}
+                    </div>
+                  )}
+                  
+                  {performanceInfo && (
+                    <div className="mt-2 text-green-200 text-sm font-medium">
+                      {performanceInfo}
+                    </div>
+                  )}
                 </div>
               ) : (
                 <div>
@@ -263,6 +436,12 @@ export default function LearnAI() {
                   >
                     {loading ? 'Creating Quiz...' : 'Create Quiz'}
                   </button>
+                  
+                  {streamingProgress && (
+                    <div className="mt-2 text-white/80 text-sm animate-pulse">
+                      ⚡ {streamingProgress}
+                    </div>
+                  )}
                 </div>
               ) : showResults ? (
                 <div className="text-center">
@@ -350,6 +529,12 @@ export default function LearnAI() {
                     {loading ? 'Thinking...' : 'Ask'}
                   </button>
                 </div>
+                
+                {streamingProgress && (
+                  <div className="mb-4 text-white/80 text-sm animate-pulse">
+                    🤖 {streamingProgress}
+                  </div>
+                )}
               </div>
 
               <div className="space-y-4 max-h-96 overflow-y-auto">
