@@ -1,0 +1,95 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// User model for authentication
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  password  String
+  name      String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  flashcards    Flashcard[]
+  quizzes       Quiz[]
+  quizResults   QuizResult[]
+  studySessions StudySession[]
+
+  @@map("users")
+}
+
+// Flashcard model for storing user's flashcards
+model Flashcard {
+  id        String   @id @default(cuid())
+  userId    String
+  front     String
+  back      String
+  tags      String   @default("")  // Comma-separated tags
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("flashcards")
+}
+
+// Quiz model for storing quiz templates
+model Quiz {
+  id          String   @id @default(cuid())
+  userId      String
+  title       String
+  questions   Json     // Store array of quiz questions as JSON
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  user        User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  quizResults QuizResult[]
+
+  @@map("quizzes")
+}
+
+// QuizResult model for storing quiz attempts and scores
+model QuizResult {
+  id             String   @id @default(cuid())
+  userId         String
+  quizId         String?  // Optional - can be null for ad-hoc quizzes
+  score          Int
+  totalQuestions Int
+  answers        Json     // Store user's answers as JSON
+  completedAt    DateTime @default(now())
+
+  // Relations
+  user User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  quiz Quiz? @relation(fields: [quizId], references: [id], onDelete: SetNull)
+
+  @@map("quiz_results")
+}
+
+// StudySession model for storing study buddy conversations
+model StudySession {
+  id        String   @id @default(cuid())
+  userId    String
+  type      String   // "study_buddy", "flashcard", "quiz"
+  content   Json     // Store session content as JSON
+  createdAt DateTime @default(now())
+
+  // Relations
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("study_sessions")
+}
