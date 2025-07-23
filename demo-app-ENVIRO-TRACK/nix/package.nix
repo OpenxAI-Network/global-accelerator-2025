@@ -1,52 +1,49 @@
-{ lib
-, stdenv
-, nodejs
-, nodePackages
-, fetchFromGitHub
-}:
-
-let
+{ pkgs, lib }:
+pkgs.buildNpmPackage {
   pname = "dead-earth-project";
-  version = "0.1.0";
-in
-stdenv.mkDerivation {
-  inherit pname version;
+  version = "1.0.0";
+  src = ../nextjs-app;
 
-  src = ./.;
+  npmDeps = pkgs.importNpmLock {
+    npmRoot = ../nextjs-app;
+  };
+  npmConfigHook = pkgs.importNpmLock.npmConfigHook;
 
-  nativeBuildInputs = [
-    nodejs
-    nodePackages.npm
-  ];
+  postBuild = ''
+    # Add a shebang to the server js file, then patch the shebang to use a
+    # nixpkgs nodes binary
+    sed -i '1s|^|#!/usr/bin/env node\n|' .next/standalone/server.js
+    patchShebangs .next/standalone/server.js
+  '';
 
   installPhase = ''
     runHook preInstall
 
-    npm install
-    npm run build
+    mkdir -p $out/{share,bin}
 
-    mkdir -p $out/bin
-    mkdir -p $out/share/${pname}
+    cp -r .next/standalone $out/share/homepage/
+    # cp -r .env $out/share/homepage/
+    cp -r public $out/share/homepage/public
 
-    cp -r .next $out/share/${pname}/
-    cp -r public $out/share/${pname}/
-    cp package.json $out/share/${pname}/
+    mkdir -p $out/share/homepage/.next
+    cp -r .next/static $out/share/homepage/.next/static
 
-    cat > $out/bin/dead-earth-project <<EOF
-    #!${stdenv.shell}
-    cd $out/share/${pname}
-    exec ${nodejs}/bin/node .next/standalone/server.js
-    EOF
+    # https://github.com/vercel/next.js/discussions/58864
+    ln -s /var/cache/nextjs-app $out/share/homepage/.next/cache
 
-    chmod +x $out/bin/dead-earth-project
+    chmod +x $out/share/homepage/server.js
+
+    # we set a default port to support "nix run ..."
+    makeWrapper $out/share/homepage/server.js $out/bin/dead-earth-project \
+      --set-default PORT 3000 \
+      --set-default HOSTNAME 0.0.0.0
 
     runHook postInstall
-  };
+  '';
 
-  meta = with lib; {
-    description = "Interactive 3D globe simulation showing climate change effects";
-    homepage = "https://github.com/openxai/global-accelerator-2025";
-    license = licenses.mit;
-    platforms = platforms.all;
+  doDist = false;
+
+  meta = {
+    mainProgram = "dead-earth-project";
   };
-} 
+}

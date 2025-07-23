@@ -1,1 +1,1 @@
-deepseek-r1:8b 
+llama3.2:1b

@@ -48,9 +48,10 @@ const exampleCommands = [
 ]
 
 const availableModels = [
-  { id: 'deepseek-r1:8b', name: 'DeepSeek R1 (8B)', description: 'Slow & accurate' },
-  { id: 'qwen3:8b', name: 'Qwen3 (8B)', description: 'Fast inference' },
-  { id: 'deepseek-r1:1.5b', name: 'DeepSeek R1 (1.5B)', description: 'Fast inference' }
+  { id: 'llama3.2:1b', name: 'Llama 3.2 (1B)', description: 'Fast, minimal reasoning (default)', disabled: false },
+  { id: 'deepseek-r1:8b', name: 'DeepSeek R1 (8B)', description: 'Slow & accurate', disabled: true },
+  { id: 'qwen3:8b', name: 'Qwen3 (8B)', description: 'Fast inference', disabled: true },
+  { id: 'deepseek-r1:1.5b', name: 'DeepSeek R1 (1.5B)', description: 'Fast inference', disabled: true }
 ]
 
 export default function Home() {
@@ -73,7 +74,7 @@ export default function Home() {
   const [currentAnalysis, setCurrentAnalysis] = useState<string>('')
   const [aiThinkingLog, setAiThinkingLog] = useState<string[]>([])
   const [specialEvent, setSpecialEvent] = useState<string | null>(null)
-  const [selectedModel, setSelectedModel] = useState('deepseek-r1:8b')
+  const [selectedModel, setSelectedModel] = useState('llama3.2:1b')
   const inputRef = useRef<HTMLInputElement>(null)
 
   // AI thinking process simulation
@@ -111,7 +112,7 @@ export default function Home() {
           command,
           currentMetrics: metrics,
           pollutionLevel,
-          model: selectedModel
+          model: 'llama3.2:1b', // Always use llama3.2:1b
         }),
       })
 
@@ -135,7 +136,7 @@ export default function Home() {
         analysis: data.analysis,
         timestamp: new Date(),
         responseTime,
-        model: selectedModel
+        model: 'llama3.2:1b' // Always use llama3.2:1b
       }
       setCommandHistory(prev => [newCommand, ...prev.slice(0, 9)]) // Keep last 10
 
@@ -360,12 +361,11 @@ export default function Home() {
           <h3 className="text-sm font-semibold mb-2 text-gray-300">AI Model:</h3>
           <select
             value={selectedModel}
-            onChange={(e) => setSelectedModel(e.target.value)}
-            disabled={isProcessing}
+            onChange={(e) => setSelectedModel('llama3.2:1b')}
             className="w-full px-3 py-2 bg-gray-800 border border-gray-600 rounded text-white text-sm disabled:bg-gray-700"
           >
             {availableModels.map((model) => (
-              <option key={model.id} value={model.id}>
+              <option key={model.id} value={model.id} disabled={model.disabled}>
                 {model.name} - {model.description}
               </option>
             ))}
