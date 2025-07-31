@@ -3,7 +3,6 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import { GoogleGenerativeAI, HarmCategory, HarmBlockThreshold } from '@google/generative-ai';
 import fetch from 'node-fetch';
 
 dotenv.config();
@@ -15,26 +14,9 @@ app.use(cors());
 app.use(express.json({ limit: '2mb' }));
 
 const PORT = process.env.PORT || 3001;
-const API_KEY = process.env.VITE_GEMINI_API_KEY;
 const PIXABAY_API_KEY = process.env.VITE_PIXABAY_API_KEY;
-const MODEL_NAME = 'gemini-2.0-flash';
-
-if (!API_KEY || !PIXABAY_API_KEY) {
-    console.error('🔴 Missing VITE_GEMINI_API_KEY or VITE_PIXABAY_API_KEY in .env file');
-    process.exit(1);
-}
-
-const genAI = new GoogleGenerativeAI(API_KEY);
-const model = genAI.getGenerativeModel({ model: MODEL_NAME,
-    generationConfig: {
-        responseMimeType: 'application/json',
-    },
-    safetySettings: [
-        { category: HarmCategory.HARM_CATEGORY_HARASSMENT, threshold: HarmBlockThreshold.BLOCK_NONE },
-        { category: HarmCategory.HARM_CATEGORY_HATE_SPEECH, threshold: HarmBlockThreshold.BLOCK_NONE },
-        { category: HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT, threshold: HarmBlockThreshold.BLOCK_NONE },
-        { category: HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT, threshold: HarmBlockThreshold.BLOCK_NONE },
-    ], });
+const OLLAMA_BASE_URL = 'http://localhost:11434/api/generate';
+const OLLAMA_MODEL_NAME = 'gemma3:1b-it-qat'; // or 'mistral', etc.
 
 // --- (A) Strengthened System Prompt ---
 const BASE_SYSTEM_PROMPT = `You are a world-class front-end web developer. Your mission is to generate a complete, self-contained web application based on a user's request.
@@ -54,15 +36,8 @@ The JSON object must have three string keys: "html", "css", and "js".
 4.  **Complete Code:** Always provide the complete, full code for all three files, even if the user only asks for a small change.
 5.  **No Extra Text:** Do not include any text outside the JSON object. No explanations, no comments, no markdown formatting.
 6.  **Responsive Website:** Your entire code output must be responsive to mobile and desktop devices.
-7.  **Image Usage:** To include a placeholder image, you MUST use the following **full, absolute URL format**: \`http://localhost:${PORT}/image-proxy?q=YOUR_SEARCH_QUERY\`.
-   - **YOU MUST** include \`width\` and \`height\` attributes on the \`<img>\` tag. Use sensible placeholder dimensions.
-   - **Example (Standard Photo):** \`<img src="http://localhost:${PORT}/image-proxy?q=forest" alt="A forest" width="800" height="600">\`
-   
-   - **OPTIONAL PARAMETERS:** You can control the image orientation.
-   - For a **wide (landscape)** image: \`http://localhost:${PORT}/image-proxy?q=beach&orientation=horizontal\`
-   - For a **tall (portrait)** image: \`http://localhost:${PORT}/image-proxy?q=skyscraper&orientation=vertical\`
-
-   - **DO NOT** use any other image URLs like unsplash, pexels, wikipedia or pixabay.com directly. Only use the full \`http://localhost:${PORT}/image-proxy\` URL format.
+7.  **Image Usage:** Do not include any images in the HTML. Just provide a clean and beautiful layout. If the user requests images, you can suggest using an image proxy service like Pixabay or Unsplash, but do not include any actual image URLs in your response.
+  
 
 8.  **Good CSS:** Use modern CSS practices. Avoid inline styles. Use classes and IDs appropriately. Ensure your CSS is clean, maintainable, and responsive and if images is used better ot should properly fit in the containers, cards etc .
 9.  **Smooth Scrolling for Nav Links:** For all navigation links (\`<a>\` tags with an \`href\` starting with \`#\`), you MUST add a JavaScript event listener. This script should prevent the default link behavior and implement a smooth scroll to the corresponding element with the matching ID. This is mandatory for all generated sites to prevent the preview from going blank.
@@ -85,50 +60,50 @@ The JSON object must have three string keys: "html", "css", and "js".
    You MUST include this or similar logic in the "js" part of your JSON response whenever navigation links are present.`;
 
 
-app.get('/image-proxy', async (req, res) => {
-    const { q, orientation, min_width, min_height } = req.query;
+// app.get('/image-proxy', async (req, res) => {
+//     const { q, orientation, min_width, min_height } = req.query;
 
-    if (!q) {
-        return res.status(400).send('Search query (q) is required.');
-    }
+//     if (!q) {
+//         return res.status(400).send('Search query (q) is required.');
+//     }
 
-    try {
-        // Build the Pixabay API URL with optional parameters
-        let pixabayUrl = `https://pixabay.com/api/?key=${PIXABAY_API_KEY}&q=${encodeURIComponent(q)}&image_type=photo&safesearch=true&per_page=5`;
+//     try {
+//         // Build the Pixabay API URL with optional parameters
+//         let pixabayUrl = `https://pixabay.com/api/?key=${PIXABAY_API_KEY}&q=${encodeURIComponent(q)}&image_type=photo&safesearch=true&per_page=5`;
         
-        if (orientation && ['horizontal', 'vertical'].includes(orientation)) {
-            pixabayUrl += `&orientation=${orientation}`;
-        }
-        if (min_width) {
-            pixabayUrl += `&min_width=${min_width}`;
-        }
-        if (min_height) {
-            pixabayUrl += `&min_height=${min_height}`;
-        }
+//         if (orientation && ['horizontal', 'vertical'].includes(orientation)) {
+//             pixabayUrl += `&orientation=${orientation}`;
+//         }
+//         if (min_width) {
+//             pixabayUrl += `&min_width=${min_width}`;
+//         }
+//         if (min_height) {
+//             pixabayUrl += `&min_height=${min_height}`;
+//         }
 
-        const pixabayResponse = await fetch(pixabayUrl);
-        const data = await pixabayResponse.json();
+//         const pixabayResponse = await fetch(pixabayUrl);
+//         const data = await pixabayResponse.json();
 
-        if (data.hits && data.hits.length > 0) {
-            // Pick a random image from the first few results
-            const randomImage = data.hits[Math.floor(Math.random() * data.hits.length)];
-            const imageUrl = randomImage.webformatURL; // webformatURL is a good default size
+//         if (data.hits && data.hits.length > 0) {
+//             // Pick a random image from the first few results
+//             const randomImage = data.hits[Math.floor(Math.random() * data.hits.length)];
+//             const imageUrl = randomImage.webformatURL; // webformatURL is a good default size
 
-            // Fetch the actual image and stream it back
-            const imageResponse = await fetch(imageUrl);
+//             // Fetch the actual image and stream it back
+//             const imageResponse = await fetch(imageUrl);
             
-            // Set content type header based on the fetched image
-            res.setHeader('Content-Type', imageResponse.headers.get('content-type'));
-            imageResponse.body.pipe(res);
+//             // Set content type header based on the fetched image
+//             res.setHeader('Content-Type', imageResponse.headers.get('content-type'));
+//             imageResponse.body.pipe(res);
 
-        } else {
-            res.status(404).send(`No image found for query: ${q}`);
-        }
-    } catch (error) {
-        console.error('Image proxy error:', error);
-        res.status(500).send('Failed to fetch image.');
-    }
-});
+//         } else {
+//             res.status(404).send(`No image found for query: ${q}`);
+//         }
+//     } catch (error) {
+//         console.error('Image proxy error:', error);
+//         res.status(500).send('Failed to fetch image.');
+//     }
+// });
 
    // --- (C) Best-Effort JSON Parsing Function ---
 function safeJsonParse(text) {
@@ -166,29 +141,39 @@ function safeJsonParse(text) {
 async function processGenerativeRequest(prompt, res) {
     let rawResponseText = '';
     try {
-        console.log('🔄 Sending request to Gemini...');
-        const result = await model.generateContent(prompt);
-        rawResponseText = result.response.text();
-        console.log('✅ Received response from Gemini.');
+        console.log('🔄 Sending request to Ollama...');
+
+        const ollamaResponse = await fetch(OLLAMA_BASE_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                model: OLLAMA_MODEL_NAME,
+                prompt: prompt,
+                stream: false
+            }),
+        });
+
+        const data = await ollamaResponse.json();
+        rawResponseText = data.response;
+        console.log('✅ Received response from Ollama.');
 
         const parsed = safeJsonParse(rawResponseText);
 
         if (!parsed || typeof parsed.html !== 'string' || typeof parsed.css !== 'string' || typeof parsed.js !== 'string') {
-          // Trigger the error path that sends rawResponse to the client
-          throw new Error('Parsed JSON is missing keys or could not be parsed.');
+            throw new Error('Parsed JSON is missing keys or could not be parsed.');
         }
 
         return res.json(parsed);
     } catch (error) {
         console.error('❌ Error in processGenerativeRequest:', error.message);
-        // This is the key part: if parsing failed, we still have rawResponseText
-        return res.status(200).json({ // Send 200 OK so the client can handle it
+        return res.status(200).json({
             error: 'Failed to parse model response as JSON.',
             errorType: 'JSON_PARSE_ERROR',
-            rawResponse: rawResponseText, // Send the bad JSON back
+            rawResponse: rawResponseText,
         });
     }
 }
+
 
 // --- API Endpoints (Follow-up and Retry are Updated) ---
 

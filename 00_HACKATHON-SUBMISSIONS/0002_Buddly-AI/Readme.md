@@ -45,9 +45,6 @@
 - 💾 **Persistent Chat & Project History**  
   All your prompts and generated sites are saved in your browser’s local storage. Access any previous project from the side history panel.
 
-- 🖼️ **Smart Image Proxy**  
-  AI can insert relevant images via a secure image proxy connected to **Pixabay API**, ensuring consistent loading and formatting.
-
 - 📱 **Fully Responsive UI**  
   The Buddly AI interface is designed to look and work great across desktops, tablets, and mobile devices.
 
@@ -88,18 +85,12 @@ cd Buddly-AI
 ```
 npm install
 ```
-### 3. Configure Environment Variables
-Create a .env file in the project root and add the following:
-
-### .env
+### 3. Set up ollama
 ```
-# Your Google AI Studio API Key for Gemini
-VITE_GEMINI_API_KEY=your_google_gemini_api_key_here
-
-# Your Pixabay API Key
-VITE_PIXABAY_API_KEY=your_pixabay_api_key_here
-🔐 These keys are required for AI code generation and fetching placeholder images.
+ollama run llama3
 ```
+### Set up which model to run in server.js 
+
 
 ### 🧪 Running the Application
 This project runs two servers: one for the backend API and another for the frontend UI.
