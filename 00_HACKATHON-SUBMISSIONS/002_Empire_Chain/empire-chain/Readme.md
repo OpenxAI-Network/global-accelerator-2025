@@ -39,11 +39,10 @@
 
 Check out our comprehensive video tutorial series on building with Empire Chain:
 
-<div align="center">
-  <a href="https://youtube.com/playlist?list=PLCHsTyFtMf0aBllKSNZtNiTnH5BI6N8Qj">
-    <img src="https://i.ytimg.com/vi/UjodLvD23kI/maxresdefault.jpg" alt="Empire Chain Tutorials" width="600"/>
-  </a>
-</div>
+![Empire Agent](https://github.com/user-attachments/assets/760828aa-6e86-4cb2-9fef-87b360d755b5)
+
+
+
 
 [Watch the Full Tutorial Series](https://youtube.com/playlist?list=PLCHsTyFtMf0aBllKSNZtNiTnH5BI6N8Qj)
 
