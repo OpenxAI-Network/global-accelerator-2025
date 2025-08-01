@@ -35,6 +35,18 @@
   </a>
 </p>
 
+## 📺 Video Tutorials
+
+Check out our comprehensive video tutorial series on building with Empire Chain:
+
+<div align="center">
+  <a href="https://youtube.com/playlist?list=PLCHsTyFtMf0aBllKSNZtNiTnH5BI6N8Qj">
+    <img src="https://i.ytimg.com/vi/UjodLvD23kI/maxresdefault.jpg" alt="Empire Chain Tutorials" width="600"/>
+  </a>
+</div>
+
+[Watch the Full Tutorial Series](https://youtube.com/playlist?list=PLCHsTyFtMf0aBllKSNZtNiTnH5BI6N8Qj)
+
 ## Features
 
 - 🤖 Multiple LLM Support (OpenAI, Anthropic, Groq)
