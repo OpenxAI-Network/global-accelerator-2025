@@ -1,0 +1,26 @@
+# empire chain
+[build-system]
+requires = ["setuptools>=42", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "empire-chain"
+version = "0.5.4"
+description = "An orchestration framework for all your AI needs"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "openai",
+    "anthropic",
+    "groq",
+    "python-dotenv",
+    "qdrant-client",
+    "requests",
+    "PyPDF2",
+    "python-docx",
+    "soundfile"
+]
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["empire_chain*"]
