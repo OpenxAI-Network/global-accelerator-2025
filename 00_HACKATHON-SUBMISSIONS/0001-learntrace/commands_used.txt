@@ -1,0 +1,13 @@
+npx create-next-app@latest . \
+  --typescript \
+  --app \
+  --tailwind \
+  --eslint \
+  --src-dir \
+  --no-experimental-app
+
+  npm install vis-network
+
+  npm install --save-dev @types/vis
+
+  npm install lucide-react
