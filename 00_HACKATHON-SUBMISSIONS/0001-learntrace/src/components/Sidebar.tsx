@@ -41,9 +41,8 @@ export default function Sidebar({
 
   const handleChatSelect = (chatId: string) => {
     setCurrentNodeId(chatId)
-    if (pathname !== '/chat') {
-      router.push('/chat')
-    }
+    // Always include ?parent= to reload correct chat
+    router.push(`/chat?parent=${chatId}`)
   }
 
   const handleNewChat = async () => {
@@ -65,7 +64,7 @@ export default function Sidebar({
 
     setCurrentNodeId(newChat.id)
     setChats(prev => [newChat, ...prev])
-    router.push('/chat')
+    router.push(`/chat?parent=${newChat.id}`)
   }
 
   return (
@@ -96,3 +95,4 @@ export default function Sidebar({
     </div>
   )
 }
+    
