@@ -8,7 +8,9 @@ export default function GraphPage() {
       <header className="p-4 bg-gray-800 text-white text-center text-xl font-bold">
         Thinking Tree 🌱
       </header>
-      <GraphViewer />
+      <div className="flex-1">
+        <GraphViewer />
+      </div>
     </div>
   );
 }

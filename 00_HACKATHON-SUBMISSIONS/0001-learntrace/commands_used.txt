@@ -11,3 +11,5 @@ npx create-next-app@latest . \
   npm install --save-dev @types/vis
 
   npm install lucide-react
+
+  npm install @supabase/supabase-js
