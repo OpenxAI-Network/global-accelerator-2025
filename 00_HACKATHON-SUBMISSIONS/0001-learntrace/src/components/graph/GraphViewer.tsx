@@ -4,8 +4,8 @@ import { useEffect, useRef, useState } from "react";
 import { Network } from "vis-network/standalone";
 import { DataSet } from "vis-network/standalone";
 import { supabase } from "@/lib/supabaseClient";
-import { useRouter } from 'next/navigation';
-
+import { useRouter } from "next/navigation";
+import { deleteNodeById } from "@/utils/deleteNode";
 
 export default function GraphViewer() {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -93,10 +93,35 @@ export default function GraphViewer() {
         }
       );
 
+      // Handle delete on right click
+      network.on("oncontext", async (params) => {
+        const nodeId = params.nodes?.[0];
+        if (!nodeId) return;
+
+        const confirmDelete = window.confirm(
+          "Are you sure you want to delete this node and its messages?"
+        );
+        if (!confirmDelete) return;
+
+        const error = await deleteNodeById(nodeId);
+        if (error) {
+          alert("Error deleting node");
+          return;
+        }
+
+        // Remove from graph
+        visNodes.remove({ id: nodeId });
+
+        const connectedEdges = visEdges.get({
+          filter: (edge: any) => edge.from === nodeId || edge.to === nodeId,
+        });
+        visEdges.remove(connectedEdges);
+      });
+
       network.on("click", function (params) {
         if (params.nodes.length > 0) {
           const clickedNodeId = params.nodes[0];
-          console.log("🌲 Clicked node:", clickedNodeId);
+          console.log("Clicked node:", clickedNodeId);
           router.push(`/chat?parent=${clickedNodeId}`);
         }
       });
