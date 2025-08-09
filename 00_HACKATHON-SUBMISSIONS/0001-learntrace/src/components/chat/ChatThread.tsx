@@ -12,70 +12,76 @@ type Message = {
 type Props = {
   currentNodeId: string | null;
   setCurrentNodeId: (id: string) => void;
-  chatId: string | null; 
+  chatId: string | null;
 };
-export default function ChatThread({ currentNodeId, setCurrentNodeId,chatId }: Props) {
+export default function ChatThread({
+  currentNodeId,
+  setCurrentNodeId,
+  chatId,
+}: Props) {
   const [messages, setMessages] = useState<Message[]>([]);
 
   useEffect(() => {
-  const loadMessagesFromPath = async () => {
-    if (!currentNodeId) return
+    const loadMessagesFromPath = async () => {
+      if (!currentNodeId) return;
 
-    let pathNodeIds: string[] = []
+      let pathNodeIds: string[] = [];
 
-    // Step 1: Walk UP to find root
-    let currentId = currentNodeId
-    while (currentId) {
-      pathNodeIds.unshift(currentId)
-      const { data: node } = await supabase
-        .from('nodes')
-        .select('parent_id')
-        .eq('id', currentId)
-        .single()
-      if (!node?.parent_id) break
-      currentId = node.parent_id
-    }
-
-    // Step 2: Walk DOWN using edges (if you want strict path from root to current)
-    let fullPath = [pathNodeIds[0]]
-    for (let i = 0; i < pathNodeIds.length - 1; i++) {
-      const from = pathNodeIds[i]
-      const to = pathNodeIds[i + 1]
-      const { data: edge } = await supabase
-        .from('edges')
-        .select('*')
-        .eq('from_node', from)
-        .eq('to_node', to)
-      if (!edge?.length) break
-      fullPath.push(to)
-    }
-
-    // Step 3: Fetch messages from nodes in path
-    let loaded: Message[] = []
-
-    for (const nodeId of fullPath) {
-      const { data: msgs } = await supabase
-        .from('messages')
-        .select('content, user_role, created_at')
-        .eq('node_id', nodeId)
-        .order('created_at', { ascending: true })
-
-      if (msgs) {
-        loaded.push(
-          ...msgs.map(msg => ({
-            sender: msg.user_role === 'user' ? 'user' : 'ai',
-            text: msg.content,
-          }as Message))
-        )
+      // Step 1: Walk UP to find root
+      let currentId = currentNodeId;
+      while (currentId) {
+        pathNodeIds.unshift(currentId);
+        const { data: node } = await supabase
+          .from("nodes")
+          .select("parent_id")
+          .eq("id", currentId)
+          .single();
+        if (!node?.parent_id) break;
+        currentId = node.parent_id;
       }
-    }
 
-    setMessages(loaded)
-  }
+      // Step 2: Walk DOWN using edges (if you want strict path from root to current)
+      let fullPath = [pathNodeIds[0]];
+      for (let i = 0; i < pathNodeIds.length - 1; i++) {
+        const from = pathNodeIds[i];
+        const to = pathNodeIds[i + 1];
+        const { data: edge } = await supabase
+          .from("edges")
+          .select("*")
+          .eq("from_node", from)
+          .eq("to_node", to);
+        if (!edge?.length) break;
+        fullPath.push(to);
+      }
 
-  loadMessagesFromPath()
-}, [currentNodeId])
+      // Step 3: Fetch messages from nodes in path
+      let loaded: Message[] = [];
 
+      for (const nodeId of fullPath) {
+        const { data: msgs } = await supabase
+          .from("messages")
+          .select("content, user_role, created_at")
+          .eq("node_id", nodeId)
+          .order("created_at", { ascending: true });
+
+        if (msgs) {
+          loaded.push(
+            ...msgs.map(
+              (msg) =>
+                ({
+                  sender: msg.user_role === "user" ? "user" : "ai",
+                  text: msg.content,
+                } as Message)
+            )
+          );
+        }
+      }
+
+      setMessages(loaded);
+    };
+
+    loadMessagesFromPath();
+  }, [currentNodeId]);
 
   const handleSend = async (text: string) => {
     if (!text.trim()) return;
@@ -88,6 +94,7 @@ export default function ChatThread({ currentNodeId, setCurrentNodeId,chatId }: P
       } = await supabase.auth.getUser();
       if (!user) throw new Error("User not found");
 
+      // Insert new node
       const { data: newNode, error: nodeError } = await supabase
         .from("nodes")
         .insert({
@@ -102,6 +109,7 @@ export default function ChatThread({ currentNodeId, setCurrentNodeId,chatId }: P
       if (nodeError || !newNode) throw new Error("Failed to insert node");
       const newNodeId = newNode.id;
 
+      // Insert user's message
       await supabase.from("messages").insert({
         node_id: newNodeId,
         user_role: "user",
@@ -109,6 +117,7 @@ export default function ChatThread({ currentNodeId, setCurrentNodeId,chatId }: P
         created_at: new Date().toISOString(),
       });
 
+      // Create edge if replying to an existing node
       if (currentNodeId) {
         await supabase.from("edges").insert({
           from_node: currentNodeId,
@@ -117,6 +126,16 @@ export default function ChatThread({ currentNodeId, setCurrentNodeId,chatId }: P
         });
       }
 
+      // Always update root_node_id in chats to latest message node_id
+      console.log("ChatThread ------chatid: ",chatId);
+      if (chatId) {
+        await supabase
+          .from("chats")
+          .update({ root_node_id: newNodeId })
+          .eq("id", chatId);
+      }
+
+      // Fetch AI response
       const res = await fetch("/api/perplexity", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
