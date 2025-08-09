@@ -18,78 +18,64 @@ export default function ChatThread({ currentNodeId, setCurrentNodeId,chatId }: P
   const [messages, setMessages] = useState<Message[]>([]);
 
   useEffect(() => {
-    const loadMessagesFromPath = async () => {
-      if (!currentNodeId) return;
+  const loadMessagesFromPath = async () => {
+    if (!currentNodeId) return
 
-      let pathNodeIds: string[] = [];
+    let pathNodeIds: string[] = []
 
-      // Step 1: Walk UP to find root
-      let currentId = currentNodeId;
-      while (currentId) {
-        pathNodeIds.unshift(currentId);
-        const { data: node } = await supabase
-          .from("nodes")
-          .select("parent_id")
-          .eq("id", currentId)
-          .single();
-        if (!node?.parent_id) break;
-        currentId = node.parent_id;
+    // Step 1: Walk UP to find root
+    let currentId = currentNodeId
+    while (currentId) {
+      pathNodeIds.unshift(currentId)
+      const { data: node } = await supabase
+        .from('nodes')
+        .select('parent_id')
+        .eq('id', currentId)
+        .single()
+      if (!node?.parent_id) break
+      currentId = node.parent_id
+    }
+
+    // Step 2: Walk DOWN using edges (if you want strict path from root to current)
+    let fullPath = [pathNodeIds[0]]
+    for (let i = 0; i < pathNodeIds.length - 1; i++) {
+      const from = pathNodeIds[i]
+      const to = pathNodeIds[i + 1]
+      const { data: edge } = await supabase
+        .from('edges')
+        .select('*')
+        .eq('from_node', from)
+        .eq('to_node', to)
+      if (!edge?.length) break
+      fullPath.push(to)
+    }
+
+    // Step 3: Fetch messages from nodes in path
+    let loaded: Message[] = []
+
+    for (const nodeId of fullPath) {
+      const { data: msgs } = await supabase
+        .from('messages')
+        .select('content, user_role, created_at')
+        .eq('node_id', nodeId)
+        .order('created_at', { ascending: true })
+
+      if (msgs) {
+        loaded.push(
+          ...msgs.map(msg => ({
+            sender: msg.user_role === 'user' ? 'user' : 'ai',
+            text: msg.content,
+          }as Message))
+        )
       }
+    }
 
-      // Step 2: Walk DOWN using edges
-      let fullPath = [pathNodeIds[0]];
-      for (let i = 0; i < pathNodeIds.length - 1; i++) {
-        const from = pathNodeIds[i];
-        const to = pathNodeIds[i + 1];
-        const { data: edge } = await supabase
-          .from("edges")
-          .select("*")
-          .eq("from_node", from)
-          .eq("to_node", to);
-        if (!edge?.length) break;
-        fullPath.push(to);
-      }
+    setMessages(loaded)
+  }
 
-      // Step 3: Fetch all node IDs for the current chat
-      const { data: nodeIdsData, error: nodeIdsError } = await supabase
-        .from("nodes")
-        .select("id")
-        .eq("chat_id",chatId);
+  loadMessagesFromPath()
+}, [currentNodeId])
 
-      if (nodeIdsError || !nodeIdsData) {
-        console.error("Failed to fetch node IDs:", nodeIdsError);
-        return;
-      }
-
-      const nodeIds = nodeIdsData.map((n) => n.id);
-
-      // Step 4: Fetch messages from relevant nodes in the full path that also belong to this chat
-      let loaded: Message[] = [];
-
-      for (const nodeId of fullPath) {
-        if (!nodeIds.includes(nodeId)) continue;
-
-        const { data: messages } = await supabase
-          .from("messages")
-          .select("content, user_role, created_at")
-          .eq("node_id", nodeId)
-          .order("created_at", { ascending: true });
-
-        if (messages) {
-          loaded.push(
-            ...messages.map((msg) => ({
-              sender: msg.user_role === "user" ? "user" as const : "ai" as const,
-              text: msg.content,
-            }))
-          );
-        }
-      }
-
-      setMessages(loaded);
-    };
-
-    loadMessagesFromPath();
-  }, [currentNodeId]);
 
   const handleSend = async (text: string) => {
     if (!text.trim()) return;
