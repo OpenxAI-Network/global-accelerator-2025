@@ -21,21 +21,33 @@ export default function ChatThread({ chatId }: { chatId: string | null }) {
 
   const router = useRouter();
 
-  // Load messages
+  // Load messages + lastNodeId from DB
   useEffect(() => {
     if (!chatId) return;
-    const fetchMessages = async () => {
-      const { data, error } = await supabase
+    const fetchMessagesAndLastNode = async () => {
+      // Fetch messages
+      const { data: msgData, error: msgError } = await supabase
         .from("messages")
         .select("id, sender, content")
         .eq("chat_id", chatId)
         .order("created_at", { ascending: true });
 
-      if (!error && data) {
-        setMessages(data as Message[]);
+      if (!msgError && msgData) {
+        setMessages(msgData as Message[]);
+      }
+
+      // Fetch lastNodeId
+      const { data: chatData, error: chatError } = await supabase
+        .from("chats")
+        .select("last_node_id")
+        .eq("id", chatId)
+        .single();
+
+      if (!chatError && chatData) {
+        setLastNodeId(chatData.last_node_id || null);
       }
     };
-    fetchMessages();
+    fetchMessagesAndLastNode();
   }, [chatId]);
 
   const handleSend = async (text: string) => {
@@ -105,7 +117,13 @@ export default function ChatThread({ chatId }: { chatId: string | null }) {
         if (edgeError) throw edgeError;
       }
 
-      // Update chaining state
+      // Update last_node_id in DB so it's persistent
+      await supabase
+        .from("chats")
+        .update({ last_node_id: nodeData.id })
+        .eq("id", chatId);
+
+      // Update local state
       setLastNodeId(nodeData.id);
       setReplyingToNode(null);
 
