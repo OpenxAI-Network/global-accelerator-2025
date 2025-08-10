@@ -2,23 +2,34 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
-export default function LoginPage() {
+export default function SignupPage() {
   const router = useRouter();
+  const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleSignup = (e: React.FormEvent) => {
     e.preventDefault();
-    // Handle login logic
+    // Handle signup logic
   };
 
   return (
     <section className="min-h-screen bg-[#0B1623] flex items-center justify-center px-4">
       <div className="w-full max-w-md bg-[#111C2E] rounded-2xl shadow-lg p-8">
         <h1 className="text-3xl font-bold text-white text-center mb-6">
-          Welcome Back
+          Create Your Account
         </h1>
-        <form onSubmit={handleLogin} className="space-y-5">
+        <form onSubmit={handleSignup} className="space-y-5">
+          <div>
+            <label className="block text-sm text-gray-300 mb-1">Name</label>
+            <input
+              type="text"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              className="w-full p-3 rounded-lg bg-[#0F1A2A] text-white border border-gray-600 focus:border-indigo-500 focus:outline-none"
+              placeholder="John Doe"
+            />
+          </div>
           <div>
             <label className="block text-sm text-gray-300 mb-1">Email</label>
             <input
@@ -43,16 +54,16 @@ export default function LoginPage() {
             type="submit"
             className="w-full py-3 rounded-lg bg-gradient-to-r from-indigo-500 to-purple-600 text-white font-semibold hover:opacity-90 transition"
           >
-            Log In
+            Sign Up
           </button>
         </form>
         <p className="mt-6 text-center text-gray-400 text-sm">
-          Don't have an account?{" "}
+          Already have an account?{" "}
           <button
-            onClick={() => router.push("/signup")}
+            onClick={() => router.push("/login")}
             className="text-indigo-400 hover:underline"
           >
-            Sign up
+            Log in
           </button>
         </p>
       </div>

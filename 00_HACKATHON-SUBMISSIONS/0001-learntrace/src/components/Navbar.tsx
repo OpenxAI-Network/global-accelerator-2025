@@ -1,32 +1,31 @@
-"use client";
+'use client';
 
-import Link from "next/link";
+import React from "react";
+import { useRouter } from "next/navigation";
 
 export default function Navbar() {
+
+  const router = useRouter();
+
   return (
-    <nav className="bg-background border-b border-border shadow-soft">
-      <div className="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
-        <Link
-          href="/"
-          className="text-primary font-bold text-2xl font-sans hover:text-primary-dark transition ease-in-out"
-        >
-          LearnTrace
-        </Link>
-        <div className="hidden md:flex space-x-10 font-sans text-text">
-          <Link href="/" className="hover:text-primary transition">
-            Home
-          </Link>
-          <Link href="/chat" className="hover:text-primary transition">
-            Chat
-          </Link>
-          <Link href="/graph" className="hover:text-primary transition">
-            Graph
-          </Link>
-          <Link href="/about" className="hover:text-primary transition">
-            About
-          </Link>
-        </div>
-      </div>
+    <nav className="flex justify-between items-center px-8 py-4 bg-white shadow-sm">
+      {/* Logo */}
+      <div className="text-xl font-bold text-blue-600">LearnTrace</div>
+
+      {/* Menu */}
+      <ul className="flex items-center gap-6 text-gray-700">
+        <li className="text-blue-600 font-medium cursor-pointer">Home</li>
+        <li className="cursor-pointer">About</li>
+        <li className="cursor-pointer">Features</li>
+        <li className="cursor-pointer">Contact</li>
+      </ul>
+
+      {/* Theme Toggle */}
+      <button onClick={() =>{
+        router.push('/login');
+      }} className="p-2 w-[80px] rounded-xl bg-blue-500 border border-gray-300 cursor-pointer">
+        Login
+      </button>
     </nav>
   );
 }
