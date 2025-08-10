@@ -40,39 +40,89 @@ export default function ChatThread({ chatId }: { chatId: string | null }) {
     setLoading(true);
 
     try {
-      // Insert user message
-      const { error: userError } = await supabase.from("messages").insert([
-        {
-          chat_id: chatId,
-          sender: "user",
-          content: text,
-          summary: generateSummary(text),
-        },
-      ]);
+      // 1️⃣ Insert user message
+      const userSummary = generateSummary(text);
+      const { data: userMsgData, error: userError } = await supabase
+        .from("messages")
+        .insert([
+          {
+            chat_id: chatId,
+            sender: "user",
+            content: text,
+            summary: userSummary,
+          },
+        ])
+        .select("id");
 
       if (userError) throw userError;
+      const userMessageId = userMsgData?.[0]?.id;
 
-      // Get AI response
-      const aiResponse = await fetchFromPerplexity(text);
+      // 2️⃣ Find last node in this chat to link as parent
+      const { data: lastNode } = await supabase
+        .from("nodes")
+        .select("id")
+        .eq("chat_id", chatId)
+        .order("created_at", { ascending: false })
+        .limit(1);
 
-      // Insert AI message
-      const { error: aiError } = await supabase.from("messages").insert([
+      const parentId = lastNode?.[0]?.id || null;
+
+      // 3️⃣ Insert node for user message
+      const { error: userNodeError } = await supabase.from("nodes").insert([
         {
           chat_id: chatId,
-          sender: "ai",
-          content: aiResponse,
-          summary: generateSummary(aiResponse),
+          message_id: userMessageId,
+          parent_id: parentId,
+          summary: userSummary,
+          title: text,
+          label: userSummary, // keep label same as summary
         },
       ]);
 
-      if (aiError) throw aiError;
+      if (userNodeError) throw userNodeError;
 
-      // Refresh messages
+      // 4️⃣ Get AI response
+      const aiResponse = await fetchFromPerplexity(text);
+      const aiSummary = generateSummary(aiResponse);
+
+      const { data: aiMsgData, error: aiError } = await supabase
+        .from("messages")
+        .insert([
+          {
+            chat_id: chatId,
+            sender: "ai",
+            content: aiResponse,
+            summary: aiSummary,
+          },
+        ])
+        .select("id");
+
+      if (aiError) throw aiError;
+      const aiMessageId = aiMsgData?.[0]?.id;
+
+      // 5️⃣ Insert node for AI message (child of user's node)
+      const { error: aiNodeError } = await supabase.from("nodes").insert([
+        {
+          chat_id: chatId,
+          message_id: aiMessageId,
+          parent_id: userMessageId
+            ? await getNodeIdByMessageId(userMessageId)
+            : null,
+          summary: aiSummary,
+          title: aiResponse,
+          label: aiSummary,
+        },
+      ]);
+
+      if (aiNodeError) throw aiNodeError;
+
+      // 6️⃣ Refresh messages
       const { data } = await supabase
         .from("messages")
         .select("id, sender, content")
         .eq("chat_id", chatId)
         .order("created_at", { ascending: true });
+
       setMessages(data as Message[]);
     } catch (err) {
       console.error("Error in handleSend:", err);
@@ -81,6 +131,21 @@ export default function ChatThread({ chatId }: { chatId: string | null }) {
       setLoading(false);
     }
   };
+
+  // Helper to get node ID from message ID
+  async function getNodeIdByMessageId(messageId: string) {
+    const { data, error } = await supabase
+      .from("nodes")
+      .select("id")
+      .eq("message_id", messageId)
+      .single();
+
+    if (error) {
+      console.error("Error fetching node for message:", error);
+      return null;
+    }
+    return data?.id || null;
+  }
 
   const generateSummary = (text: string) => {
     return (
