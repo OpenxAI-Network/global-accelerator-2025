@@ -26,6 +26,23 @@ export default function Sidebar() {
     };
 
     fetchChats();
+
+    // ✅ Subscribe to chats table updates
+    const channel = supabase
+      .channel("chats-changes")
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "chats" },
+        (payload) => {
+          console.log("Chat table change:", payload);
+          fetchChats(); // refresh on any insert/update/delete
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, []);
 
   const handleNewChat = async () => {
