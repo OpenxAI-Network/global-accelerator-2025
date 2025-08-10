@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { Network, DataSet } from "vis-network/standalone";
 import { supabase } from "@/lib/supabaseClient";
 import { useRouter, useSearchParams } from "next/navigation";
+import { deleteNodeAndMessage } from "@/utils/deleteNode";
 
 export default function GraphViewer() {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -97,6 +98,7 @@ export default function GraphViewer() {
         }
       );
 
+      // Left-click → open chat
       network.on("click", (params) => {
         if (params.nodes.length > 0) {
           const clickedNodeId = params.nodes[0];
@@ -107,6 +109,29 @@ export default function GraphViewer() {
                 clickedNode.title
               )}`
             );
+          }
+        }
+      });
+
+      // Right-click → delete node
+      network.on("oncontext", async (params) => {
+        params.event.preventDefault();
+        const pointer = network.getNodeAt(params.pointer.DOM);
+        if (pointer) {
+          const nodeId = pointer;
+          const confirmDelete = window.confirm(
+            "Delete this node and its message?"
+          );
+          if (confirmDelete) {
+            const err = await deleteNodeAndMessage(nodeId.toString());
+            if (!err) {
+              setNodes((prev) => prev.filter((n) => n.id !== nodeId));
+              setEdges((prev) =>
+                prev.filter((e) => e.from !== nodeId && e.to !== nodeId)
+              );
+            } else {
+              alert("Error deleting node. See console for details.");
+            }
           }
         }
       });
