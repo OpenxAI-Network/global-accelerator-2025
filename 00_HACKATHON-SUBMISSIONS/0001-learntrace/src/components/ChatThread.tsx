@@ -223,10 +223,10 @@ export default function ChatThread({ chatId }: { chatId: string | null }) {
 
         {effectiveChatId && (
           <button
-            className="fixed bottom-[100px] right-4 bg-green-500 text-white px-4 py-2 rounded-lg shadow-lg cursor-pointer"
+            className="fixed bottom-[100px] right-4 bg-[#1E293B] hover:bg-[#283653] text-white text-[20px] shadow-lg cursor-pointer rounded-full h-17 flex items-center justify-center p-2"
             onClick={() => router.push(`/graph?chatId=${effectiveChatId}`)}
           >
-            View Graph
+            Graph
           </button>
         )}
       </div>

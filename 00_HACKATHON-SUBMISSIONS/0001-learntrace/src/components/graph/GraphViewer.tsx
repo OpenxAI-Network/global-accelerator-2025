@@ -50,13 +50,30 @@ export default function GraphViewer() {
         id: String(node.id),
         label: node.title ?? "[No title]",
         title: node.title,
-        color: "#60A5FA",
+        color: {
+          background: "#4F46E5", // Indigo 600 - primary
+          border: "#3730A3",     // Indigo 800 - primary dark
+          highlight: {
+            background: "#8B5CF6", // Purple 500 - secondary
+            border: "#6D28D9",     // Purple 700 - secondary dark
+          },
+          hover: {
+            background: "#A3BFFA", // Indigo 300 - primary light
+            border: "#4F46E5",
+          },
+        },
         shape: "box",
       }));
 
       const parsedEdges = edgesData?.map((edge: any) => ({
         from: String(edge.from_node),
         to: String(edge.to_node),
+        color: {
+          color: "#8B5CF6",       // Purple 500 - secondary
+          highlight: "#6D28D9",   // Purple 700 - secondary dark
+          hover: "#A3BFFA",       // Indigo 300 - primary light
+          opacity: 0.8,
+        },
         arrows: "to",
       }));
 
@@ -88,11 +105,44 @@ export default function GraphViewer() {
           nodes: {
             shape: "box",
             margin: { top: 10, bottom: 10, left: 10, right: 10 },
-            font: { color: "#000" },
+            font: { color: "#FFFFFF" }, // white font on colored nodes
+            borderWidth: 2,
+            color: {
+              background: "#4F46E5",
+              border: "#3730A3",
+              highlight: {
+                background: "#8B5CF6",
+                border: "#6D28D9",
+              },
+              hover: {
+                background: "#A3BFFA",
+                border: "#4F46E5",
+              },
+            },
+            shadow: {
+              enabled: true,
+              color: "rgba(79, 70, 229, 0.3)",
+              size: 10,
+              x: 0,
+              y: 4,
+            },
           },
           edges: {
-            smooth: true,
-            arrows: { to: { enabled: true, scaleFactor: 0.6 } },
+            color: {
+              color: "#8B5CF6",
+              highlight: "#6D28D9",
+              hover: "#A3BFFA",
+              inherit: false,
+              opacity: 0.8,
+            },
+            width: 2,
+            arrows: {
+              to: {
+                enabled: true,
+                type: "arrow",
+                scaleFactor: 0.6,
+              },
+            },
           },
           physics: false,
         }
@@ -141,7 +191,7 @@ export default function GraphViewer() {
   }, [loading, nodes, edges, chatId, router]);
 
   return (
-    <div className="flex-1">
+    <div className="flex-1 ">
       {loading ? (
         <div className="p-4">Loading graph...</div>
       ) : (

@@ -12,7 +12,13 @@ type Chat = {
 export default function Sidebar() {
   const router = useRouter();
   const [chats, setChats] = useState<Chat[]>([]);
-  const [contextMenu, setContextMenu] = useState<{ x: number; y: number; chatId: string } | null>(null);
+  const [contextMenu, setContextMenu] = useState<{
+    x: number;
+    y: number;
+    chatId: string;
+  } | null>(null);
+
+  const [collapsed, setCollapsed] = useState(false);
 
   useEffect(() => {
     const fetchChats = async () => {
@@ -74,15 +80,18 @@ export default function Sidebar() {
 
   return (
     <div
-      className="w-64 bg-gray-900 text-white flex flex-col relative"
+      className={`bg-gray-900 text-white flex flex-col relative transition-all duration-300 ease-in-out
+      ${collapsed ? "w-16" : "w-64"}`}
       onClick={() => setContextMenu(null)}
     >
       <button
         onClick={handleNewChat}
-        className="p-4 hover:bg-gray-800 border-b border-gray-700"
+        className={`p-4 hover:bg-gray-800 border-b border-gray-700
+        ${collapsed ? "hidden" : "block"}`}
       >
         + New Chat
       </button>
+
       <div className="flex-1 overflow-y-auto">
         {chats.map((chat) => (
           <div
@@ -93,13 +102,14 @@ export default function Sidebar() {
               setContextMenu({ x: e.clientX, y: e.clientY, chatId: chat.id });
             }}
             className="p-3 cursor-pointer hover:bg-gray-800 truncate"
+            title={chat.title} // tooltip when collapsed
           >
-            {chat.title || "Untitled Chat"}
+            {collapsed ? chat.title?.[0] || "U" : chat.title || "Untitled Chat"}
           </div>
         ))}
       </div>
 
-      {contextMenu && (
+      {contextMenu && !collapsed && (
         <div
           className="absolute bg-white text-black rounded shadow-lg z-50 cursor-pointer"
           style={{ top: contextMenu.y, left: contextMenu.x }}
@@ -118,6 +128,15 @@ export default function Sidebar() {
           </button>
         </div>
       )}
+
+      {/* Collapse toggle button */}
+      <button
+        onClick={() => setCollapsed(!collapsed)}
+        className="p-2 border-t border-gray-700 hover:bg-gray-800 text-sm rounded-xl"
+        aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
+      >
+        {collapsed ? "▶" : "◀"}
+      </button>
     </div>
   );
 }

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { Send } from "lucide-react";
 
 export default function ChatBox({ onSend, loading }: { onSend: (message: string) => void; loading: boolean }) {
   const [input, setInput] = useState("");
@@ -12,7 +13,7 @@ export default function ChatBox({ onSend, loading }: { onSend: (message: string)
   };
 
   return (
-    <div className="p-4 flex text-black items-center space-x-2 border-t border-gray-300">
+    <div className="p-6 flex text-black items-center space-x-2 border-t border-gray-300">
       <input
         type="text"
         placeholder="Type a message..."
@@ -26,10 +27,10 @@ export default function ChatBox({ onSend, loading }: { onSend: (message: string)
         onClick={handleSend}
         disabled={loading}
         className={`px-4 py-2 rounded-lg text-white ${
-          loading ? "bg-gray-500" : "bg-blue-500 hover:bg-blue-600"
+          loading ? "bg-gray-500" : "bg-[#1E293B] hover:bg-[#283653] "
         }`}
       >
-        {loading ? "..." : "Send"}
+        {loading ? "..." : <Send/>}
       </button>
     </div>
   );

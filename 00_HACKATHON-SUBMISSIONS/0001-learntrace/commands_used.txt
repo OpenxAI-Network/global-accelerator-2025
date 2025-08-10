@@ -13,3 +13,5 @@ npx create-next-app@latest . \
   npm install lucide-react
 
   npm install @supabase/supabase-js
+
+npx jsrepo add https://reactbits.dev/ts/tailwind/Backgrounds/DotGrid

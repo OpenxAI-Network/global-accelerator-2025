@@ -1,24 +1,38 @@
-import Link from "next/link";
-
 export default function Home() {
   return (
-    <main className="min-h-screen flex flex-col items-center justify-center bg-gray-100 p-10">
-      <h1 className="text-5xl font-bold mb-4 text-center">LearnTrace 🚀</h1>
-      <p className="text-lg text-center max-w-xl mb-8">
-        Visualize your learning. Ask questions, see your knowledge grow as a graph, and revise smarter.
-      </p>
-      <div className="flex gap-4">
-        <Link href="/chat">
-          <button className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition">
-            Start Learning
-          </button>
-        </Link>
-        <Link href="/graph">
-          <button className="bg-gray-800 text-white px-6 py-3 rounded-lg hover:bg-gray-900 transition">
-            View Graph
-          </button>
-        </Link>
-      </div>
+    <main className="min-h-[80vh] flex flex-col justify-center items-center bg-background px-6 text-text font-sans">
+      <section className="max-w-4xl text-center">
+        <h1 className="text-5xl font-extrabold mb-6 leading-tight text-primary">
+          Visualize Your Learning Journey
+        </h1>
+        <p className="text-lg text-text mb-10 max-w-xl mx-auto">
+          LearnTrace transforms your conversations into dynamic, interactive trees —  
+          helping you track, connect, and revise knowledge effortlessly.
+        </p>
+
+        <div className="inline-flex space-x-4">
+          <a
+            href="/chat"
+            className="px-8 py-3 bg-primary hover:bg-primary-dark text-white rounded-lg shadow-soft transition ease-in-out font-semibold"
+          >
+            Start Chatting
+          </a>
+          <a
+            href="/about"
+            className="px-8 py-3 border border-primary text-primary rounded-lg hover:bg-primary-light hover:text-primary-dark transition ease-in-out font-semibold"
+          >
+            Learn More
+          </a>
+        </div>
+      </section>
+
+      {/* Digital UI subtle illustration placeholder */}
+      <section className="mt-16 w-full flex justify-center">
+        <div className="w-96 h-56 bg-gradient-to-tr from-primary-light to-secondary-light rounded-lg shadow-soft flex items-center justify-center text-primary-dark font-mono text-lg select-none">
+          {/* You can replace this with an SVG or image */}
+          [ Digital Learning Graph Illustration ]
+        </div>
+      </section>
     </main>
   );
 }
