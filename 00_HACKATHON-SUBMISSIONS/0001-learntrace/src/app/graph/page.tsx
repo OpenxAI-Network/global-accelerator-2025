@@ -5,9 +5,10 @@ import DotGrid from "@/components/backgrounds/DotGrid/DotGrid";
 
 export default function GraphPage() {
   return (
-    <div className="h-screen flex flex-col">
-      <div className="flex-1 broder-black">
-        <GraphViewer/>
+    <div className="flex h-screen">
+      {/* Sidebar */}
+      <div className="flex flex-col flex-1 h-full">
+        <GraphViewer />
       </div>
     </div>
   );

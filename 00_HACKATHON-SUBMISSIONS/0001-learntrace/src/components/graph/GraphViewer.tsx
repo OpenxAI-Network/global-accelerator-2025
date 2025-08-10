@@ -52,10 +52,10 @@ export default function GraphViewer() {
         title: node.title,
         color: {
           background: "#4F46E5", // Indigo 600 - primary
-          border: "#3730A3",     // Indigo 800 - primary dark
+          border: "#3730A3", // Indigo 800 - primary dark
           highlight: {
             background: "#8B5CF6", // Purple 500 - secondary
-            border: "#6D28D9",     // Purple 700 - secondary dark
+            border: "#6D28D9", // Purple 700 - secondary dark
           },
           hover: {
             background: "#A3BFFA", // Indigo 300 - primary light
@@ -69,9 +69,9 @@ export default function GraphViewer() {
         from: String(edge.from_node),
         to: String(edge.to_node),
         color: {
-          color: "#8B5CF6",       // Purple 500 - secondary
-          highlight: "#6D28D9",   // Purple 700 - secondary dark
-          hover: "#A3BFFA",       // Indigo 300 - primary light
+          color: "#8B5CF6", // Purple 500 - secondary
+          highlight: "#6D28D9", // Purple 700 - secondary dark
+          hover: "#A3BFFA", // Indigo 300 - primary light
           opacity: 0.8,
         },
         arrows: "to",
@@ -90,7 +90,10 @@ export default function GraphViewer() {
       const visNodes = new DataSet(nodes);
       const visEdges = new DataSet(edges);
 
-      const network = new Network(
+      // Ensure old instance is destroyed
+      let network: Network | null = null;
+
+      network = new Network(
         containerRef.current,
         { nodes: visNodes, edges: visEdges },
         {
@@ -102,10 +105,24 @@ export default function GraphViewer() {
               levelSeparation: 150,
             },
           },
+          interaction: {
+            zoomView: true,
+            dragView: true,
+            dragNodes: true,
+            keyboard: false,
+            multiselect: false,
+            hover: true,
+            navigationButtons: false,
+          },
+          physics: {
+            enabled: true,
+            stabilization: { iterations: 200, fit: true },
+          },
+          manipulation: { enabled: false },
           nodes: {
             shape: "box",
             margin: { top: 10, bottom: 10, left: 10, right: 10 },
-            font: { color: "#FFFFFF" }, // white font on colored nodes
+            font: { color: "#FFFFFF" },
             borderWidth: 2,
             color: {
               background: "#4F46E5",
@@ -128,6 +145,7 @@ export default function GraphViewer() {
             },
           },
           edges: {
+            smooth: false,
             color: {
               color: "#8B5CF6",
               highlight: "#6D28D9",
@@ -144,7 +162,6 @@ export default function GraphViewer() {
               },
             },
           },
-          physics: false,
         }
       );
 
@@ -191,11 +208,11 @@ export default function GraphViewer() {
   }, [loading, nodes, edges, chatId, router]);
 
   return (
-    <div className="flex-1 ">
+    <div className="flex-1 w-full h-full">
       {loading ? (
         <div className="p-4">Loading graph...</div>
       ) : (
-        <div ref={containerRef} className="w-full h-[600px]" />
+        <div ref={containerRef} className="w-full h-full" />
       )}
     </div>
   );
