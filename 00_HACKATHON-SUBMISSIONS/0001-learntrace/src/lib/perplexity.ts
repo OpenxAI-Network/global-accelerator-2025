@@ -7,7 +7,7 @@ export async function fetchFromPerplexity(query: string) {
       'Content-Type': 'application/json'
     },
     body: JSON.stringify({
-      model: "pplx-70b-online",  // or other model name you're using
+      model: "sonar-pro",  // or other model name you're using
       messages: [{ role: "user", content: query }]
     })
   });
