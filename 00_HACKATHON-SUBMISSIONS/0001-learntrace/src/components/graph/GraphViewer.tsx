@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { Network } from "vis-network/standalone";
 import { DataSet } from "vis-network/standalone";
 import { supabase } from "@/lib/supabaseClient";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { deleteNodeById } from "@/utils/deleteNode";
 
 export default function GraphViewer() {
@@ -14,36 +14,33 @@ export default function GraphViewer() {
   const [edges, setEdges] = useState<any[]>([]);
 
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const chatId = searchParams.get("chatId");
 
   useEffect(() => {
+    if (!chatId) return;
+
     const fetchGraphData = async () => {
       setLoading(true);
 
       const { data: nodesData, error: nodesError } = await supabase
         .from("nodes")
-        .select("*");
-      console.log("📦 nodesData:", nodesData, "error:", nodesError);
+        .select("*")
+        .eq("chat_id", chatId);
 
-      const { data: edgesData, error: edgesError } = await supabase
-        .from("edges")
-        .select("*");
-      console.log("📦 edgesData:", edgesData, "error:", edgesError);
-
-      if (nodesError || edgesError) {
-        console.error("Error fetching graph data:", nodesError || edgesError);
+      if (nodesError) {
+        console.error("Error fetching nodes:", nodesError);
         setLoading(false);
         return;
       }
 
-      // render nodes
       const parsedNodes = nodesData?.map((node: any) => ({
         id: String(node.id),
-        label: node.title ?? "[No title]",
+        label: node.summary ?? "[No summary]",
         color: node.sender === "user" ? "#60A5FA" : "#34D399",
         shape: "box",
       }));
 
-      // render edges
       const parsedEdges = nodesData
         .filter((node: any) => node.parent_id)
         .map((node: any) => ({
@@ -58,7 +55,7 @@ export default function GraphViewer() {
     };
 
     fetchGraphData();
-  }, []);
+  }, [chatId]);
 
   useEffect(() => {
     if (!loading && containerRef.current && nodes.length > 0) {
@@ -67,10 +64,7 @@ export default function GraphViewer() {
 
       const network = new Network(
         containerRef.current,
-        {
-          nodes: visNodes,
-          edges: visEdges,
-        },
+        { nodes: visNodes, edges: visEdges },
         {
           layout: {
             hierarchical: {
@@ -93,50 +87,20 @@ export default function GraphViewer() {
         }
       );
 
-      // Handle delete on right click
-      network.on("oncontext", async (params) => {
-        const nodeId = params.nodes?.[0];
-        if (!nodeId) return;
-
-        const confirmDelete = window.confirm(
-          "Are you sure you want to delete this node and its messages?"
-        );
-        if (!confirmDelete) return;
-
-        const error = await deleteNodeById(nodeId);
-        if (error) {
-          alert("Error deleting node");
-          return;
-        }
-
-        // Remove from graph
-        visNodes.remove({ id: nodeId });
-
-        const connectedEdges = visEdges.get({
-          filter: (edge: any) => edge.from === nodeId || edge.to === nodeId,
-        });
-        visEdges.remove(connectedEdges);
-      });
-
-      network.on("click", function (params) {
+      network.on("click", (params) => {
         if (params.nodes.length > 0) {
           const clickedNodeId = params.nodes[0];
-          console.log("Clicked node:", clickedNodeId);
-          router.push(`/chat?parent=${clickedNodeId}`);
+          router.push(`/chat?id=${chatId}&parent=${clickedNodeId}`);
         }
       });
 
       return () => network.destroy();
     }
-  }, [loading, nodes, edges]);
+  }, [loading, nodes, edges, chatId]);
 
   return (
     <div className="flex-1">
-      {loading ? (
-        <div className="p-4">Loading graph...</div>
-      ) : (
-        <div ref={containerRef} className="w-full h-[600px] " />
-      )}
+      {loading ? <div className="p-4">Loading graph...</div> : <div ref={containerRef} className="w-full h-[600px]" />}
     </div>
   );
 }

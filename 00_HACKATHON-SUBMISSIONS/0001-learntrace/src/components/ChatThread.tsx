@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabaseClient";
 import { fetchFromPerplexity } from "@/lib/perplexity";
 import ChatBox from "./ChatBox";
+import { useRouter } from "next/navigation";
 
 type Message = {
   id: string;
@@ -15,6 +16,7 @@ export default function ChatThread({ chatId }: { chatId: string | null }) {
   const [messages, setMessages] = useState<Message[]>([]);
   const [loading, setLoading] = useState(false);
 
+  const router = useRouter();
   // Load messages
   useEffect(() => {
     if (!chatId) return;
@@ -39,9 +41,14 @@ export default function ChatThread({ chatId }: { chatId: string | null }) {
 
     try {
       // Insert user message
-      const { error: userError } = await supabase
-        .from("messages")
-        .insert([{ chat_id: chatId, sender: "user", content: text, summary: generateSummary(text) }]);
+      const { error: userError } = await supabase.from("messages").insert([
+        {
+          chat_id: chatId,
+          sender: "user",
+          content: text,
+          summary: generateSummary(text),
+        },
+      ]);
 
       if (userError) throw userError;
 
@@ -49,9 +56,14 @@ export default function ChatThread({ chatId }: { chatId: string | null }) {
       const aiResponse = await fetchFromPerplexity(text);
 
       // Insert AI message
-      const { error: aiError } = await supabase
-        .from("messages")
-        .insert([{ chat_id: chatId, sender: "ai", content: aiResponse, summary: generateSummary(aiResponse) }]);
+      const { error: aiError } = await supabase.from("messages").insert([
+        {
+          chat_id: chatId,
+          sender: "ai",
+          content: aiResponse,
+          summary: generateSummary(aiResponse),
+        },
+      ]);
 
       if (aiError) throw aiError;
 
@@ -71,7 +83,10 @@ export default function ChatThread({ chatId }: { chatId: string | null }) {
   };
 
   const generateSummary = (text: string) => {
-    return text.split(" ").slice(0, 4).join(" ") + (text.split(" ").length > 4 ? "..." : "");
+    return (
+      text.split(" ").slice(0, 4).join(" ") +
+      (text.split(" ").length > 4 ? "..." : "")
+    );
   };
 
   return (
@@ -91,8 +106,8 @@ export default function ChatThread({ chatId }: { chatId: string | null }) {
         ))}
         {chatId && (
           <button
-            className="fixed bottom-[100px] right-4 bg-green-500 text-white px-4 py-2 rounded-lg shadow-lg"
-            onClick={() => alert("Graph view coming soon!")}
+            className="fixed bottom-[100px] right-4 bg-green-500 text-white px-4 py-2 rounded-lg shadow-lg cursor-pointer"
+            onClick={() => router.push(`/graph?chatId=${chatId}`)}
           >
             View Graph
           </button>
