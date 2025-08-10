@@ -16,7 +16,11 @@ export default function ChatThread({ chatId }: { chatId: string | null }) {
   const [messages, setMessages] = useState<Message[]>([]);
   const [loading, setLoading] = useState(false);
 
+  const [lastNodeId, setLastNodeId] = useState<string | null>(null);
+  const [replyingToNode, setReplyingToNode] = useState<string | null>(null);
+
   const router = useRouter();
+
   // Load messages
   useEffect(() => {
     if (!chatId) return;
@@ -34,58 +38,28 @@ export default function ChatThread({ chatId }: { chatId: string | null }) {
     fetchMessages();
   }, [chatId]);
 
-  // Send message and get AI response
   const handleSend = async (text: string) => {
     if (!chatId) return;
     setLoading(true);
 
     try {
-      // 1️⃣ Insert user message
-      const userSummary = generateSummary(text);
-      const { data: userMsgData, error: userError } = await supabase
+      const summary = generateSummary(text);
+
+      // Insert user message
+      const { data: userMsg, error: userError } = await supabase
         .from("messages")
-        .insert([
-          {
-            chat_id: chatId,
-            sender: "user",
-            content: text,
-            summary: userSummary,
-          },
-        ])
-        .select("id");
+        .insert([{ chat_id: chatId, sender: "user", content: text, summary }])
+        .select()
+        .single();
 
       if (userError) throw userError;
-      const userMessageId = userMsgData?.[0]?.id;
 
-      // 2️⃣ Find last node in this chat to link as parent
-      const { data: lastNode } = await supabase
-        .from("nodes")
-        .select("id")
-        .eq("chat_id", chatId)
-        .order("created_at", { ascending: false })
-        .limit(1);
-
-      const parentId = lastNode?.[0]?.id || null;
-
-      // 3️⃣ Insert node for user message
-      const { error: userNodeError } = await supabase.from("nodes").insert([
-        {
-          chat_id: chatId,
-          message_id: userMessageId,
-          parent_id: parentId,
-          summary: userSummary,
-          title: text,
-          label: userSummary, // keep label same as summary
-        },
-      ]);
-
-      if (userNodeError) throw userNodeError;
-
-      // 4️⃣ Get AI response
+      // Get AI response
       const aiResponse = await fetchFromPerplexity(text);
       const aiSummary = generateSummary(aiResponse);
 
-      const { data: aiMsgData, error: aiError } = await supabase
+      // Insert AI message
+      const { data: aiMsg, error: aiError } = await supabase
         .from("messages")
         .insert([
           {
@@ -95,28 +69,47 @@ export default function ChatThread({ chatId }: { chatId: string | null }) {
             summary: aiSummary,
           },
         ])
-        .select("id");
+        .select()
+        .single();
 
       if (aiError) throw aiError;
-      const aiMessageId = aiMsgData?.[0]?.id;
 
-      // 5️⃣ Insert node for AI message (child of user's node)
-      const { error: aiNodeError } = await supabase.from("nodes").insert([
-        {
-          chat_id: chatId,
-          message_id: aiMessageId,
-          parent_id: userMessageId
-            ? await getNodeIdByMessageId(userMessageId)
-            : null,
-          summary: aiSummary,
-          title: aiResponse,
-          label: aiSummary,
-        },
-      ]);
+      // Determine parent node
+      const parentId = replyingToNode || lastNodeId || null;
 
-      if (aiNodeError) throw aiNodeError;
+      // Insert node (answer node)
+      const { data: nodeData, error: nodeError } = await supabase
+        .from("nodes")
+        .insert([
+          {
+            chat_id: chatId,
+            message_id: aiMsg.id,
+            title: summary,
+            answer: aiResponse,
+          },
+        ])
+        .select()
+        .single();
 
-      // 6️⃣ Refresh messages
+      if (nodeError) throw nodeError;
+
+      // If there’s a parent, also create an edge
+      if (parentId) {
+        const { error: edgeError } = await supabase.from("edges").insert([
+          {
+            chat_id: chatId,
+            from_node: parentId,
+            to_node: nodeData.id,
+          },
+        ]);
+        if (edgeError) throw edgeError;
+      }
+
+      // Update chaining state
+      setLastNodeId(nodeData.id);
+      setReplyingToNode(null);
+
+      // Refresh messages
       const { data } = await supabase
         .from("messages")
         .select("id, sender, content")
@@ -131,21 +124,6 @@ export default function ChatThread({ chatId }: { chatId: string | null }) {
       setLoading(false);
     }
   };
-
-  // Helper to get node ID from message ID
-  async function getNodeIdByMessageId(messageId: string) {
-    const { data, error } = await supabase
-      .from("nodes")
-      .select("id")
-      .eq("message_id", messageId)
-      .single();
-
-    if (error) {
-      console.error("Error fetching node for message:", error);
-      return null;
-    }
-    return data?.id || null;
-  }
 
   const generateSummary = (text: string) => {
     return (

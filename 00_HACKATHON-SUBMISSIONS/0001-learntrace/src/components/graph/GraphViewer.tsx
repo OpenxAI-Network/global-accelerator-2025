@@ -1,11 +1,9 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { Network } from "vis-network/standalone";
-import { DataSet } from "vis-network/standalone";
+import { Network, DataSet } from "vis-network/standalone";
 import { supabase } from "@/lib/supabaseClient";
 import { useRouter, useSearchParams } from "next/navigation";
-import { deleteNodeById } from "@/utils/deleteNode";
 
 export default function GraphViewer() {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -23,6 +21,7 @@ export default function GraphViewer() {
     const fetchGraphData = async () => {
       setLoading(true);
 
+      // Fetch nodes
       const { data: nodesData, error: nodesError } = await supabase
         .from("nodes")
         .select("*")
@@ -34,20 +33,31 @@ export default function GraphViewer() {
         return;
       }
 
+      // Fetch edges
+      const { data: edgesData, error: edgesError } = await supabase
+        .from("edges")
+        .select("*")
+        .eq("chat_id", chatId);
+
+      if (edgesError) {
+        console.error("Error fetching edges:", edgesError);
+        setLoading(false);
+        return;
+      }
+
       const parsedNodes = nodesData?.map((node: any) => ({
         id: String(node.id),
-        label: node.summary ?? "[No summary]",
-        color: node.sender === "user" ? "#60A5FA" : "#34D399",
+        label: node.title ?? "[No title]",
+        title: node.title,
+        color: "#60A5FA",
         shape: "box",
       }));
 
-      const parsedEdges = nodesData
-        .filter((node: any) => node.parent_id)
-        .map((node: any) => ({
-          from: String(node.parent_id),
-          to: String(node.id),
-          arrows: "to",
-        }));
+      const parsedEdges = edgesData?.map((edge: any) => ({
+        from: String(edge.from_node),
+        to: String(edge.to_node),
+        arrows: "to",
+      }));
 
       setNodes(parsedNodes);
       setEdges(parsedEdges);
@@ -90,17 +100,28 @@ export default function GraphViewer() {
       network.on("click", (params) => {
         if (params.nodes.length > 0) {
           const clickedNodeId = params.nodes[0];
-          router.push(`/chat?id=${chatId}&parent=${clickedNodeId}`);
+          const clickedNode = nodes.find((n) => n.id === clickedNodeId);
+          if (clickedNode) {
+            router.push(
+              `/chat?chatId=${chatId}&parentId=${clickedNodeId}&parentTitle=${encodeURIComponent(
+                clickedNode.title
+              )}`
+            );
+          }
         }
       });
 
       return () => network.destroy();
     }
-  }, [loading, nodes, edges, chatId]);
+  }, [loading, nodes, edges, chatId, router]);
 
   return (
     <div className="flex-1">
-      {loading ? <div className="p-4">Loading graph...</div> : <div ref={containerRef} className="w-full h-[600px]" />}
+      {loading ? (
+        <div className="p-4">Loading graph...</div>
+      ) : (
+        <div ref={containerRef} className="w-full h-[600px]" />
+      )}
     </div>
   );
 }

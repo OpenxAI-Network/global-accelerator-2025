@@ -1,6 +1,6 @@
-'use client';
+"use client";
 
-import GraphViewer from '@/components/graph/GraphViewer';
+import GraphViewer from "@/components/graph/GraphViewer";
 
 export default function GraphPage() {
   return (
