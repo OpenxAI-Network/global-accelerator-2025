@@ -11,7 +11,7 @@ Your **AI-powered health companion** for disease prediction, heartbeat monitorin
 - **Naman Bansal** - [@namanbansal102](https://github.com/namanbansal102)
 
 ## 🎥 Demo Video
-[![Watch the Demo](https://img.youtube.com/vi/5_ro3KFMD2E/0.jpg)](https://youtu.be/5_ro3KFMD2E)
+[![Watch the Demo](https://img.youtube.com/vi/5_ro3KFMD2E/0.jpg)](https://www.youtube.com/watch?v=xpzKfZk1SxQ)
 
 ---
 
