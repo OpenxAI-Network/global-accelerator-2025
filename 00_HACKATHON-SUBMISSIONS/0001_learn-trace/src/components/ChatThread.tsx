@@ -258,9 +258,9 @@ export default function ChatThread({ chatId }: { chatId: string | null }) {
 
       {/* Reply banner */}
       {replyingToNode && (
-        <div className="bg-yellow-100 px-4 py-2 border-t border-yellow-300 text-sm flex justify-between items-center">
+        <div className="bg-gray-200 px-4 py-2 border-t border-gray-300 text-black text-sm flex justify-between items-center">
           <div>
-            Replying to: <strong>{replyingToTitle || "Selected Node"}</strong>
+            Extending to : <strong>{replyingToTitle || "Selected Node"}</strong>
           </div>
           <div>
             <button

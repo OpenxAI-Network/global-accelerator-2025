@@ -7,8 +7,9 @@ An interactive AI-powered learning visualization platform that transforms your c
 **Pratik Salunke - [@Pratiksalunke19]**
 
 
-🎥 Demo Video
-[YouTube Link Here - 3 minutes max]
+🎥 Demo Video : 
+
+(Youtube link: )[https://youtu.be/3nYe7F8SzoM]
 
 <br/>
 
@@ -30,15 +31,15 @@ An interactive AI-powered learning visualization platform that transforms your c
 ## Setup & Run Instructions
 Clone this repository 
 
-` https://github.com/](https://github.com/OpenxAI-Network/global-accelerator-2025/tree/main/00_HACKATHON-SUBMISSIONS/0001-learntrace `
+` https://github.com/Pratiksalunke19/global-accelerator-2025.git `
 
 Navigate to project folder:
 
-` cd 00_HACKTHON_SUBMISSIONS/0001-learntrace`
+` cd 00_HACKTHON_SUBMISSIONS/0001_learn-trace`
 
 Install dependencies:
 
-` npm install --legacy-peer-deps `
+` npm install `
 
 Start development server:
 
@@ -81,6 +82,8 @@ Unlike traditional chatbots where knowledge gets lost in scrolling history, Lear
   <br/>
 
 ## Future Plans
+
+- Sharing of mind maps/graphs between users
 
 - Quiz Generation from graph data for revision mode.
 
