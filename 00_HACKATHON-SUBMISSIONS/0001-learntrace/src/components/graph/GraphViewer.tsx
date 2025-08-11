@@ -13,6 +13,8 @@ export default function GraphViewer() {
   const [nodes, setNodes] = useState<any[]>([]);
   const [edges, setEdges] = useState<any[]>([]);
 
+  const [isTree, setIsTree] = useState(false);
+
   const router = useRouter();
   const searchParams = useSearchParams();
   const chatId = searchParams.get("chatId");
@@ -74,134 +76,152 @@ export default function GraphViewer() {
   }, [chatId]);
 
   useEffect(() => {
-    if (!loading && containerRef.current && nodes.length > 0) {
-      const visNodes = new DataSet(nodes);
-      const visEdges = new DataSet(edges);
+  if (!loading && containerRef.current && nodes.length > 0) {
+    const visNodes = new DataSet(nodes);
+    const visEdges = new DataSet(edges);
 
-      let network: Network | null = null;
+    let network: Network | null = null;
 
-      network = new Network(
-        containerRef.current,
-        { nodes: visNodes, edges: visEdges },
-        {
-          layout: {
-            improvedLayout: true,
-          },
-          interaction: {
-            zoomView: true,
-            dragView: true,
-            dragNodes: true,
-            keyboard: false,
-            multiselect: false,
-            hover: true,
-            navigationButtons: false,
-          },
-          physics: {
-            enabled: true,
-            stabilization: { iterations: 200 },
-            solver: "forceAtlas2Based",
-            forceAtlas2Based: {
-              gravitationalConstant: -50,
-              centralGravity: 0.01,
-              springLength: 350,
-              springConstant: 0.005,
-            },
-          },
-          manipulation: { enabled: false },
-          nodes: {
-            shape: "dot",
-            size: 14,
-            font: {
-              color: "#0f0000ff",
-              size: 14,
-              align: "bottom",
-              vadjust: 20, // move label below node
-            },
-            borderWidth: 2,
-            color: {
-              background: "#4F46E5",
-              border: "#3730A3",
-              highlight: {
-                background: "#8B5CF6",
-                border: "#6D28D9",
-              },
-              hover: {
-                background: "#A3BFFA",
-                border: "#4F46E5",
-              },
-            },
-            shadow: {
+    network = new Network(
+      containerRef.current,
+      { nodes: visNodes, edges: visEdges },
+      {
+        layout: {
+          improvedLayout: true,
+          hierarchical: isTree
+            ? {
+                enabled: true,
+                direction: "UD", // "UD" for top-down, "LR" for left-right
+                sortMethod: "directed",
+              }
+            : false,
+        },
+        interaction: {
+          zoomView: true,
+          dragView: true,
+          dragNodes: true,
+          keyboard: false,
+          multiselect: false,
+          hover: true,
+          navigationButtons: false,
+        },
+        physics: isTree
+          ? false
+          : {
               enabled: true,
-              color: "rgba(79, 70, 229, 0.3)",
-              size: 10,
-              x: 0,
-              y: 4,
-            },
-          },
-          edges: {
-            smooth: false,
-            color: {
-              color: "#8B5CF6",
-              highlight: "#6D28D9",
-              hover: "#A3BFFA",
-              inherit: false,
-              opacity: 0.8,
-            },
-            width: 2,
-            arrows: {
-              to: {
-                enabled: false,
-                type: "arrow",
-                scaleFactor: 0.6,
+              stabilization: { iterations: 200 },
+              solver: "forceAtlas2Based",
+              forceAtlas2Based: {
+                gravitationalConstant: -50,
+                centralGravity: 0.01,
+                springLength: 350,
+                springConstant: 0.005,
               },
             },
+        manipulation: { enabled: false },
+        nodes: {
+          shape: "dot",
+          size: 14,
+          font: {
+            color: "#0f0000ff",
+            size: 14,
+            align: "bottom",
+            vadjust: 20, // move label below node
           },
-        }
-      );
-      // Left-click → open chat
-      network.on("click", (params) => {
-        if (params.nodes.length > 0) {
-          const clickedNodeId = params.nodes[0];
-          const clickedNode = nodes.find((n) => n.id === clickedNodeId);
-          if (clickedNode) {
-            router.push(
-              `/chat?chatId=${chatId}&parentId=${clickedNodeId}&parentTitle=${encodeURIComponent(
-                clickedNode.title
-              )}`
-            );
-          }
-        }
-      });
+          borderWidth: 2,
+          color: {
+            background: "#4F46E5",
+            border: "#3730A3",
+            highlight: {
+              background: "#8B5CF6",
+              border: "#6D28D9",
+            },
+            hover: {
+              background: "#A3BFFA",
+              border: "#4F46E5",
+            },
+          },
+          shadow: {
+            enabled: true,
+            color: "rgba(79, 70, 229, 0.3)",
+            size: 10,
+            x: 0,
+            y: 4,
+          },
+        },
+        edges: {
+          smooth: false,
+          color: {
+            color: "#8B5CF6",
+            highlight: "#6D28D9",
+            hover: "#A3BFFA",
+            inherit: false,
+            opacity: 0.8,
+          },
+          width: 2,
+          arrows: {
+            to: {
+              enabled: false,
+              type: "arrow",
+              scaleFactor: 0.6,
+            },
+          },
+        },
+      }
+    );
 
-      // Right-click → delete node
-      network.on("oncontext", async (params) => {
-        params.event.preventDefault();
-        const pointer = network.getNodeAt(params.pointer.DOM);
-        if (pointer) {
-          const nodeId = pointer;
-          const confirmDelete = window.confirm(
-            "Delete this node and its message?"
+    // Left-click → open chat
+    network.on("click", (params) => {
+      if (params.nodes.length > 0) {
+        const clickedNodeId = params.nodes[0];
+        const clickedNode = nodes.find((n) => n.id === clickedNodeId);
+        if (clickedNode) {
+          router.push(
+            `/chat?chatId=${chatId}&parentId=${clickedNodeId}&parentTitle=${encodeURIComponent(
+              clickedNode.title
+            )}`
           );
-          if (confirmDelete) {
-            const err = await deleteNodeAndMessage(nodeId.toString());
-            if (!err) {
-              setNodes((prev) => prev.filter((n) => n.id !== nodeId));
-              setEdges((prev) =>
-                prev.filter((e) => e.from !== nodeId && e.to !== nodeId)
-              );
-            } else {
-              alert("Error deleting node. See console for details.");
-            }
+        }
+      }
+    });
+
+    // Right-click → delete node
+    network.on("oncontext", async (params) => {
+      params.event.preventDefault();
+      const pointer = network.getNodeAt(params.pointer.DOM);
+      if (pointer) {
+        const nodeId = pointer;
+        const confirmDelete = window.confirm(
+          "Delete this node and its message?"
+        );
+        if (confirmDelete) {
+          const err = await deleteNodeAndMessage(nodeId.toString());
+          if (!err) {
+            setNodes((prev) => prev.filter((n) => n.id !== nodeId));
+            setEdges((prev) =>
+              prev.filter((e) => e.from !== nodeId && e.to !== nodeId)
+            );
+          } else {
+            alert("Error deleting node. See console for details.");
           }
         }
-      });
+      }
+    });
 
-      return () => network.destroy();
-    }
-  }, [loading, nodes, edges, chatId, router]);
+    return () => network?.destroy();
+  }
+}, [loading, nodes, edges, chatId, router, isTree]);
 
   return (
     <div className="flex-1 w-full h-full">
+      {/* Toggle Button */}
+      <button
+        onClick={() => setIsTree((prev) => !prev)}
+        className="absolute top-4 right-4 px-3 py-1 bg-[#4F46E5] text-white rounded hover:bg-[#A3BFFA] z-10 cursor-pointer"
+      >
+        {isTree ? "Graph Mode" : "Tree Mode"}
+      </button>
+
       <div className="absolute top-4 left-4 z-10">
         <Link
           href="/chat"
