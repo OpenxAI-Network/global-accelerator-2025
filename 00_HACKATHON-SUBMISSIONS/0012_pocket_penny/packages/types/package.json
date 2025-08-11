@@ -1,0 +1,22 @@
+{
+  "name": "@pocketpenny/types",
+  "type": "module",
+  "scripts": {
+    "dev": "tsc --watch",
+    "build": "tsc"
+  },
+  "exports": {
+    "./user": {
+      "types": "./src/user.ts",
+      "default": "./dist/user.js"
+    },
+    "./course": {
+      "types": "./src/course.ts",
+      "default": "./dist/course.js"
+    }
+  },
+  "devDependencies": {
+    "@pocketpenny/typescript-config": "workspace:*",
+    "typescript": "5.8.3"
+  }
+}
