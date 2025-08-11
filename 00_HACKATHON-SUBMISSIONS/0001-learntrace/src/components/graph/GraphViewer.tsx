@@ -106,7 +106,7 @@ export default function GraphViewer() {
               springConstant: 0.005,
             },
           },
-          manipulation: { enabled: true },
+          manipulation: { enabled: false },
           nodes: {
             shape: "dot",
             size: 14,
