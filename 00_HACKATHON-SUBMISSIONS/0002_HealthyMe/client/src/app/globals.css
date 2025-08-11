@@ -1,0 +1,61 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+@layer base {
+  @font-face {
+    font-family: 'system-ui';
+    src: url("../../public/sf-ui-display-black-58646a6b80d5a.otf")  ;
+    font-family: 'bb-manual';
+    src: url("../../public/BB Manual Mono (Pro) Text Medium.otf")  ;
+  }
+  
+}
+body{
+  margin: 0;
+  padding: 0;
+}
+::-webkit-scrollbar {
+  width: 10px;
+}
+.my{
+  z-index: 8888;
+}
+.ball {
+ 
+  height: 240px;
+  width: 240px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, rgba(191, 183, 252, 0.37), rgba(191, 183, 252, 0.37));
+
+  /* -webkit-backdrop-filter: blur(10px); */
+  box-shadow: 0 8px 50px 50px rgba(191, 183, 252, 0.37);
+  position: absolute;
+  z-index: 20;
+}
+/* Track */
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+.terms-and-conditions {
+  font-size: 0.8rem;
+  color: #6b7280;
+  text-align: center;
+  margin-top: 2rem;
+  padding: 1rem;
+  background-color: rgba(255, 255, 255, 0.1);
+  border-radius: 0.5rem;
+}
+/* Handle */
+::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 15px;
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+
+@layer utilities {
+  
+}

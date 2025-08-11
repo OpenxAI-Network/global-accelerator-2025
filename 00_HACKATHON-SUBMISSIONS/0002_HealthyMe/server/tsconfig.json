@@ -1,0 +1,16 @@
+{
+          "compilerOptions": {
+            "target": "ES2020",
+            "module": "ES2020",
+            "moduleResolution": "Node",
+            "esModuleInterop": true,
+            "rootDir": "src",
+            "outDir": "dist",
+            "strict": true,
+            "forceConsistentCasingInFileNames": true
+          },
+          "noImplicitAny": false
+,
+          "include": ["src/**/*.ts"],
+          "exclude": ["node_modules"]
+        }
