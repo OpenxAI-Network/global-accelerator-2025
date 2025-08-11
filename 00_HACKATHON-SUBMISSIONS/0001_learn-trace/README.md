@@ -9,7 +9,7 @@ An interactive AI-powered learning visualization platform that transforms your c
 
 🎥 Demo Video : 
 
-(Youtube link: )[https://youtu.be/3nYe7F8SzoM]
+[Youtube link: ](https://youtu.be/3nYe7F8SzoM)
 
 <br/>
 
