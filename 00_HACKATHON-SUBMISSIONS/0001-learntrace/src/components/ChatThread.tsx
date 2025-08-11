@@ -5,6 +5,7 @@ import { supabase } from "@/lib/supabaseClient";
 import { fetchFromPerplexity } from "@/lib/perplexity";
 import ChatBox from "./ChatBox";
 import { useRouter, useSearchParams } from "next/navigation";
+import ReactMarkdown from "react-markdown";
 
 type Message = {
   id: string;
@@ -217,13 +218,13 @@ export default function ChatThread({ chatId }: { chatId: string | null }) {
                 : "bg-gray-200 text-black self-start mr-auto"
             }`}
           >
-            {msg.content}
+            <ReactMarkdown>{msg.content.replace(/(\[\d+\])+/g, '')}</ReactMarkdown>
           </div>
         ))}
 
         {effectiveChatId && (
           <button
-            className="fixed bottom-[100px] right-4 bg-[#1E293B] hover:bg-[#283653] text-white text-[20px] shadow-lg cursor-pointer rounded-full h-17 flex items-center justify-center p-2"
+            className="fixed bottom-[100px] right-4 bg-[#4F46E5] hover:bg-[#3730A3] text-white text-[20px] shadow-lg cursor-pointer rounded-full h-17 flex items-center justify-center p-2"
             onClick={() => router.push(`/graph?chatId=${effectiveChatId}`)}
           >
             Graph
@@ -241,10 +242,10 @@ export default function ChatThread({ chatId }: { chatId: string | null }) {
             <button
               className="text-sm text-red-600 mr-4"
               onClick={() => {
-                // clear reply state and remove parent params from URL
                 setReplyingToNode(null);
                 setReplyingToTitle(null);
-                if (effectiveChatId) router.replace(`/chat?chatId=${effectiveChatId}`);
+                if (effectiveChatId)
+                  router.replace(`/chat?chatId=${effectiveChatId}`);
               }}
             >
               Cancel

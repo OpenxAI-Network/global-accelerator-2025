@@ -27,7 +27,7 @@ export default function ChatBox({ onSend, loading }: { onSend: (message: string)
         onClick={handleSend}
         disabled={loading}
         className={`px-4 py-2 rounded-lg text-white ${
-          loading ? "bg-gray-500" : "bg-[#1E293B] hover:bg-[#283653] "
+          loading ? "bg-gray-500" : "bg-[#0B1623] hover:bg-[#283653] "
         }`}
       >
         {loading ? "..." : <Send/>}

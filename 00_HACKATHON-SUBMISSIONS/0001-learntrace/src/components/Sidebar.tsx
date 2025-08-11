@@ -80,7 +80,7 @@ export default function Sidebar() {
 
   return (
     <div
-      className={`bg-gray-900 text-white flex flex-col relative transition-all duration-300 ease-in-out
+      className={`bg-[#0B1623] text-white flex flex-col relative transition-all duration-300 ease-in-out
       ${collapsed ? "w-16" : "w-64"}`}
       onClick={() => setContextMenu(null)}
     >
@@ -101,7 +101,7 @@ export default function Sidebar() {
               e.preventDefault();
               setContextMenu({ x: e.clientX, y: e.clientY, chatId: chat.id });
             }}
-            className="p-3 cursor-pointer hover:bg-gray-800 truncate"
+            className="p-3 cursor-pointer hover:bg-gray-800 truncate rounded-xl m-2"
             title={chat.title} // tooltip when collapsed
           >
             {collapsed ? chat.title?.[0] || "U" : chat.title || "Untitled Chat"}
