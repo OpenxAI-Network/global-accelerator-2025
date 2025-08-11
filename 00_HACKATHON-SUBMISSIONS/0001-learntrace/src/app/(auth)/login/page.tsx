@@ -15,19 +15,22 @@ export default function LoginPage() {
     setLoading(true);
     setErrorMsg("");
 
-    const { data, error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
+    const res = await fetch("/api/login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, password }),
     });
 
     setLoading(false);
 
-    if (error) {
-      setErrorMsg(error.message);
+    if (!res.ok) {
+      const { error } = await res.json();
+      setErrorMsg(error);
       return;
     }
 
-    router.push("/"); // redirect to home
+    // Middleware will now have cookies and can redirect
+    router.push("/");
   };
 
   return (

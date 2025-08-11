@@ -223,12 +223,12 @@ export default function GraphViewer() {
       </button>
 
       <div className="absolute top-4 left-4 z-10">
-        <Link
-          href="/chat"
-          className="px-4 py-2 text-black rounded-lg shadow-soft transition"
+        <button
+          onClick={() => {router.back()}}
+          className="px-4 py-2 text-black rounded-lg shadow-soft transition cursor-pointer"
         >
           ← Back to Chat
-        </Link>
+        </button>
       </div>
 
       {loading ? (
