@@ -8,7 +8,8 @@ Vision
 - Nelson - [@chinesepowered]
 
 ## 🎥 Demo Video (REQUIRED)
-[YouTube Link Here - 3 minutes max]
+[![Video Title](https://img.youtube.com/vi/VIDEO_ID/0.jpg)](https://www.youtube.com/watch?v=__bRGGjxNZQ)
+
 
 ## Technologies Used
 - Next.js 15
