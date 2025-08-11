@@ -11,7 +11,7 @@ Your **AI-powered health companion** for disease prediction, heartbeat monitorin
 - **Naman Bansal** - [@namanbansal102](https://github.com/namanbansal102)
 
 ## 🎥 Demo Video
-[![Watch the Demo](https://img.youtube.com/vi/5_ro3KFMD2E/0.jpg)](https://www.youtube.com/watch?v=xpzKfZk1SxQ)
+[![Watch the Demo](https://img.youtube.com/vi/5_ro3KFMD2E/0.jpg)](https://youtu.be/5_ro3KFMD2E)
 
 ---
 
@@ -33,62 +33,62 @@ Your **AI-powered health companion** for disease prediction, heartbeat monitorin
 
 ### Install Requirements
 1. **Clone the repository**
-\`\`\`bash
+```bash
 git clone https://github.com/namanbansal102/global-accelerator-2025.git
-\`\`\`
+```
 
 2. **Navigate to the project folder**
-\`\`\`bash
+```bash
 cd 00_HACKATHON-SUBMISSIONS/0001_HealthyMe
-\`\`\`
+```
 
 3. **Install frontend and backend dependencies**
-\`\`\`bash
+```bash
 cd server
 npm install # Backend
 cd ../client
 npm install # Frontend
-\`\`\`
+```
 
 ### Set Up Python AI Models
 4. **Ensure NVIDIA GPU drivers are installed** (for running AI models)
 5. **Install Python dependencies in each model directory:**
 
 - **Lung Cancer Detection Model**
-  \`\`\`bash
+  ```bash
   cd ../lung_model
   pip install -r requirements.txt
   python ./server.py
-  \`\`\`
+  ```
 
 - **Bone Detection Prediction Model**
-  \`\`\`bash
+  ```bash
   cd ../bone_detect_pred
   pip install -r requirements.txt
   python ./server.py
-  \`\`\`
+  ```
 
 - **Heartbeat Model**
-  \`\`\`bash
+  ```bash
   cd ../heartbeat
   pip install -r requirements.txt
   python ./server.py
-  \`\`\`
+  ```
 
 ### Start the Web App & API
 6. **Run the frontend server**
-\`\`\`bash
+```bash
 cd ../client
 npm run dev
 # Visit http://localhost:3000
-\`\`\`
+```
 
 7. **Run the backend server**
-\`\`\`bash
+```bash
 cd ../server
 npm run dev
 # REST & GraphQL API available at configured port
-\`\`\`
+```
 
 ---
 
@@ -188,7 +188,7 @@ npm run dev
 
 ## 🏗️ Architecture Overview
 
-\`\`\`mermaid
+```mermaid
 graph TD
     A[Frontend - Next.js] --> B[GraphQL API]
     B --> C[MongoDB Database]
@@ -202,7 +202,7 @@ graph TD
     J --> K[IPFS Storage]
     B --> L[Hospital API Services]
     B --> M[Ollama Chatbot]
-\`\`\`
+```
 
 ---
 
@@ -249,6 +249,8 @@ We are committed to providing a welcoming and inclusive environment for all cont
 ## 📄 License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+---
 
 
 ## 🙏 Acknowledgments
