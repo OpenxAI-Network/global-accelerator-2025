@@ -14,7 +14,7 @@ Vision
 - Next.js 15
 - TypeScript
 - Tailwind CSS
-- Google Gemini 2.0 Flash
+- Google Gemini 2.5 Flash
 - React 19
 - MediaRecorder API
 - FileReader API
@@ -29,7 +29,7 @@ Vision
 7. Open http://localhost:3000 in your browser
 
 ## Project Description
-Fitness Buddy is an AI-powered fitness form analysis tool that helps users perfect their workout technique. Users can either upload pre-recorded workout videos or record themselves live using their webcam. The app then processes the video through Google's Gemini 2.0 Flash model to provide detailed analysis including:
+Fitness Buddy is an AI-powered fitness form analysis tool that helps users perfect their workout technique. Users can either upload pre-recorded workout videos or record themselves live using their webcam. The app then processes the video through Google's Gemini 2.5 Flash model to provide detailed analysis including:
 
 - Exercise identification and form assessment
 - Specific corrections for improper technique
