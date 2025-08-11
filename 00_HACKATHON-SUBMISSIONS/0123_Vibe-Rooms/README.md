@@ -1,5 +1,9 @@
 ﻿# Vibe Rooms
 
+## Track
+
+Soundwave
+
 ## Overview
 
 Vibe Rooms is an AI-powered ambient sound and scene composer.  
@@ -89,7 +93,29 @@ Open http://localhost:3000 in your browser to use Vibe Rooms.
 
 [youtu.be/EBglA4j3FNo](https://youtu.be/EBglA4j3FNo)
 
-## Team
+## Team Members
 
-Solo Developer: Gokhan Ceylan
-GitHub: ElfWebTeam
+- Gokhan Ceylan - [@ElfWebTeam](https://github.com/ElfWebTeam)
+
+## Technologies Used
+
+- Next.js 15
+- React
+- Tailwind CSS
+- Python 3.10
+- FastAPI
+- OpenAI API
+- Axios
+
+## Innovation & Impact
+
+Vibe Rooms combines AI-powered natural language understanding with real-time audio mixing,
+enabling users to create personalized sound environments instantly.
+It can be used for focus, relaxation, or immersive storytelling, and is designed to run fully client-side for privacy.
+
+## Future Plans
+
+- Add more ambient scenes and sound effects.
+- Introduce user-uploaded custom sounds.
+- Implement mood-based automatic scene changes.
+- Mobile app version for iOS and Android.
