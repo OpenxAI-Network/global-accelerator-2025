@@ -1,4 +1,4 @@
-# YOLO Growth Exchange (Australia Edition)
+# YOLO Growth Exchange Platform
 
 > **You only live once. Make it count.**  
 > YOLO is a GameFi-powered platform that transforms personal growth into a visible, tradable, and investable digital asset.
