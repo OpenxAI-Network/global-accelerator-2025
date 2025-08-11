@@ -6,6 +6,9 @@ import { fetchFromPerplexity } from "@/lib/perplexity";
 import ChatBox from "./ChatBox";
 import { useRouter, useSearchParams } from "next/navigation";
 import ReactMarkdown from "react-markdown";
+import { GitGraph, LineChart } from "lucide-react";
+import { ChartLine } from "lucide-react";
+import { ChartNetwork } from "lucide-react";
 
 type Message = {
   id: string;
@@ -17,6 +20,8 @@ export default function ChatThread({ chatId }: { chatId: string | null }) {
   const searchParams = useSearchParams();
   const router = useRouter();
 
+  const [showPreview, setShowPreview] = useState(false);
+
   // Try to read chatId from prop first, then from URL
   const paramChatId = searchParams.get("chatId");
   const effectiveChatId = chatId ?? paramChatId ?? null;
@@ -27,7 +32,7 @@ export default function ChatThread({ chatId }: { chatId: string | null }) {
 
   const [messages, setMessages] = useState<Message[]>([]);
   const [loading, setLoading] = useState(false);
-  
+
   const [lastNodeId, setLastNodeId] = useState<string | null>(null);
   const [replyingToNode, setReplyingToNode] = useState<string | null>(null);
   const [replyingToTitle, setReplyingToTitle] = useState<string | null>(null);
@@ -218,17 +223,36 @@ export default function ChatThread({ chatId }: { chatId: string | null }) {
                 : "bg-gray-200 text-black self-start mr-auto"
             }`}
           >
-            <ReactMarkdown>{msg.content.replace(/(\[\d+\])+/g, '')}</ReactMarkdown>
+            <ReactMarkdown>
+              {msg.content.replace(/(\[\d+\])+/g, "")}
+            </ReactMarkdown>
           </div>
         ))}
 
         {effectiveChatId && (
-          <button
-            className="fixed bottom-[100px] right-4 bg-[#4F46E5] hover:bg-[#3730A3] text-white text-[20px] shadow-lg cursor-pointer rounded-full h-17 flex items-center justify-center p-2"
-            onClick={() => router.push(`/graph?chatId=${effectiveChatId}`)}
+          <div
+            className="fixed bottom-25 right-6 flex flex-col items-center"
+            onMouseEnter={() => setShowPreview(true)}
+            onMouseLeave={() => setShowPreview(false)}
           >
-            Graph
-          </button>
+            {/* Button */}
+            <button
+              className="bg-blue-600 text-white h-16 w-16 rounded-full shadow-lg hover:bg-blue-700 transition-all cursor-pointer border border-black flex items-center justify-center"
+              onClick={() => router.push(`/graph?chatId=${effectiveChatId}`)}
+            >
+              <ChartNetwork className="w-8 h-8" />
+            </button>
+
+            {/* Preview Popup */}
+            {showPreview && (
+              <div className="absolute bottom-20 right-0 bg-white rounded-lg shadow-lg border border-gray-300 p-2 w-15 h-10 z-50">
+                {/* You can replace with actual GraphViewer mini version */}
+                <div className="w-full h-full bg-gray-100 flex items-center justify-center">
+                  <span className="text-sm text-gray-500">Graph</span>
+                </div>
+              </div>
+            )}
+          </div>
         )}
       </div>
 

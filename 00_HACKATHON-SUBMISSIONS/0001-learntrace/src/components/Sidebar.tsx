@@ -104,7 +104,7 @@ export default function Sidebar() {
             className="p-3 cursor-pointer hover:bg-gray-800 truncate rounded-xl m-2"
             title={chat.title} // tooltip when collapsed
           >
-            {collapsed ? chat.title?.[0] || "U" : chat.title || "Untitled Chat"}
+            {collapsed ? "" : chat.title || "Untitled Chat"}
           </div>
         ))}
       </div>
