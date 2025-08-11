@@ -96,5 +96,7 @@ Your achievements, skills, and community impact directly shape your market value
 
 ---
 
+## 0.1 Version Website
+https://yololl.vercel.app/
 
 
