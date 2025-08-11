@@ -1,36 +1,78 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 💪 Fitness Buddy
+AI-powered fitness form analysis using computer vision and Google Gemini
 
-## Getting Started
+## Track
+Vision
 
-First, run the development server:
+## Team Members
+- Nelson - [@chinesepowered]
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+## 🎥 Demo Video (REQUIRED)
+[YouTube Link Here - 3 minutes max]
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Technologies Used
+- Next.js 15
+- TypeScript
+- Tailwind CSS
+- Google Gemini 2.0 Flash
+- React 19
+- MediaRecorder API
+- FileReader API
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Setup & Run Instructions
+1. Clone this repository
+2. Navigate to project folder: `cd 0001_fitness_buddy`
+3. Install dependencies: `pnpm install`
+4. Get Google AI API key from https://ai.google.dev/
+5. Add API key to `.env.local`: `GOOGLE_API_KEY=your_key_here`
+6. Start development server: `pnpm run dev`
+7. Open http://localhost:3000 in your browser
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Project Description
+Fitness Buddy is an AI-powered fitness form analysis tool that helps users perfect their workout technique. Users can either upload pre-recorded workout videos or record themselves live using their webcam. The app then processes the video through Google's Gemini 2.0 Flash model to provide detailed analysis including:
 
-## Learn More
+- Exercise identification and form assessment
+- Specific corrections for improper technique
+- Safety warnings for potentially dangerous movements
+- Positive reinforcement for good form
+- Actionable advice for improvement
 
-To learn more about Next.js, take a look at the following resources:
+The app features a clean, modern UI with real-time video preview, loading states, and comprehensive error handling. It's designed to make professional-level fitness coaching accessible to everyone.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Innovation & Impact
+Fitness Buddy democratizes access to professional fitness coaching by leveraging cutting-edge AI vision capabilities. Traditional personal training is expensive and not accessible to everyone, but this app provides:
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+**Innovation:**
+- Real-time computer vision analysis of exercise form
+- Multimodal AI that understands both visual movement patterns and exercise context
+- Seamless integration of webcam recording with cloud-based AI processing
+- User-friendly interface that makes advanced AI accessible to non-technical users
 
-## Deploy on Vercel
+**Real-world Impact:**
+- **Injury Prevention**: Helps users avoid common workout injuries caused by poor form
+- **Accessibility**: Makes fitness coaching available 24/7 from anywhere
+- **Cost-Effective**: Reduces the need for expensive personal training sessions
+- **Educational**: Teaches users proper form techniques they can apply long-term
+- **Scalable**: Can serve unlimited users simultaneously without human trainers
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Future Plans
+**Short-term Enhancements:**
+- Exercise-specific analysis (squats, deadlifts, push-ups, etc.)
+- Progress tracking and workout history
+- Personalized improvement recommendations
+- Integration with wearable devices for heart rate/rep counting
+- Social features for sharing progress and competing with friends
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+**Scaling Opportunities:**
+- **Mobile App**: Native iOS/Android apps with offline analysis capabilities
+- **Gym Integration**: Partner with fitness centers to provide in-gym analysis stations
+- **Subscription Model**: Premium features like detailed biomechanical analysis and custom workout plans
+- **Trainer Platform**: Tools for professional trainers to analyze multiple clients
+- **Corporate Wellness**: Enterprise solutions for company fitness programs
+- **Physical Therapy**: Specialized analysis for rehabilitation exercises
+
+**Technical Scaling:**
+- Real-time analysis with WebRTC streaming
+- Multi-camera angle analysis for comprehensive form assessment
+- Custom-trained models for sport-specific movements
+- Integration with popular fitness apps and platforms
