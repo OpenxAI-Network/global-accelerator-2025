@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Sidebar from "@/components/Sidebar";
 import ChatThread from "@/components/ChatThread";
@@ -9,14 +9,35 @@ import { supabase } from "@/lib/supabaseClient";
 export default function ChatPage() {
   const searchParams = useSearchParams();
   const router = useRouter();
-  const chatId = searchParams.get("chatId"); // make sure param name matches your URL usage
 
-  const [resolvedChatId, setResolvedChatId] = useState<string | null>(chatId);
+  // accept both `chatId` and legacy `id` so sidebar/url variations work
+  const paramId = searchParams.get("chatId") ?? searchParams.get("id") ?? null;
 
+  const firstLoad = useRef(true);
+  const [resolvedChatId, setResolvedChatId] = useState<string | null>(paramId);
+
+  // Update resolvedChatId whenever the URL search param changes (clicking sidebar)
   useEffect(() => {
-    // If no chatId, fetch the newest chat and redirect
-    if (!chatId) {
-      const fetchNewestChat = async () => {
+    if (paramId) {
+      firstLoad.current = false; // user explicitly selected a chat
+      setResolvedChatId(paramId);
+    }
+  }, [paramId]);
+
+  // On first mount only: if there's no chatId in the URL, fetch newest chat and redirect once.
+  useEffect(() => {
+    const fetchNewestAndRedirectIfNeeded = async () => {
+      if (!firstLoad.current) return;
+      firstLoad.current = false;
+
+      // If a param appeared already, prefer that and bail out.
+      const nowParam = searchParams.get("chatId") ?? searchParams.get("id");
+      if (nowParam) {
+        setResolvedChatId(nowParam);
+        return;
+      }
+
+      try {
         const { data, error } = await supabase
           .from("chats")
           .select("id")
@@ -28,16 +49,28 @@ export default function ChatPage() {
           console.error("Failed to fetch newest chat:", error);
           return;
         }
-        if (data?.id) {
-          setResolvedChatId(data.id);
-          router.replace(`/chat?chatId=${data.id}`);
+        const newestId = data?.id;
+        if (!newestId) return;
+
+        // Check again just before redirecting (user might have clicked something meanwhile)
+        const beforeRedirect = searchParams.get("chatId") ?? searchParams.get("id");
+        if (beforeRedirect) {
+          setResolvedChatId(beforeRedirect);
+          return;
         }
-      };
-      fetchNewestChat();
-    } else {
-      setResolvedChatId(chatId);
-    }
-  }, [chatId, router]);
+
+        setResolvedChatId(newestId);
+        // Use replace so user Back button doesn't go back to the empty /chat route
+        router.replace(`/chat?chatId=${newestId}`);
+      } catch (err) {
+        console.error("Error while selecting newest chat:", err);
+      }
+    };
+
+    fetchNewestAndRedirectIfNeeded();
+    // Intentionally empty deps: run only on mount. searchParams is read inside the fn.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
     <div className="flex h-screen">
