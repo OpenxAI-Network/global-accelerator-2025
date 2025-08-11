@@ -5,6 +5,7 @@ import { Network, DataSet } from "vis-network/standalone";
 import { supabase } from "@/lib/supabaseClient";
 import { useRouter, useSearchParams } from "next/navigation";
 import { deleteNodeAndMessage } from "@/utils/deleteNode";
+import Link from "next/link";
 
 export default function GraphViewer() {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -201,6 +202,15 @@ export default function GraphViewer() {
 
   return (
     <div className="flex-1 w-full h-full">
+      <div className="absolute top-4 left-4 z-10">
+        <Link
+          href="/chat"
+          className="px-4 py-2 text-black rounded-lg shadow-soft transition"
+        >
+          ← Back to Chat
+        </Link>
+      </div>
+
       {loading ? (
         <div className="p-4">Loading graph...</div>
       ) : (

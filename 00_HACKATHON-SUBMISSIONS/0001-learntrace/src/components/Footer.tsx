@@ -20,9 +20,9 @@ export default function Footer() {
           <h4 className="font-semibold mb-3">Quick Links</h4>
           <ul className="space-y-2 text-sm">
             <li>Home</li>
-            <li>About</li>
             <li>Features</li>
-            <li>Contact</li>
+            <li>Graph</li>
+            <li>About</li>
           </ul>
         </div>
 
@@ -31,7 +31,7 @@ export default function Footer() {
           <h4 className="font-semibold mb-3">Connect</h4>
           <div className="flex space-x-4">
             <X className="w-5 h-5" />
-            <Github className="w-5 h-5" />
+            <a href="https://github.com/Pratiksalunke19"><Github className="w-5 h-5" /></a>
             <Linkedin className="w-5 h-5" />
             <Mail className="w-5 h-5" />
           </div>

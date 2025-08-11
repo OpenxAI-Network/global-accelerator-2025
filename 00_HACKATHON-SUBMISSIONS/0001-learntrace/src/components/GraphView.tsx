@@ -117,7 +117,6 @@ export default function GraphView() {
   return (
     <section className="bg-[#0B1623] py-16 px-6">
       <h2 className="text-3xl font-bold text-center text-white mb-6">
-        Your Learning Map
       </h2>
       <div
         ref={containerRef}

@@ -24,7 +24,7 @@ export default function About() {
   ];
 
   return (
-    <section className="py-16 bg-white text-center">
+    <section className="py-16 bg-white text-center h-[500px]">
       <h2 className="text-2xl font-bold text-gray-900">
         Why Choose LearnTrace?
       </h2>

@@ -27,7 +27,7 @@ export default function ChatThread({ chatId }: { chatId: string | null }) {
 
   const [messages, setMessages] = useState<Message[]>([]);
   const [loading, setLoading] = useState(false);
-
+  
   const [lastNodeId, setLastNodeId] = useState<string | null>(null);
   const [replyingToNode, setReplyingToNode] = useState<string | null>(null);
   const [replyingToTitle, setReplyingToTitle] = useState<string | null>(null);
@@ -140,7 +140,7 @@ export default function ChatThread({ chatId }: { chatId: string | null }) {
           {
             chat_id: cid,
             message_id: aiMsg.id,
-            title: summary,
+            title: text,
             answer: aiResponse,
           },
         ])
