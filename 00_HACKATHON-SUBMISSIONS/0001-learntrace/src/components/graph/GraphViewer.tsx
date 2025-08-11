@@ -50,31 +50,18 @@ export default function GraphViewer() {
         id: String(node.id),
         label: node.title ?? "[No title]",
         title: node.title,
-        color: {
-          background: "#4F46E5", // Indigo 600 - primary
-          border: "#3730A3", // Indigo 800 - primary dark
-          highlight: {
-            background: "#8B5CF6", // Purple 500 - secondary
-            border: "#6D28D9", // Purple 700 - secondary dark
-          },
-          hover: {
-            background: "#A3BFFA", // Indigo 300 - primary light
-            border: "#4F46E5",
-          },
-        },
-        shape: "box",
+        subtitle: node.title,
       }));
 
       const parsedEdges = edgesData?.map((edge: any) => ({
         from: String(edge.from_node),
         to: String(edge.to_node),
         color: {
-          color: "#8B5CF6", // Purple 500 - secondary
-          highlight: "#6D28D9", // Purple 700 - secondary dark
-          hover: "#A3BFFA", // Indigo 300 - primary light
+          color: "#8B5CF6", // Purple 500
+          highlight: "#6D28D9", // Purple 700
+          hover: "#A3BFFA", // Indigo 300
           opacity: 0.8,
         },
-        arrows: "to",
       }));
 
       setNodes(parsedNodes);
@@ -90,7 +77,6 @@ export default function GraphViewer() {
       const visNodes = new DataSet(nodes);
       const visEdges = new DataSet(edges);
 
-      // Ensure old instance is destroyed
       let network: Network | null = null;
 
       network = new Network(
@@ -98,12 +84,7 @@ export default function GraphViewer() {
         { nodes: visNodes, edges: visEdges },
         {
           layout: {
-            hierarchical: {
-              direction: "UD",
-              sortMethod: "directed",
-              nodeSpacing: 100,
-              levelSeparation: 150,
-            },
+            improvedLayout: true,
           },
           interaction: {
             zoomView: true,
@@ -116,13 +97,25 @@ export default function GraphViewer() {
           },
           physics: {
             enabled: true,
-            stabilization: { iterations: 200, fit: true },
+            stabilization: { iterations: 200 },
+            solver: "forceAtlas2Based",
+            forceAtlas2Based: {
+              gravitationalConstant: -50,
+              centralGravity: 0.01,
+              springLength: 350,
+              springConstant: 0.005,
+            },
           },
-          manipulation: { enabled: false },
+          manipulation: { enabled: true },
           nodes: {
-            shape: "box",
-            margin: { top: 10, bottom: 10, left: 10, right: 10 },
-            font: { color: "#FFFFFF" },
+            shape: "dot",
+            size: 14,
+            font: {
+              color: "#0f0000ff",
+              size: 14,
+              align: "bottom",
+              vadjust: 20, // move label below node
+            },
             borderWidth: 2,
             color: {
               background: "#4F46E5",
@@ -156,7 +149,7 @@ export default function GraphViewer() {
             width: 2,
             arrows: {
               to: {
-                enabled: true,
+                enabled: false,
                 type: "arrow",
                 scaleFactor: 0.6,
               },
@@ -164,7 +157,6 @@ export default function GraphViewer() {
           },
         }
       );
-
       // Left-click → open chat
       network.on("click", (params) => {
         if (params.nodes.length > 0) {
