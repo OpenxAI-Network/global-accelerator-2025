@@ -1,0 +1,209 @@
+{% extends "base.html" %}
+
+{% block title %}Practice Generator - LearnAI{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2>
+                <i class="fas fa-puzzle-piece text-success me-2"></i>
+                Practice Generator
+            </h2>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-4">
+        <!-- Practice Settings -->
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-cog me-2"></i>
+                    Practice Settings
+                </h5>
+            </div>
+            <div class="card-body">
+                <form id="practiceForm">
+                    <div class="mb-3">
+                        <label for="subject" class="form-label">Subject</label>
+                        <select class="form-select" id="subject" required>
+                            <option value="">Choose a subject...</option>
+                            {% for subject in subjects %}
+                            <option value="{{ subject }}">{{ subject }}</option>
+                            {% endfor %}
+                            <option value="other">Other (specify below)</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-3" id="customSubjectDiv" style="display: none;">
+                        <label for="customSubject" class="form-label">Custom Subject</label>
+                        <input type="text" class="form-control" id="customSubject" 
+                               placeholder="Enter subject name">
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="difficulty" class="form-label">
+                            Difficulty Level: <span id="difficultyValue">3</span>
+                        </label>
+                        <input type="range" class="form-range" id="difficulty" 
+                               min="1" max="5" value="3">
+                        <div class="d-flex justify-content-between small text-muted">
+                            <span>Beginner</span>
+                            <span>Expert</span>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="numQuestions" class="form-label">Number of Questions</label>
+                        <select class="form-select" id="numQuestions">
+                            <option value="3">3 questions</option>
+                            <option value="5" selected>5 questions</option>
+                            <option value="10">10 questions</option>
+                            <option value="15">15 questions</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="questionType" class="form-label">Question Type</label>
+                        <select class="form-select" id="questionType">
+                            <option value="mixed">Mixed Types</option>
+                            <option value="multiple_choice">Multiple Choice</option>
+                            <option value="short_answer">Short Answer</option>
+                            <option value="essay">Essay Questions</option>
+                        </select>
+                    </div>
+
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-success" id="generateBtn">
+                            <i class="fas fa-magic me-2"></i>
+                            Generate Practice
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Progress Indicator -->
+        <div class="card mt-3" id="progressCard" style="display: none;">
+            <div class="card-body text-center">
+                <div class="spinner-border text-success mb-2" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+                <div>Generating practice questions...</div>
+                <small class="text-muted">This may take a few moments</small>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-8">
+        <!-- Practice Questions -->
+        <div id="practiceContainer">
+            <div class="text-center text-muted py-5">
+                <i class="fas fa-puzzle-piece fa-4x mb-3"></i>
+                <h4>Ready to Practice?</h4>
+                <p>Configure your practice settings and click "Generate Practice" to begin!</p>
+                <div class="mt-4">
+                    <h6>Practice Features:</h6>
+                    <div class="row mt-3">
+                        <div class="col-md-6">
+                            <div class="feature-item">
+                                <i class="fas fa-brain text-success me-2"></i>
+                                AI-generated questions
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="feature-item">
+                                <i class="fas fa-chart-line text-info me-2"></i>
+                                Adaptive difficulty
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="feature-item">
+                                <i class="fas fa-lightbulb text-warning me-2"></i>
+                                Instant hints available
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="feature-item">
+                                <i class="fas fa-clipboard-check text-primary me-2"></i>
+                                Automatic grading
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Practice Questions Display -->
+        <div id="questionsContainer" style="display: none;">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">Practice Questions</h5>
+                    <div>
+                        <span class="badge bg-secondary" id="questionCounter">Question 1 of 5</span>
+                        <button class="btn btn-sm btn-outline-warning ms-2" id="hintBtn">
+                            <i class="fas fa-lightbulb me-1"></i>Hint
+                        </button>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div id="questionContent">
+                        <!-- Questions will be loaded here -->
+                    </div>
+                    
+                    <div class="mt-4">
+                        <div class="d-flex justify-content-between">
+                            <button class="btn btn-outline-secondary" id="prevBtn" disabled>
+                                <i class="fas fa-chevron-left me-1"></i>Previous
+                            </button>
+                            <div>
+                                <button class="btn btn-primary" id="nextBtn">
+                                    Next <i class="fas fa-chevron-right ms-1"></i>
+                                </button>
+                                <button class="btn btn-success" id="submitBtn" style="display: none;">
+                                    <i class="fas fa-check me-1"></i>Submit Answers
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Results Display -->
+        <div id="resultsContainer" style="display: none;">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-trophy text-warning me-2"></i>
+                        Practice Results
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div id="resultsContent">
+                        <!-- Results will be loaded here -->
+                    </div>
+                    
+                    <div class="mt-4">
+                        <button class="btn btn-success" onclick="location.reload()">
+                            <i class="fas fa-redo me-1"></i>New Practice Session
+                        </button>
+                        <a href="{{ url_for('tutor') }}" class="btn btn-info ms-2">
+                            <i class="fas fa-comments me-1"></i>Ask Tutor
+                        </a>
+                        <a href="{{ url_for('dashboard') }}" class="btn btn-primary ms-2">
+                            <i class="fas fa-chart-line me-1"></i>View Progress
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script src="{{ url_for('static', filename='js/practice.js') }}"></script>
+{% endblock %}

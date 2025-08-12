@@ -1,0 +1,160 @@
+{% extends "base.html" %}
+
+{% block title %}LearnAI - Home{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="text-center mb-5">
+            <h1 class="display-4 mb-3">
+                <i class="fas fa-robot text-primary me-3"></i>
+                Welcome to LearnAI
+            </h1>
+            <p class="lead text-muted">
+                Your AI-powered learning companion for personalized tutoring, practice, and assessment
+            </p>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4">
+    <!-- AI Tutor Card -->
+    <div class="col-md-6 col-lg-3">
+        <div class="card h-100 learning-mode-card" data-mode="tutor">
+            <div class="card-body text-center">
+                <div class="mode-icon mb-3">
+                    <i class="fas fa-comments fa-3x text-info"></i>
+                </div>
+                <h5 class="card-title">AI Tutor</h5>
+                <p class="card-text">
+                    Get personalized help with interactive AI tutoring. Ask questions and receive step-by-step guidance.
+                </p>
+                <a href="{{ url_for('tutor') }}" class="btn btn-info">
+                    Start Tutoring <i class="fas fa-arrow-right ms-2"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Practice Generator Card -->
+    <div class="col-md-6 col-lg-3">
+        <div class="card h-100 learning-mode-card" data-mode="practice">
+            <div class="card-body text-center">
+                <div class="mode-icon mb-3">
+                    <i class="fas fa-puzzle-piece fa-3x text-success"></i>
+                </div>
+                <h5 class="card-title">Practice Problems</h5>
+                <p class="card-text">
+                    Generate custom practice problems tailored to your level and learning goals.
+                </p>
+                <a href="{{ url_for('practice') }}" class="btn btn-success">
+                    Start Practice <i class="fas fa-arrow-right ms-2"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Auto Grading Card -->
+    <div class="col-md-6 col-lg-3">
+        <div class="card h-100 learning-mode-card" data-mode="grading">
+            <div class="card-body text-center">
+                <div class="mode-icon mb-3">
+                    <i class="fas fa-clipboard-check fa-3x text-warning"></i>
+                </div>
+                <h5 class="card-title">Auto Grading</h5>
+                <p class="card-text">
+                    Submit your work for AI-powered grading with detailed feedback and improvement suggestions.
+                </p>
+                <a href="{{ url_for('grading') }}" class="btn btn-warning">
+                    Submit Work <i class="fas fa-arrow-right ms-2"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Progress Dashboard Card -->
+    <div class="col-md-6 col-lg-3">
+        <div class="card h-100 learning-mode-card" data-mode="dashboard">
+            <div class="card-body text-center">
+                <div class="mode-icon mb-3">
+                    <i class="fas fa-chart-line fa-3x text-primary"></i>
+                </div>
+                <h5 class="card-title">Progress Dashboard</h5>
+                <p class="card-text">
+                    Track your learning progress, see improvement trends, and identify areas for focus.
+                </p>
+                <a href="{{ url_for('dashboard') }}" class="btn btn-primary">
+                    View Progress <i class="fas fa-arrow-right ms-2"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% if recent_progress %}
+<div class="row mt-5">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-clock me-2"></i>
+                    Recent Learning Activity
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    {% for progress in recent_progress %}
+                    <div class="col-md-6 col-lg-4 mb-3">
+                        <div class="progress-item">
+                            <h6 class="mb-1">{{ progress.subject }}</h6>
+                            <small class="text-muted">{{ progress.topic }}</small>
+                            <div class="progress mt-2" style="height: 8px;">
+                                <div class="progress-bar bg-success" 
+                                     style="width: {{ (progress.mastery_level * 100)|round }}%">
+                                </div>
+                            </div>
+                            <small class="text-muted">
+                                {{ (progress.mastery_level * 100)|round }}% mastery
+                            </small>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<!-- Quick Start Tips -->
+<div class="row mt-5">
+    <div class="col-12">
+        <div class="card bg-light border-0">
+            <div class="card-body">
+                <h5 class="card-title">
+                    <i class="fas fa-lightbulb text-warning me-2"></i>
+                    Quick Start Tips
+                </h5>
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6>New to LearnAI?</h6>
+                        <ul class="list-unstyled">
+                            <li><i class="fas fa-check text-success me-2"></i>Start with the AI Tutor to get familiar</li>
+                            <li><i class="fas fa-check text-success me-2"></i>Try practice problems to test your knowledge</li>
+                            <li><i class="fas fa-check text-success me-2"></i>Use the grading system for detailed feedback</li>
+                        </ul>
+                    </div>
+                    <div class="col-md-6">
+                        <h6>Learning Tips</h6>
+                        <ul class="list-unstyled">
+                            <li><i class="fas fa-star text-warning me-2"></i>Ask specific questions for better help</li>
+                            <li><i class="fas fa-star text-warning me-2"></i>Practice regularly for skill improvement</li>
+                            <li><i class="fas fa-star text-warning me-2"></i>Review your progress dashboard weekly</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,341 @@
+{% extends "base.html" %}
+
+{% block title %}Progress Dashboard - LearnAI{% endblock %}
+
+{% block extra_head %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2>
+                <i class="fas fa-chart-line text-primary me-2"></i>
+                Learning Dashboard
+            </h2>
+            <div>
+                <span class="badge bg-info fs-6">
+                    <i class="fas fa-clock me-1"></i>
+                    {{ total_time }} minutes studied
+                </span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Overview Stats -->
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="card text-center">
+            <div class="card-body">
+                <h4 class="text-primary">{{ subjects_progress|length }}</h4>
+                <p class="mb-0 text-muted">Subjects Studied</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-center">
+            <div class="card-body">
+                <h4 class="text-success">
+                    {% set total_topics = subjects_progress.values() | map(attribute='topics') | map('length') | sum %}
+                    {{ total_topics }}
+                </h4>
+                <p class="mb-0 text-muted">Topics Covered</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-center">
+            <div class="card-body">
+                <h4 class="text-warning">
+                    {% set avg_mastery = (subjects_progress.values() | map(attribute='avg_mastery') | sum / subjects_progress|length * 100) if subjects_progress else 0 %}
+                    {{ avg_mastery|round }}%
+                </h4>
+                <p class="mb-0 text-muted">Average Mastery</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-center">
+            <div class="card-body">
+                <h4 class="text-info">{{ total_time }}</h4>
+                <p class="mb-0 text-muted">Minutes Studied</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% if subjects_progress %}
+<!-- Subject Progress -->
+<div class="row">
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-chart-bar me-2"></i>
+                    Subject Progress
+                </h5>
+            </div>
+            <div class="card-body">
+                {% for subject, data in subjects_progress.items() %}
+                <div class="mb-4">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <h6 class="mb-0">{{ subject }}</h6>
+                        <div>
+                            <span class="badge bg-primary">{{ data.topics|length }} topics</span>
+                            <span class="badge bg-secondary">{{ data.time_spent }} min</span>
+                        </div>
+                    </div>
+                    
+                    <div class="progress mb-2" style="height: 20px;">
+                        <div class="progress-bar bg-success" 
+                             style="width: {{ (data.avg_mastery * 100)|round }}%">
+                            {{ (data.avg_mastery * 100)|round }}% mastery
+                        </div>
+                    </div>
+                    
+                    <!-- Topic breakdown -->
+                    <div class="row">
+                        {% for topic in data.topics[:4] %}
+                        <div class="col-md-6 mb-2">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <small class="text-muted">{{ topic.name }}</small>
+                                <div>
+                                    <span class="badge bg-{{ 'success' if topic.mastery > 0.8 else 'warning' if topic.mastery > 0.5 else 'danger' }} badge-sm">
+                                        {{ (topic.mastery * 100)|round }}%
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="progress" style="height: 4px;">
+                                <div class="progress-bar" 
+                                     style="width: {{ (topic.mastery * 100)|round }}%; background-color: {{ '#28a745' if topic.mastery > 0.8 else '#ffc107' if topic.mastery > 0.5 else '#dc3545' }}">
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                        
+                        {% if data.topics|length > 4 %}
+                        <div class="col-12">
+                            <small class="text-muted">
+                                ... and {{ data.topics|length - 4 }} more topics
+                            </small>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                {% if not loop.last %}
+                <hr>
+                {% endif %}
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Mastery Chart -->
+        <div class="card mt-4">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-chart-pie me-2"></i>
+                    Mastery Distribution
+                </h5>
+            </div>
+            <div class="card-body">
+                <canvas id="masteryChart" width="400" height="200"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-4">
+        <!-- Learning Streak -->
+        <div class="card">
+            <div class="card-header">
+                <h6 class="mb-0">
+                    <i class="fas fa-fire me-2"></i>
+                    Learning Insights
+                </h6>
+            </div>
+            <div class="card-body">
+                <div class="text-center mb-3">
+                    <div class="display-6 text-warning">
+                        <i class="fas fa-trophy"></i>
+                    </div>
+                    <h6>Keep Learning!</h6>
+                    <p class="text-muted small">
+                        You're making great progress across multiple subjects.
+                    </p>
+                </div>
+
+                <div class="progress-insights">
+                    {% set best_subject = subjects_progress.items() | sort(attribute='1.avg_mastery') | reverse | first %}
+                    {% if best_subject %}
+                    <div class="insight mb-3">
+                        <div class="d-flex align-items-center mb-1">
+                            <i class="fas fa-star text-warning me-2"></i>
+                            <strong>Strongest Subject</strong>
+                        </div>
+                        <p class="small text-muted mb-0">
+                            {{ best_subject[0] }} - {{ (best_subject[1].avg_mastery * 100)|round }}% mastery
+                        </p>
+                    </div>
+                    {% endif %}
+
+                    {% set most_time = subjects_progress.items() | sort(attribute='1.time_spent') | reverse | first %}
+                    {% if most_time %}
+                    <div class="insight mb-3">
+                        <div class="d-flex align-items-center mb-1">
+                            <i class="fas fa-clock text-info me-2"></i>
+                            <strong>Most Practiced</strong>
+                        </div>
+                        <p class="small text-muted mb-0">
+                            {{ most_time[0] }} - {{ most_time[1].time_spent }} minutes
+                        </p>
+                    </div>
+                    {% endif %}
+
+                    <div class="insight">
+                        <div class="d-flex align-items-center mb-1">
+                            <i class="fas fa-target text-success me-2"></i>
+                            <strong>Recommendation</strong>
+                        </div>
+                        <p class="small text-muted mb-0">
+                            Continue practicing regularly to improve your weaker areas.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="card mt-3">
+            <div class="card-header">
+                <h6 class="mb-0">
+                    <i class="fas fa-bolt me-2"></i>
+                    Quick Actions
+                </h6>
+            </div>
+            <div class="card-body">
+                <div class="d-grid gap-2">
+                    <a href="{{ url_for('practice') }}" class="btn btn-success">
+                        <i class="fas fa-puzzle-piece me-1"></i>
+                        Start Practice Session
+                    </a>
+                    <a href="{{ url_for('tutor') }}" class="btn btn-info">
+                        <i class="fas fa-comments me-1"></i>
+                        Ask AI Tutor
+                    </a>
+                    <a href="{{ url_for('grading') }}" class="btn btn-warning">
+                        <i class="fas fa-clipboard-check me-1"></i>
+                        Submit for Grading
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Study Schedule -->
+        <div class="card mt-3">
+            <div class="card-header">
+                <h6 class="mb-0">
+                    <i class="fas fa-calendar-alt me-2"></i>
+                    Study Goals
+                </h6>
+            </div>
+            <div class="card-body">
+                <div class="small">
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>Daily goal:</span>
+                        <span class="text-success">30 minutes</span>
+                    </div>
+                    <div class="progress mb-3" style="height: 8px;">
+                        {% set daily_progress = (total_time / 30 * 100) if total_time < 30 else 100 %}
+                        <div class="progress-bar bg-success" style="width: {{ daily_progress }}%"></div>
+                    </div>
+                    
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>Weekly goal:</span>
+                        <span class="text-info">3.5 hours</span>
+                    </div>
+                    <div class="progress" style="height: 8px;">
+                        {% set weekly_progress = (total_time / 210 * 100) if total_time < 210 else 100 %}
+                        <div class="progress-bar bg-info" style="width: {{ weekly_progress }}%"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% else %}
+<!-- Empty State -->
+<div class="row">
+    <div class="col-12">
+        <div class="text-center py-5">
+            <i class="fas fa-chart-line fa-4x text-muted mb-4"></i>
+            <h4>Start Your Learning Journey!</h4>
+            <p class="text-muted mb-4">
+                Begin practicing, ask questions, or submit work to see your progress here.
+            </p>
+            <div class="d-inline-flex gap-2">
+                <a href="{{ url_for('tutor') }}" class="btn btn-info">
+                    <i class="fas fa-comments me-1"></i>Start with AI Tutor
+                </a>
+                <a href="{{ url_for('practice') }}" class="btn btn-success">
+                    <i class="fas fa-puzzle-piece me-1"></i>Try Practice Problems
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+// Mastery Chart
+{% if subjects_progress %}
+const ctx = document.getElementById('masteryChart').getContext('2d');
+const subjects = {{ subjects_progress.keys() | list | tojson }};
+const masteryData = {{ subjects_progress.values() | map(attribute='avg_mastery') | list | tojson }};
+
+new Chart(ctx, {
+    type: 'doughnut',
+    data: {
+        labels: subjects,
+        datasets: [{
+            data: masteryData.map(m => (m * 100).toFixed(1)),
+            backgroundColor: [
+                '#28a745',
+                '#17a2b8',
+                '#ffc107',
+                '#dc3545',
+                '#6f42c1',
+                '#20c997'
+            ],
+            borderWidth: 2,
+            borderColor: '#fff'
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: {
+                position: 'bottom',
+                labels: {
+                    padding: 20,
+                    usePointStyle: true
+                }
+            },
+            tooltip: {
+                callbacks: {
+                    label: function(context) {
+                        return context.label + ': ' + context.parsed + '% mastery';
+                    }
+                }
+            }
+        }
+    }
+});
+{% endif %}
+</script>
+{% endblock %}
