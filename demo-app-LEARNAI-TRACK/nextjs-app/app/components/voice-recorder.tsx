@@ -2,8 +2,8 @@
 
 import React, { useState, useRef, useCallback, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Mic, MicOff, Play, Stop, Volume2, VolumeX } from 'lucide-react';
-import { Button } from '../ui/Button';
+import { Mic, MicOff, Play, Square, Volume2, VolumeX } from 'lucide-react';
+import { Button } from './ui/Button';
 
 interface VoiceRecorderProps {
   onTranscript?: (transcript: string, confidence: number) => void;
@@ -290,7 +290,7 @@ const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
             size="sm"
             className="glassmorphism"
           >
-            <Stop size={16} />
+            <Square size={16} />
           </Button>
           
           <Button

@@ -3,10 +3,9 @@ import React, { useEffect, useRef, useState } from 'react';
 import { motion, useScroll, useTransform } from 'framer-motion';
 import { gsap } from 'gsap';
 import Link from 'next/link';
-import ParticleBackground from '@/components/layout/ParticleBackground';
-import VoiceRecorder from '@/components/features/VoiceRecorder';
-import { Button } from '@/components/ui/Button';
-import { Card } from '@/components/ui/Card';
+import ParticleBackground from './components/particle-background';
+import { Button } from './components/ui/Button';
+import { Card } from './components/ui/Card';
 import { 
   Brain, 
   Mic, 
@@ -16,8 +15,7 @@ import {
   Sparkles,
   ArrowRight,
   Play,
-  Star,
-  CheckCircle
+  Star
 } from 'lucide-react';
 
 export default function HomePage() {
@@ -165,10 +163,10 @@ export default function HomePage() {
         >
           <motion.h1 
             ref={titleRef}
-            className="text-5xl md:text-7xl font-bold mb-8 text-transparent bg-clip-text bg-gradient-to-r from-cyber-blue via-electric-purple to-neon-pink overflow-hidden whitespace-nowrap"
+            className="text-5xl md:text-7xl font-bold mb-8 w-full text-transparent bg-clip-text bg-gradient-to-r from-cyber-blue via-electric-purple to-neon-pink overflow-hidden whitespace-nowrap"
             style={{ width: '0ch' }}
           >
-            CareerCompass AI – Find Your Future
+            CareerCompass AI – Find Future
           </motion.h1>
           
           <motion.p 

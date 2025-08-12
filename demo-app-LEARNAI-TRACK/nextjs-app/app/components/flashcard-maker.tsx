@@ -3,8 +3,8 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Flashcard, FlashcardSet } from '../../types/career';
-import { Button } from '../ui/Button';
-import { Card } from '../ui/Card';
+import { Button } from './ui/Button';
+import { Card } from './ui/Card';
 import { ChevronLeft, ChevronRight, RotateCcw, BookOpen, Brain } from 'lucide-react';
 
 interface FlashcardMakerProps {
@@ -158,7 +158,7 @@ const FlashcardMaker: React.FC<FlashcardMakerProps> = ({
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2 }}
           >
-            🃏 AI Flashcard Maker
+           <span className="bg-transparent"> 🃏</span> AI Flashcard Maker
           </motion.h2>
           <p className="text-white/70">Generate interactive flashcards from your career notes</p>
         </div>

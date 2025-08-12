@@ -7,9 +7,9 @@ import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { Input } from '@/components/ui/Input';
 import { Select } from '@/components/ui/Select';
-import VoiceRecorder from '@/components/features/VoiceRecorder';
-import AIAvatar from '@/components/features/AIAvatar';
-import ProfileForm from '@/components/features/ProfileForm';
+import VoiceRecorder from '@/components/voice-recorder';
+import AIAvatar from '@/components/AIavatar';
+import ProfileForm from '@/components/ProfileForm';
 import { 
   User, 
   Mic, 
@@ -21,7 +21,7 @@ import {
   Globe,
   Settings
 } from 'lucide-react';
-import { UserProfile, UserPreferences } from '@/types/user';
+import { UserProfile, UserPreferences } from '../../types-definitions';
 
 export default function ProfilePage() {
   const router = useRouter();
@@ -191,9 +191,8 @@ export default function ProfilePage() {
             <Card className="p-6 glassmorphism border-white/20 h-fit sticky top-8">
               <div className="text-center mb-6">
                 <AIAvatar 
-                  isListening={isListening}
-                  language={language}
-                  className="mb-4"
+                  speaking={isListening}
+
                 />
                 <h3 className="text-xl font-bold text-white mb-2">Career Assistant</h3>
                 <p className="text-white/70 text-sm">
@@ -230,14 +229,15 @@ export default function ProfilePage() {
                     <Languages className="w-4 h-4 text-electric-purple" />
                     <span className="text-sm text-white/80">Language</span>
                   </div>
-                  <select
+                  {/* <select
                     value={language}
                     onChange={(e) => setLanguage(e.target.value as 'en' | 'hi')}
-                    className="bg-white/10 border border-white/20 rounded px-2 py-1 text-sm text-white"
+                    className="bg-white/10 border border-white/20 rounded px-2 py-1 text-sm text-white "
                   >
-                    <option value="en">English</option>
-                    <option value="hi">हिंदी</option>
-                  </select>
+                    <option value="en" className="text-black">English</option>
+                    <option value="hi"className="text-black">हिंदी</option>
+                  </select> */}
+                  <Select  label="languages" options={[{value:'en', label:'English'},{value:'hi', label:'Hindi'}]}/>
                 </div>
 
                 {voiceEnabled && (
@@ -339,6 +339,7 @@ const SkillsStep = ({ profile, setProfile, voiceEnabled }: any) => {
       </div>
 
       <div className="space-y-4">
+        <ProfileForm onSubmit={()=>{}}/>
         <div className="flex space-x-2">
           <Input
             value={skillInput}

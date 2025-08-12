@@ -16,8 +16,8 @@ from datetime import datetime
 
 from app.routes import career, voice, ai, auth
 from app.services.ollama_service import OllamaService
-from app.services.openai_service import OpenAIService
-from app.services.elevenlabs_service import ElevenLabsService
+# from app.services.openai_service import OpenAIService
+# from app.services.elevenlabs_service import ElevenLabsService
 from app.services.career_analyzer import CareerAnalyzer
 from app.core.database import init_db
 from app.core.exceptions import APIException

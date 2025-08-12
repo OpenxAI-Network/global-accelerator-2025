@@ -3,8 +3,8 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { LearningPath, LearningStep } from '../../types/career';
-import { Button } from '../ui/Button';
-import { Card } from '../ui/Card';
+import { Button } from './ui/Button';
+import { Card } from './ui/Card';
 import { 
   CheckCircle, 
   Clock, 
