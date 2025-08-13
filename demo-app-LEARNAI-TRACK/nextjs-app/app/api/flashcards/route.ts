@@ -1,17 +1,17 @@
 import { NextRequest, NextResponse } from 'next/server' 
   
- export async function POST(req: NextRequest) { 
-   try { 
-     const { notes } = await req.json() 
+export async function POST(req: NextRequest) { 
+  try { 
+    const { notes } = await req.json() 
   
-     if (!notes) { 
-       return NextResponse.json( 
-         { error: 'Notes are required' }, 
-         { status: 400 } 
-       ) 
-     } 
+    if (!notes) { 
+      return NextResponse.json( 
+        { error: 'Notes are required' }, 
+        { status: 400 } 
+      ) 
+    } 
   
-     const prompt = `Create flashcards from the following notes. Generate 5-8 flashcards in JSON format with the following structure: 
+    const prompt = `Create flashcards from the following notes. Generate 5-8 flashcards in JSON format with the following structure: 
  { 
    "flashcards": [ 
      { 
