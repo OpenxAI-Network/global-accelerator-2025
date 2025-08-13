@@ -1,108 +1,174 @@
-import { NextRequest, NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server';
+
+interface Flashcard {
+  front: string;
+  back: string;
+}
+
+interface FlashcardsResponse {
+  success: boolean;
+  flashcards?: Flashcard[];
+  error?: string;
+  source: 'ollama' | 'fallback';
+}
+
+function extractAndParseJSON(text: string): any {
+  let cleanText = text.trim();
+
+  // Remove markdown code fences
+  cleanText = cleanText.replace(/```/g, '');
+
+  try {
+    const directParse = JSON.parse(cleanText);
+
+    // If Ollama mistakenly returns back as JSON string, fix it
+    if (
+      directParse.front &&
+      typeof directParse.back === 'string' &&
+      directParse.back.trim().startsWith('{')
+    ) {
+      try {
+        const inner = JSON.parse(directParse.back);
+        // Merge values into one string
+        directParse.back = Object.values(inner).join(' ');
+      } catch {
+        // leave as-is if parse fails
+      }
+    }
+
+    // Case 1: Already has flashcards array
+    if (directParse.flashcards && Array.isArray(directParse.flashcards)) {
+      return directParse;
+    }
+
+    // Case 2: Single flashcard object
+    if (directParse.front && directParse.back) {
+      return { flashcards: [directParse] };
+    }
+
+    // Case 3: Array of flashcard objects
+    if (
+      Array.isArray(directParse) &&
+      directParse.length > 0 &&
+      directParse[0].front &&
+      directParse[0].back
+    ) {
+      return { flashcards: directParse };
+    }
+  } catch (error) {
+    console.log('Direct parsing failed:', error);
+  }
+
+  // throw new Error('Unable to extract valid JSON');
+}
 
 export async function POST(req: NextRequest) {
   try {
-    const { notes } = await req.json()
+    const { notes } = await req.json();
 
-    if (!notes) {
+    if (!notes || notes.trim().length < 20) {
       return NextResponse.json(
-        { error: 'Notes are required' },
+        {
+          success: false,
+          error: 'Notes must be at least 20 characters long',
+        } as FlashcardsResponse,
         { status: 400 }
-      )
+      );
     }
 
-    const prompt = `Create flashcards from the following notes. Generate 5-8 flashcards in JSON format with the following structure:
+    // Stronger prompt to enforce correct JSON output
+    const prompt = `Create exactly 3-4 flashcards from the following notes.
+Output MUST be valid JSON only — no markdown, no extra text.
+Each flashcard should have:
+- "front": plain text question or term
+- "back": plain text answer or explanation
+
+Format:
 {
   "flashcards": [
-    {
-      "front": "Question or term",
-      "back": "Answer or definition"
-    }
+    { "front": "definition here", "back": "expalnation breifly here" }
   ]
 }
 
-Focus on key concepts, definitions, and important facts. Make questions clear and answers concise.
+Do NOT include nested JSON or escape sequences inside "front" or "back".
 
-Notes: ${notes}`
+Notes: ${notes}`;
 
     try {
-      // Try Ollama first (local AI)
       const response = await fetch('http://localhost:11434/api/generate', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           model: 'llama3.2:1b',
-          prompt: prompt,
+          prompt,
           stream: false,
         }),
-      })
+      });
 
       if (response.ok) {
-        const data = await response.json()
-        
+        const data = await response.json();
+
         try {
-          // Try to parse JSON from the response
-          const flashcardsMatch = data.response.match(/\{[\s\S]*\}/)
-          if (flashcardsMatch) {
-            const flashcardsData = JSON.parse(flashcardsMatch[0])
-            return NextResponse.json(flashcardsData)
+          console.log('Raw Ollama response:', data.response);
+
+          const parsed = extractAndParseJSON(data.response);
+
+          if (
+            parsed.flashcards &&
+            Array.isArray(parsed.flashcards) &&
+            parsed.flashcards.length > 0
+          ) {
+            const validFlashcards = parsed.flashcards
+              .filter(
+                (card: any) =>
+                  card.front &&
+                  card.back &&
+                  typeof card.front === 'string' &&
+                  typeof card.back === 'string' &&
+                  card.front.trim().length > 2 &&
+                  card.back.trim().length > 5
+              )
+              .map((card: any) => ({
+                front: card.front.trim(),
+                back: card.back.trim(),
+              }));
+
+            if (validFlashcards.length > 0) {
+              console.log(
+                'Successfully parsed flashcards:',
+                validFlashcards.length
+              );
+              return NextResponse.json({
+                success: true,
+                flashcards: validFlashcards,
+                source: 'ollama',
+              } as FlashcardsResponse);
+            }
           }
         } catch (parseError) {
-          console.log('Could not parse JSON, creating fallback flashcards')
+          console.log('JSON parsing failed:', parseError);
+          console.log('Failed text:', data.response?.substring(0, 500));
         }
-        
-        // Fallback: create structured flashcards from response
-        const lines = data.response.split('\n').filter((line: string) => line.trim())
-        const flashcards = []
-        
-        for (let i = 0; i < Math.min(lines.length, 6); i += 2) {
-          if (lines[i] && lines[i + 1]) {
-            flashcards.push({
-              front: lines[i].replace(/^[0-9\.\-\*\s]+/, '').trim(),
-              back: lines[i + 1].replace(/^[0-9\.\-\*\s]+/, '').trim()
-            })
-          }
-        }
-        
-        return NextResponse.json({ flashcards })
       }
     } catch (ollamaError) {
-      console.log('Ollama not available, using fallback')
+      console.log('Ollama error:', ollamaError);
     }
 
-    // Fallback: create sample flashcards
-    const fallbackFlashcards = [
-      {
-        front: "What are the key skills for career advancement?",
-        back: "Communication, leadership, problem-solving, adaptability, and continuous learning are essential for career growth."
-      },
-      {
-        front: "How important is networking for career success?",
-        back: "Networking is crucial - studies show that 70-80% of jobs are never publicly advertised and are filled through networking."
-      },
-      {
-        front: "What is the best way to prepare for career transitions?",
-        back: "Research the target role, develop relevant skills, update your resume, build connections in the industry, and practice interviewing."
-      },
-      {
-        front: "Why is continuous learning important in today's job market?",
-        back: "Technology and industries evolve rapidly. Continuous learning helps you stay relevant, competitive, and adaptable to change."
-      },
-      {
-        front: "What role does personal branding play in career development?",
-        back: "Personal branding helps you stand out, builds credibility, attracts opportunities, and communicates your unique value proposition."
-      }
-    ]
-
-    return NextResponse.json({ flashcards: fallbackFlashcards })
-
-  } catch (error) {
-    console.error('Flashcards API error:', error)
     return NextResponse.json(
-      { error: 'Failed to generate flashcards' },
+      {
+        success: false,
+        error: 'Failed to generate valid flashcards from AI response',
+      } as FlashcardsResponse,
       { status: 500 }
-    )
+    );
+  } catch (error) {
+    console.error('Flashcards API error:', error);
+    return NextResponse.json(
+      {
+        success: false,
+        error: 'Failed to generate flashcards',
+      } as FlashcardsResponse,
+      { status: 500 }
+    );
   }
 }

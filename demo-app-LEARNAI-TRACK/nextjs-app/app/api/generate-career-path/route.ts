@@ -308,8 +308,8 @@ function calculateDetailedMatchScore(profile: any, career: any): number {
   const userSkills = (profile.skills || []).map((s: string) => s.toLowerCase())
   const careerSkills = career.skills.map((s: any) => s.name.toLowerCase())
   
-  const skillMatches = careerSkills.filter(skill => 
-    userSkills.some(userSkill => 
+  const skillMatches = careerSkills.filter((skill: string) => 
+    userSkills.some((userSkill: string) => 
       userSkill.includes(skill) || skill.includes(userSkill)
     )
   ).length
@@ -322,7 +322,7 @@ function calculateDetailedMatchScore(profile: any, career: any): number {
   const careerField = career.title.toLowerCase()
   
   let interestMatch = 0
-  if (userInterests.some(interest => careerField.includes(interest))) {
+  if (userInterests.some((interest: any) => careerField.includes(interest))) {
     interestMatch = 25
   } else if (userInterests.length > 0) {
     // Partial match based on related interests

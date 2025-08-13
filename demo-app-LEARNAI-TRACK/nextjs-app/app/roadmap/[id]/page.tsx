@@ -340,14 +340,14 @@ export default function RoadmapPage() {
           <Card className="p-6 glassmorphism border-white/20 inline-block">
             <h3 className="text-xl font-bold text-white mb-4">Ready to Start Your Journey?</h3>
             <div className="flex flex-col sm:flex-row gap-4">
-              <Link href="/learn/flashcards">
+              <Link href="/learn">
                 <Button className="bg-gradient-to-r from-cyber-blue to-electric-purple hover:from-cyber-blue/80 hover:to-electric-purple/80">
                   <BookOpen className="w-4 h-4 mr-2" />
                   Study with Flashcards
                 </Button>
               </Link>
               
-              <Link href="/learn/quiz">
+              <Link href="/learn">
                 <Button variant="outline" className="glassmorphism border-white/30">
                   <Award className="w-4 h-4 mr-2" />
                   Take Practice Quiz
