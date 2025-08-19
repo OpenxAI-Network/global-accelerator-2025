@@ -1,0 +1,239 @@
+{% extends "base.html" %}
+
+{% block title %}Auto Grading - LearnAI{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2>
+                <i class="fas fa-clipboard-check text-warning me-2"></i>
+                Auto Grading System
+            </h2>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-8">
+        <!-- Submission Form -->
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-upload me-2"></i>
+                    Submit Your Work
+                </h5>
+            </div>
+            <div class="card-body">
+                <form id="gradingForm">
+                    <div class="mb-3">
+                        <label for="submissionType" class="form-label">Submission Type</label>
+                        <select class="form-select" id="submissionType" required>
+                            <option value="">Choose submission type...</option>
+                            <option value="essay">Essay</option>
+                            <option value="short_answer">Short Answer</option>
+                            <option value="math_problem">Math Problem</option>
+                            <option value="code">Programming Code</option>
+                            <option value="creative_writing">Creative Writing</option>
+                            <option value="lab_report">Lab Report</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="submissionTitle" class="form-label">Title (Optional)</label>
+                        <input type="text" class="form-control" id="submissionTitle" 
+                               placeholder="Enter a title for your submission">
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="submissionContent" class="form-label">Your Work</label>
+                        <textarea class="form-control" id="submissionContent" rows="10" 
+                                  placeholder="Paste or type your work here..." required></textarea>
+                        <div class="form-text">
+                            <span id="wordCount">0</span> words
+                        </div>
+                    </div>
+
+                    <!-- Custom Rubric Section -->
+                    <div class="card border-secondary mb-3">
+                        <div class="card-header">
+                            <h6 class="mb-0">
+                                <i class="fas fa-list-alt me-2"></i>
+                                Grading Rubric (Optional)
+                            </h6>
+                        </div>
+                        <div class="card-body">
+                            <p class="small text-muted">
+                                Define custom grading criteria or use our default rubric
+                            </p>
+                            
+                            <div id="rubricContainer">
+                                <div class="rubric-criterion mb-3">
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <input type="text" class="form-control" 
+                                                   placeholder="Criterion (e.g., Content Quality)" 
+                                                   name="criterion">
+                                        </div>
+                                        <div class="col-md-3">
+                                            <input type="number" class="form-control" 
+                                                   placeholder="Max Points" min="1" max="100" 
+                                                   name="maxPoints">
+                                        </div>
+                                        <div class="col-md-3">
+                                            <button type="button" class="btn btn-outline-danger btn-sm remove-criterion">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <button type="button" class="btn btn-outline-secondary btn-sm" id="addCriterion">
+                                <i class="fas fa-plus me-1"></i>Add Criterion
+                            </button>
+                            <button type="button" class="btn btn-outline-info btn-sm ms-2" id="useDefaultRubric">
+                                <i class="fas fa-magic me-1"></i>Use Default Rubric
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-warning btn-lg" id="gradeBtn">
+                            <i class="fas fa-check-circle me-2"></i>
+                            Grade My Work
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Grading Progress -->
+        <div class="card mt-3" id="gradingProgress" style="display: none;">
+            <div class="card-body text-center">
+                <div class="spinner-border text-warning mb-3" role="status">
+                    <span class="visually-hidden">Grading...</span>
+                </div>
+                <h5>Analyzing Your Submission</h5>
+                <p class="text-muted">Our AI is carefully evaluating your work...</p>
+                <div class="progress">
+                    <div class="progress-bar progress-bar-striped progress-bar-animated" 
+                         role="progressbar" style="width: 0%" id="gradingProgressBar"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Grading Results -->
+        <div id="gradingResults" style="display: none;">
+            <!-- Results will be populated here -->
+        </div>
+    </div>
+
+    <div class="col-lg-4">
+        <!-- Grading Info -->
+        <div class="card">
+            <div class="card-header">
+                <h6 class="mb-0">
+                    <i class="fas fa-info-circle me-2"></i>
+                    How Grading Works
+                </h6>
+            </div>
+            <div class="card-body">
+                <div class="small">
+                    <div class="mb-3">
+                        <h6>AI-Powered Analysis</h6>
+                        <p>Our advanced AI evaluates your work based on content quality, structure, grammar, and adherence to requirements.</p>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <h6>Detailed Feedback</h6>
+                        <p>Receive specific comments on strengths, areas for improvement, and actionable suggestions.</p>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <h6>Rubric-Based Scoring</h6>
+                        <p>Grades are calculated using clear criteria, ensuring consistent and fair assessment.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Submission Tips -->
+        <div class="card mt-3">
+            <div class="card-header">
+                <h6 class="mb-0">
+                    <i class="fas fa-lightbulb me-2"></i>
+                    Submission Tips
+                </h6>
+            </div>
+            <div class="card-body">
+                <div class="small">
+                    <ul class="list-unstyled">
+                        <li class="mb-2">
+                            <i class="fas fa-check text-success me-2"></i>
+                            Proofread your work before submitting
+                        </li>
+                        <li class="mb-2">
+                            <i class="fas fa-check text-success me-2"></i>
+                            Include clear explanations of your reasoning
+                        </li>
+                        <li class="mb-2">
+                            <i class="fas fa-check text-success me-2"></i>
+                            Follow proper formatting and structure
+                        </li>
+                        <li class="mb-2">
+                            <i class="fas fa-check text-success me-2"></i>
+                            Show your work for math problems
+                        </li>
+                        <li class="mb-2">
+                            <i class="fas fa-check text-success me-2"></i>
+                            Use specific examples to support your points
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Grades -->
+        {% if recent_grades %}
+        <div class="card mt-3">
+            <div class="card-header">
+                <h6 class="mb-0">
+                    <i class="fas fa-history me-2"></i>
+                    Recent Submissions
+                </h6>
+            </div>
+            <div class="card-body">
+                {% for grade in recent_grades[:5] %}
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <div>
+                        <small class="text-muted">{{ grade.submission_type.replace('_', ' ').title() }}</small>
+                        <br>
+                        <small>{{ grade.created_at.strftime('%m/%d %I:%M %p') }}</small>
+                    </div>
+                    <div class="text-end">
+                        <span class="badge bg-{{ 'success' if grade.score >= 80 else 'warning' if grade.score >= 60 else 'danger' }}">
+                            {{ grade.score|round }}%
+                        </span>
+                    </div>
+                </div>
+                {% if not loop.last %}<hr class="my-2">{% endif %}
+                {% endfor %}
+                
+                {% if recent_grades|length > 5 %}
+                <div class="text-center mt-3">
+                    <a href="{{ url_for('dashboard') }}" class="btn btn-sm btn-outline-primary">
+                        View All Grades
+                    </a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script src="{{ url_for('static', filename='js/grading.js') }}"></script>
+{% endblock %}
