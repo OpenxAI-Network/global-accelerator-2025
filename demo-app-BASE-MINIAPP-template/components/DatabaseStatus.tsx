@@ -43,6 +43,8 @@ export default function DatabaseStatus() {
           lastCheck: new Date(),
           error: data.error || 'Unknown error'
         });
+
+        //maked some change 
       }
     } catch (error) {
       setStatus({
