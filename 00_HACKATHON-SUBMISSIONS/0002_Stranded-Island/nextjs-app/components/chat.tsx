@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 
 interface StoryState {
   choices: string[];
@@ -34,16 +34,28 @@ export function Chat() {
     previousChoices: []
   });
 
-  // Initialize the game with welcome message and start button
+  // Ref for auto-scrolling to new content
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  // Auto-scroll to bottom when new messages arrive
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages]);
+
+  // Initialize the game with welcome message
   useEffect(() => {
     const welcomeMessage: Message = {
       id: '1',
       type: 'ai',
-      content: `🏝️ **STRANDED ISLAND ADVENTURE** 🏝️
+      content: `
 
-Welcome to your mysterious island adventure! You're about to embark on a journey where every choice matters and the story unfolds based on your decisions.
+Welcome to your mysterious island adventure. You're about to embark on a journey where every choice matters and the story unfolds based on your decisions.
 
-Ready to begin your adventure?`,
+Type anything in the textbox below to begin your adventure.`,
       timestamp: new Date()
     };
     setMessages([welcomeMessage]);
@@ -96,6 +108,13 @@ Ready to begin your adventure?`,
   const sendMessage = async () => {
     if (!message.trim() || loading) return;
 
+    // Check if this is a start command - now accepts ANY text input
+    if (!gameStarted) {
+      // Start the game with any input
+      await startGame();
+      return;
+    }
+
     const userMessage: Message = {
       id: Date.now().toString(),
       type: 'user',
@@ -146,7 +165,7 @@ Ready to begin your adventure?`,
       setError(err.message || "Failed to send message");
     } finally {
       setLoading(false);
-      setMessage("");
+      setMessage(""); // Clear the input box after sending
     }
   };
 
@@ -223,178 +242,135 @@ Ready to begin your adventure?`,
     const welcomeMessage: Message = {
       id: '1',
       type: 'ai',
-      content: `🏝️ **STRANDED ISLAND ADVENTURE** 🏝️
+      content: `
 
-Welcome to your mysterious island adventure! You're about to embark on a journey where every choice matters and the story unfolds based on your decisions.
+Welcome to your mysterious island adventure. You're about to embark on a journey where every choice matters and the story unfolds based on your decisions.
 
-Ready to begin your adventure?`,
+Type anything in the textbox below to begin your adventure.`,
       timestamp: new Date()
     };
     setMessages([welcomeMessage]);
   };
 
-  const getMilestoneProgress = () => {
-    const totalMilestones = 5;
-    const completed = storyState.currentMilestone - 1; // Use current milestone as progress
-    return Math.round((completed / totalMilestones) * 100);
-  };
-
   return (
-    <div className="min-h-screen island-bg p-4">
-      <div className="story-container">
-        {/* Header */}
-        <div className="text-center mb-6">
-          <h1 className="text-4xl font-bold text-storm-gray mb-2 text-shadow">
-            🏝️ Stranded Island Adventure 🏝️
-          </h1>
-          <p className="text-ocean-blue font-medium">
-            A choose-your-own-adventure story powered by AI
-          </p>
+    <div className="min-h-screen bg-gradient-to-r from-sky-300 via-cyan-300 to-teal-300">
+      {/* Fixed Header */}
+      <div className="fixed top-0 left-0 right-0 z-50 header-glass shadow-lg">
+        <div className="max-w-4xl mx-auto px-6 py-4">
+          <div className="flex items-center justify-between">
+            <div className="text-center flex-1">
+              <h1 className="text-3xl font-bold text-white text-shadow">
+                Stranded Island
+              </h1>
+              <p className="text-white/90 text-sm font-medium mt-1">
+                A choose-your-own-adventure story powered by AI
+              </p>
+            </div>
+            
+            {/* Game Controls */}
+            <div className="flex items-center gap-3">
+              {gameStarted && (
+                <button
+                  onClick={resetGame}
+                  className="px-4 py-2 bg-white/20 text-white rounded-lg hover:bg-white/30 transition-colors text-sm shadow-lg backdrop-blur-sm"
+                >
+                  Reset
+                </button>
+              )}
+            </div>
+          </div>
         </div>
+      </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-          {/* Main Story Area */}
-          <div className="lg:col-span-3">
-            <div className="bg-white/95 rounded-lg p-6 shadow-lg min-h-[500px]">
-              <div className="space-y-4 mb-4">
-                {messages.map((msg) => (
-                  <div
-                    key={msg.id}
-                    className={`p-4 rounded-lg ${
-                      msg.type === 'user'
-                        ? 'bg-ocean-blue text-white ml-8'
-                        : 'bg-jungle-green text-white mr-8'
-                    }`}
-                  >
-                    <div className="whitespace-pre-wrap">{msg.content}</div>
-                    <div className="text-xs opacity-75 mt-2">
-                      {msg.timestamp.toLocaleTimeString()}
+      {/* Main Content Area - Floating Text */}
+      <div className="pt-24 pb-32"> {/* Top padding for fixed header, bottom padding for fixed input */}
+        <div className="max-w-4xl mx-auto px-6">
+          {/* Story Container - Floating Text */}
+          <div className="min-h-[600px] max-h-[70vh] overflow-y-auto">
+            <div className="space-y-8">
+              {messages.map((msg) => (
+                <div
+                  key={msg.id}
+                  className={`${
+                    msg.type === 'user'
+                      ? 'text-right'
+                      : 'text-left'
+                  }`}
+                >
+                  <div className="text-white leading-relaxed">
+                    <div className="whitespace-pre-wrap text-lg font-light">
+                      {msg.content}
+                    </div>
+                    <div className="text-white/70 text-xs mt-3 opacity-70">
+                      {msg.type === 'user' ? 'You' : 'AI'} • {msg.timestamp.toLocaleTimeString()}
                     </div>
                   </div>
-                ))}
-              </div>
+                </div>
+              ))}
 
               {loading && (
-                <div className="text-center py-4">
-                  <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-jungle-green"></div>
-                  <p className="text-storm-gray mt-2">The story unfolds...</p>
+                <div className="text-center py-8">
+                  <div className="inline-flex items-center gap-3">
+                    <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-white/60"></div>
+                    <span className="text-white/80 text-lg font-light">The story unfolds...</span>
+                  </div>
                 </div>
               )}
 
               {error && (
-                <div className="bg-coral-pink text-white p-3 rounded-lg mb-4">
-                  Error: {error}
+                <div className="text-red-200 text-center mx-12">
+                  <div className="flex items-center gap-2">
+                    <span>Error:</span>
+                    <span>{error}</span>
+                  </div>
                 </div>
               )}
 
-              {/* Input Area */}
-              <div className="flex gap-2 mt-4">
-                <input
-                  type="text"
-                  value={message}
-                  onChange={(e) => setMessage(e.target.value)}
-                  onKeyPress={handleKeyPress}
-                  placeholder="Type your choice or message..."
-                  disabled={loading}
-                  className="flex-1 p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-jungle-green focus:border-transparent"
-                />
-                <button
-                  onClick={sendMessage}
-                  disabled={loading || !message.trim()}
-                  className="px-6 py-3 bg-jungle-green text-white rounded-lg hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                >
-                  Send
-                </button>
-              </div>
+              {/* Invisible div for auto-scrolling */}
+              <div ref={messagesEndRef} />
             </div>
           </div>
+        </div>
+      </div>
 
-          {/* Sidebar - Stats & Progress */}
-          <div className="lg:col-span-1">
-            <div className="space-y-4">
-              {/* Game Stats */}
-              <div className="bg-white/95 rounded-lg p-4 shadow-lg">
-                <h3 className="text-lg font-bold text-storm-gray mb-3">📊 Game Stats</h3>
-                <div className="space-y-2">
-                  <div className="flex justify-between">
-                    <span>Health:</span>
-                    <span className={`font-bold ${storyState.health > 50 ? 'text-jungle-green' : 'text-coral-pink'}`}>
-                      {storyState.health}%
-                    </span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>Location:</span>
-                    <span className="font-medium text-ocean-blue">{storyState.currentLocation}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>Milestone:</span>
-                    <span className="font-medium text-sunset-orange">
-                      {storyState.currentMilestone}/5
-                    </span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>Step:</span>
-                    <span className="font-medium text-purple-600">
-                      {storyState.milestoneStep}/2
-                    </span>
-                  </div>
-                </div>
-              </div>
-
-              {/* Progress Bar */}
-              <div className="bg-white/95 rounded-lg p-4 shadow-lg">
-                <h3 className="text-lg font-bold text-storm-gray mb-3">🎯 Story Progress</h3>
-                <div className="w-full bg-gray-200 rounded-full h-2.5 mb-2">
-                  <div 
-                    className="bg-gradient-to-r from-jungle-green to-ocean-blue h-2.5 rounded-full transition-all duration-500"
-                    style={{ width: `${getMilestoneProgress()}%` }}
-                  ></div>
-                </div>
-                <p className="text-sm text-gray-600 text-center">
-                  Milestone {storyState.currentMilestone} of 5
-                </p>
-                <p className="text-xs text-gray-500 text-center">
-                  Step {storyState.milestoneStep} of 2
-                </p>
-              </div>
-
-              {/* Recent Choices */}
-              <div className="bg-white/95 rounded-lg p-4 shadow-lg">
-                <h3 className="text-lg font-bold text-storm-gray mb-3">🎯 Recent Choices</h3>
-                {storyState.choices.length === 0 ? (
-                  <p className="text-gray-500 text-sm">No choices made yet</p>
-                ) : (
-                  <div className="space-y-2">
-                    {storyState.choices.slice(-3).map((choice, index) => (
-                      <div key={index} className="text-sm text-gray-700 bg-gray-100 p-2 rounded">
-                        {choice}
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-
-              {/* Start Game Button */}
-              {!gameStarted && (
-                <button
-                  onClick={startGame}
-                  className="w-full p-3 bg-jungle-green text-white rounded-lg hover:bg-green-700 transition-colors"
-                >
-                  🚀 Start Game
-                </button>
-              )}
-
-              {/* Reset Game Button */}
-              {gameStarted && (
-                <button
-                  onClick={resetGame}
-                  className="w-full p-3 bg-storm-gray text-white rounded-lg hover:bg-gray-700 transition-colors"
-                >
-                  🔄 Reset Game
-                </button>
-              )}
+      {/* Fixed Input Area */}
+      <div className="fixed bottom-0 left-0 right-0 z-50 bg-white/20 backdrop-blur-md border-t border-white/30 shadow-lg">
+        <div className="max-w-4xl mx-auto px-6 py-6">
+          <div className="flex gap-4 items-end">
+            <div className="flex-1">
+              <label htmlFor="message-input" className="block text-sm font-medium text-white/90 mb-2">
+                {!gameStarted ? "Type anything to begin your adventure" : "What would you like to do?"}
+              </label>
+              <input
+                id="message-input"
+                type="text"
+                value={message}
+                onChange={(e) => setMessage(e.target.value)}
+                onKeyPress={handleKeyPress}
+                placeholder={!gameStarted ? "Type anything to start..." : "Type your choice or message..."}
+                disabled={loading}
+                className="w-full p-4 bg-white/20 border border-white/30 rounded-xl focus:ring-2 focus:ring-white/50 focus:border-transparent text-lg text-white placeholder-white/60 transition-all duration-200 backdrop-blur-sm"
+              />
             </div>
+            <button
+              onClick={sendMessage}
+              disabled={loading || !message.trim()}
+              className="px-8 py-4 bg-white/30 text-white rounded-xl hover:bg-white/40 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 font-medium text-lg shadow-lg hover:shadow-xl backdrop-blur-sm"
+            >
+              {loading ? 'Sending...' : 'Send'}
+            </button>
           </div>
+          
+          {/* Subtle Progress Indicator */}
+          {gameStarted && (
+            <div className="mt-4 text-center">
+              <div className="inline-flex items-center gap-2 text-sm text-white/70">
+                <span>Milestone {storyState.currentMilestone} of 5</span>
+                <span>•</span>
+                <span>Step {storyState.milestoneStep} of 2</span>
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </div>
