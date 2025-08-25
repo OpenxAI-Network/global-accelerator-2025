@@ -25,18 +25,16 @@ const SYSTEM_PROMPT = `You are the narrator and game master for "Stranded Island
 
 CRITICAL RULES:
 - NEVER repeat the opening scene - player is already awake
-- Keep narration EXACTLY 200 words or less
+- Keep narration EXACTLY 100 words or less
 - Always provide 2-4 numbered choices
 - Each response must progress the story toward the next milestone
-- Reference previous choices and events for continuity
 - Guide player to next milestone in 2 prompts maximum
 - Tone: Engaging, thrilling, with some humor
-- CRITICAL: Your response MUST directly continue from the player's choice
 - CRITICAL: After exactly 2 prompts, the milestone MUST be completed
 - CRITICAL: The story MUST end after milestone 5
 
 RESPONSE FORMAT:
-1. Brief narration continuing from previous choice (200 words max)
+1. Brief narration continuing from previous choice (100 words max)
 2. 2-4 numbered choices for next action
 3. Each choice should move story forward`;
 
@@ -239,16 +237,15 @@ ${milestoneGuidance}
 PREVIOUS AI NARRATION:
 ${storyState?.lastAIMessage || "No previous narration"}
 
-CRITICAL INSTRUCTIONS:
-1. Your response MUST directly continue from the player's choice "${selectedChoice}"
+CRITICAL INSTRUCTIONS (Do not display these in your response):
+1. Your response must directly continue from the player's choice "${selectedChoice}"
 2. DO NOT ignore what the player chose - build your story around their specific choice
-3. ${isMilestoneCompletion ? 'THIS IS STEP 2 - YOU MUST COMPLETE THE MILESTONE NOW' : 'This is step 1 - guide toward the milestone'}
-4. Reference previous choices and events for continuity
-5. Keep narration EXACTLY 200 words or less
-6. Provide 2-4 numbered choices for next action
-7. Each choice must progress the story forward
-8. ${isMilestoneCompletion ? 'MILESTONE MUST BE COMPLETED IN THIS RESPONSE' : 'Do not complete milestone yet - this is step 1'}
-9. ${isFinalMilestone ? 'THIS IS THE FINAL MILESTONE - THE STORY MUST END' : 'Continue building toward next milestone'}
+3. Reference previous choices and events for continuity
+4. Keep narration EXACTLY 100 words or less
+5. Provide 2-4 numbered choices for next action
+6. Each choice must progress the story forward
+7. ${isMilestoneCompletion ? 'MILESTONE MUST BE COMPLETED IN THIS RESPONSE' : 'Do not complete milestone yet - this is step 1'}
+8. ${isFinalMilestone ? 'THIS IS THE FINAL MILESTONE - THE STORY MUST END' : 'Continue building toward next milestone'}
 
 REMEMBER: The player chose "${selectedChoice}" - your story MUST continue from that exact choice, not from something else!
 ${isMilestoneCompletion ? 'CRITICAL: Complete the milestone now - this is step 2!' : 'CRITICAL: Do not complete milestone yet - this is step 1!'}
