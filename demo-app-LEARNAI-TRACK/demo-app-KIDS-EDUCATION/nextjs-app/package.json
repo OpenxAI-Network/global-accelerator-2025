@@ -1,0 +1,44 @@
+{
+  "name": "kids-education-app",
+  "version": "1.0.0",
+  "description": "Simple kids education app with flashcards and Ollama AI",
+  "main": "index.js",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
+  },
+  "keywords": [
+    "nextjs",
+    "react",
+    "kids",
+    "education",
+    "flashcards",
+    "ollama",
+    "farcaster",
+    "miniapp"
+  ],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@coinbase/onchainkit": "^0.38.19",
+    "next": "14.0.4",
+    "pino-pretty": "^13.1.1",
+    "react": "^18",
+    "react-dom": "^18",
+    "viem": "^2.35.1",
+    "wagmi": "^2.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20",
+    "@types/react": "^18",
+    "@types/react-dom": "^18",
+    "autoprefixer": "^10.0.1",
+    "eslint": "^8",
+    "eslint-config-next": "14.0.4",
+    "postcss": "^8",
+    "tailwindcss": "^3.3.0",
+    "typescript": "^5"
+  }
+}

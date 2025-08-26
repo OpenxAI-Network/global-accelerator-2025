@@ -1,0 +1,55 @@
+{
+  "name": "vibe-trading-ai-signals",
+  "version": "1.0.0",
+  "description": "AI-powered trading signals for Base chain tokens",
+  "main": "index.js",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "init-db": "node scripts/init-db.js",
+    "pull-eth-data": "node scripts/pull-farcaster-eth-data.js",
+    "populate-eth-prices": "node scripts/populate-eth-prices.js",
+    "sync-mentions-prices": "node scripts/sync-mentions-with-prices.js",
+    "cleanup-corrupted-prices": "node scripts/cleanup-corrupted-prices.js",
+    "cleanup-corrupted-casts": "node scripts/cleanup-corrupted-casts.js",
+    "generate-mock-farcaster-data": "node scripts/generate-mock-farcaster-data.js",
+    "check-db": "node scripts/check-db.js"
+  },
+  "keywords": [
+    "trading",
+    "ai",
+    "base",
+    "farcaster",
+    "crypto"
+  ],
+  "author": "Vibe Trading Team",
+  "license": "MIT",
+  "dependencies": {
+    "@coinbase/onchainkit": "^0.38.19",
+    "@types/pg": "^8.15.5",
+    "chart.js": "^4.5.0",
+    "chartjs-adapter-date-fns": "^3.0.0",
+    "date-fns": "^4.1.0",
+    "dotenv": "^17.2.1",
+    "ethers": "^6.11.1",
+    "lucide-react": "^0.263.1",
+    "next": "14.0.4",
+    "pg": "^8.16.3",
+    "react": "^18",
+    "react-chartjs-2": "^5.3.0",
+    "react-dom": "^18"
+  },
+  "devDependencies": {
+    "@types/node": "^20",
+    "@types/react": "^18",
+    "@types/react-dom": "^18",
+    "autoprefixer": "^10.0.1",
+    "eslint": "^8",
+    "eslint-config-next": "14.0.4",
+    "postcss": "^8",
+    "tailwindcss": "^3.3.0",
+    "typescript": "^5"
+  }
+}
