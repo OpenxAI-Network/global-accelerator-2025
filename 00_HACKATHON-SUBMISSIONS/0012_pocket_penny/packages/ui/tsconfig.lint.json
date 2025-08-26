@@ -1,0 +1,11 @@
+{
+  "extends": "@pocketpenny/typescript-config/react-library.json",
+  "compilerOptions": {
+    "rootDir": "./src",
+    "composite": true,
+    "incremental": true,
+    "outDir": "dist"
+  },
+  "include": ["src", "turbo"],
+  "exclude": ["node_modules", "dist"]
+}
