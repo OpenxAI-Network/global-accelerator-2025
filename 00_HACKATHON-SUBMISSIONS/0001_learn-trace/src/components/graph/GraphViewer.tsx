@@ -24,6 +24,15 @@ interface Note {
   created_at: string;
 }
 
+interface ExternalResource {
+  id: string;
+  node_id: string;
+  title: string;
+  resource_link: string;
+  resource_type: string;
+  created_at: string;
+}
+
 interface ContextMenu {
   show: boolean;
   x: number;
@@ -46,6 +55,23 @@ interface NoteViewer {
   createdAt: string;
 }
 
+interface ResourceModal {
+  show: boolean;
+  nodeId: string | null;
+  resourceId?: string | null;
+  title: string;
+  resourceLink: string;
+}
+
+interface ResourceViewer {
+  show: boolean;
+  resourceId: string | null;
+  title: string;
+  resourceLink: string;
+  resourceType: string;
+  createdAt: string;
+}
+
 export default function GraphViewer() {
   const containerRef = useRef<HTMLDivElement>(null);
   const networkRef = useRef<Network | null>(null);
@@ -53,13 +79,14 @@ export default function GraphViewer() {
   const [nodes, setNodes] = useState<any[]>([]);
   const [edges, setEdges] = useState<any[]>([]);
   const [notes, setNotes] = useState<Note[]>([]);
+  const [resources, setResources] = useState<ExternalResource[]>([]);
   const [contextMenu, setContextMenu] = useState<ContextMenu>({
     show: false,
     x: 0,
     y: 0,
     nodeId: null,
   });
-  
+
   const [noteViewer, setNoteViewer] = useState<NoteViewer>({
     show: false,
     noteId: null,
@@ -75,11 +102,52 @@ export default function GraphViewer() {
     content: "",
   });
 
+  const [resourceModal, setResourceModal] = useState<ResourceModal>({
+    show: false,
+    nodeId: null,
+    resourceId: null,
+    title: "",
+    resourceLink: "",
+  });
+
+  const [resourceViewer, setResourceViewer] = useState<ResourceViewer>({
+    show: false,
+    resourceId: null,
+    title: "",
+    resourceLink: "",
+    resourceType: "",
+    createdAt: "",
+  });
+
   const [isTree, setIsTree] = useState(false);
 
   const router = useRouter();
   const searchParams = useSearchParams();
   const chatId = searchParams.get("chatId");
+
+  // Function to detect resource type from URL
+  const detectResourceType = (url: string) => {
+    if (url.includes("youtube.com") || url.includes("youtu.be"))
+      return "youtube";
+    if (url.includes("notion.so") || url.includes("notion.site"))
+      return "notion";
+    if (url.includes("github.com")) return "github";
+    if (url.includes("docs.google.com")) return "google-docs";
+    return "link";
+  };
+
+  // Function to get resource icon based on type
+  // Function to get resource icon Unicode code based on type
+  // Function to get resource icon Unicode code based on type
+const getResourceIconCode = (type: string) => {
+  switch (type) {
+    case 'youtube': return 'YT';
+    case 'notion': return 'N';
+    case 'github': return 'GH';
+    case 'google-docs': return 'GD';
+    default: return 'L';
+  }
+};
 
   useEffect(() => {
     if (!chatId) return;
@@ -111,11 +179,13 @@ export default function GraphViewer() {
         return;
       }
 
-      // Fetch notes (if notes table exists)
+      // Fetch notes
       const nodeIds = nodesData?.map((node) => node.id) || [];
       let notesData: Note[] = [];
+      let resourcesData: ExternalResource[] = [];
 
       if (nodeIds.length > 0) {
+        // Fetch notes
         try {
           const { data: fetchedNotes, error: notesError } = await supabase
             .from("notes")
@@ -127,6 +197,23 @@ export default function GraphViewer() {
           }
         } catch (err) {
           console.log("Notes table not found, continuing without notes");
+        }
+
+        // Fetch external resources
+        try {
+          const { data: fetchedResources, error: resourcesError } =
+            await supabase
+              .from("external_resources")
+              .select("*")
+              .in("node_id", nodeIds);
+
+          if (!resourcesError && fetchedResources) {
+            resourcesData = fetchedResources;
+          }
+        } catch (err) {
+          console.log(
+            "External resources table not found, continuing without resources"
+          );
         }
       }
 
@@ -141,7 +228,7 @@ export default function GraphViewer() {
       const noteNodes: any[] = [];
       const noteEdges: any[] = [];
 
-      notesData.forEach((note, index) => {
+      notesData.forEach((note) => {
         const parentNode = parsedNodes.find(
           (n) => n.id === String(note.node_id)
         );
@@ -205,6 +292,75 @@ export default function GraphViewer() {
         }
       });
 
+      // Create resource nodes and edges
+      const resourceNodes: any[] = [];
+      const resourceEdges: any[] = [];
+
+      resourcesData.forEach((resource) => {
+        const parentNode = parsedNodes.find(
+          (n) => n.id === String(resource.node_id)
+        );
+        if (parentNode) {
+          const resourceNodeId = `resource_${resource.id}`;
+          const resourceType = detectResourceType(resource.resource_link);
+
+          resourceNodes.push({
+            id: resourceNodeId,
+            // Remove label completely or set it to empty string
+            label: "",
+            title: `${resource.title}`, // This shows on hover
+            shape: "icon", // Use icon shape instead of dot
+            icon: {
+              face: "Arial",
+              code: getResourceIconCode(resourceType), // Use Unicode codes instead of emojis
+              size: 30, // Size of the icon
+              color: "#000000", // White icon
+            },
+            color: {
+              background: "#10B981", // Emerald 500
+              border: "#059669", // Emerald 600
+              highlight: {
+                background: "#34D399", // Emerald 400
+                border: "#10B981",
+              },
+              hover: {
+                background: "#6EE7B7", // Emerald 300
+                border: "#10B981",
+              },
+            },
+            size: 20, // Size of the circular background
+            borderWidth: 2,
+            shadow: {
+              enabled: true,
+              color: "rgba(16, 185, 129, 0.3)",
+              size: 10,
+              x: 0,
+              y: 4,
+            },
+            resourceData: {
+              id: resource.id,
+              title: resource.title,
+              resource_link: resource.resource_link,
+              resource_type: resourceType,
+              created_at: resource.created_at,
+            },
+          });
+
+          resourceEdges.push({
+            from: String(resource.node_id),
+            to: resourceNodeId,
+            color: {
+              color: "#10B981",
+              opacity: 0.8,
+            },
+            dashes: [5, 5],
+            width: 1,
+            arrows: { to: false },
+            physics: false,
+          });
+        }
+      });
+
       const parsedEdges = edgesData?.map((edge: any) => ({
         from: String(edge.from_node),
         to: String(edge.to_node),
@@ -216,9 +372,10 @@ export default function GraphViewer() {
         },
       }));
 
-      setNodes([...parsedNodes, ...noteNodes]);
-      setEdges([...parsedEdges, ...noteEdges]);
+      setNodes([...parsedNodes, ...noteNodes, ...resourceNodes]);
+      setEdges([...parsedEdges, ...noteEdges, ...resourceEdges]);
       setNotes(notesData);
+      setResources(resourcesData);
       setLoading(false);
     };
 
@@ -227,7 +384,11 @@ export default function GraphViewer() {
 
   const handleExtendChat = (nodeId: string) => {
     const clickedNode = nodes.find((n) => n.id === nodeId);
-    if (clickedNode && !nodeId.startsWith("note_")) {
+    if (
+      clickedNode &&
+      !nodeId.startsWith("note_") &&
+      !nodeId.startsWith("resource_")
+    ) {
       router.push(
         `/chat?chatId=${chatId}&parentId=${nodeId}&parentTitle=${encodeURIComponent(
           clickedNode.title
@@ -242,6 +403,16 @@ export default function GraphViewer() {
       nodeId,
       noteId: null,
       content: "",
+    });
+  };
+
+  const handleCreateResource = (nodeId: string) => {
+    setResourceModal({
+      show: true,
+      nodeId,
+      resourceId: null,
+      title: "",
+      resourceLink: "",
     });
   };
 
@@ -283,6 +454,60 @@ export default function GraphViewer() {
     }
 
     setNoteModal({ show: false, nodeId: null, noteId: null, content: "" });
+    window.location.reload();
+  };
+
+  const saveResource = async () => {
+    if (!resourceModal.title.trim() || !resourceModal.resourceLink.trim())
+      return;
+
+    if (resourceModal.resourceId) {
+      const { error } = await supabase
+        .from("external_resources")
+        .update({
+          title: resourceModal.title.trim(),
+          resource_link: resourceModal.resourceLink.trim(),
+          resource_type: detectResourceType(resourceModal.resourceLink),
+        })
+        .eq("id", resourceModal.resourceId);
+
+      if (error) {
+        console.error("Error updating resource:", error);
+        alert("Error updating resource. Please try again.");
+        return;
+      }
+    } else {
+      if (!resourceModal.nodeId) return;
+
+      const { error } = await supabase.from("external_resources").insert([
+        {
+          node_id: resourceModal.nodeId,
+          title: resourceModal.title.trim(),
+          resource_link: resourceModal.resourceLink.trim(),
+          resource_type: detectResourceType(resourceModal.resourceLink),
+        },
+      ]);
+
+      if (error) {
+        console.error("Error saving resource:", error);
+        if (error.code === "PGRST205") {
+          alert(
+            "External resources table doesn't exist. Please create it in the Supabase dashboard first."
+          );
+        } else {
+          alert("Error saving resource. Please try again.");
+        }
+        return;
+      }
+    }
+
+    setResourceModal({
+      show: false,
+      nodeId: null,
+      resourceId: null,
+      title: "",
+      resourceLink: "",
+    });
     window.location.reload();
   };
 
@@ -331,6 +556,62 @@ export default function GraphViewer() {
       createdAt: "",
     });
     window.location.reload();
+  };
+
+  const handleEditResource = () => {
+    if (resourceViewer.resourceId) {
+      setResourceModal({
+        show: true,
+        nodeId: null,
+        resourceId: resourceViewer.resourceId,
+        title: resourceViewer.title,
+        resourceLink: resourceViewer.resourceLink,
+      });
+      setResourceViewer({
+        show: false,
+        resourceId: null,
+        title: "",
+        resourceLink: "",
+        resourceType: "",
+        createdAt: "",
+      });
+    }
+  };
+
+  const handleDeleteResource = async () => {
+    if (!resourceViewer.resourceId) return;
+
+    const confirmDelete = window.confirm(
+      "Are you sure you want to delete this resource?"
+    );
+    if (!confirmDelete) return;
+
+    const { error } = await supabase
+      .from("external_resources")
+      .delete()
+      .eq("id", resourceViewer.resourceId);
+
+    if (error) {
+      console.error("Error deleting resource:", error);
+      alert("Error deleting resource. Please try again.");
+      return;
+    }
+
+    setResourceViewer({
+      show: false,
+      resourceId: null,
+      title: "",
+      resourceLink: "",
+      resourceType: "",
+      createdAt: "",
+    });
+    window.location.reload();
+  };
+
+  const handleOpenResource = () => {
+    if (resourceViewer.resourceLink) {
+      window.open(resourceViewer.resourceLink, "_blank");
+    }
   };
 
   useEffect(() => {
@@ -434,6 +715,7 @@ export default function GraphViewer() {
         if (params.nodes.length > 0) {
           const clickedNodeId = params.nodes[0];
 
+          // Handle note node clicks
           if (clickedNodeId.startsWith("note_")) {
             const noteNode = nodes.find((n) => n.id === clickedNodeId);
             if (noteNode && noteNode.noteData) {
@@ -453,6 +735,25 @@ export default function GraphViewer() {
             return;
           }
 
+          // Handle resource node clicks
+          if (clickedNodeId.startsWith("resource_")) {
+            const resourceNode = nodes.find((n) => n.id === clickedNodeId);
+            if (resourceNode && resourceNode.resourceData) {
+              setResourceViewer({
+                show: true,
+                resourceId: resourceNode.resourceData.id,
+                title: resourceNode.resourceData.title,
+                resourceLink: resourceNode.resourceData.resource_link,
+                resourceType: resourceNode.resourceData.resource_type,
+                createdAt: new Date(
+                  resourceNode.resourceData.created_at
+                ).toLocaleDateString(),
+              });
+            }
+            return;
+          }
+
+          // Handle regular node clicks - show context menu
           const containerRect = containerRef.current?.getBoundingClientRect();
           if (!containerRect) return;
 
@@ -473,7 +774,11 @@ export default function GraphViewer() {
       network.on("oncontext", async (params: NetworkEventParams) => {
         params.event.preventDefault();
         const pointer = network.getNodeAt(params.pointer.DOM);
-        if (pointer && !pointer.toString().startsWith("note_")) {
+        if (
+          pointer &&
+          !pointer.toString().startsWith("note_") &&
+          !pointer.toString().startsWith("resource_")
+        ) {
           const nodeId = pointer;
           const confirmDelete = window.confirm(
             "Delete this node and its message?"
@@ -525,11 +830,20 @@ export default function GraphViewer() {
         setNoteModal={setNoteModal}
         noteViewer={noteViewer}
         setNoteViewer={setNoteViewer}
+        resourceModal={resourceModal}
+        setResourceModal={setResourceModal}
+        resourceViewer={resourceViewer}
+        setResourceViewer={setResourceViewer}
         handleExtendChat={handleExtendChat}
         handleCreateNote={handleCreateNote}
+        handleCreateResource={handleCreateResource}
         saveNote={saveNote}
+        saveResource={saveResource}
         handleEditNote={handleEditNote}
         handleDeleteNote={handleDeleteNote}
+        handleEditResource={handleEditResource}
+        handleDeleteResource={handleDeleteResource}
+        handleOpenResource={handleOpenResource}
       />
 
       {loading ? (
