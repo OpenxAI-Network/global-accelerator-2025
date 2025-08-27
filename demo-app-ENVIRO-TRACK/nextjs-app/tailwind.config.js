@@ -12,7 +12,7 @@ module.exports = {
         'toxic-green': '#16a34a',
         'pollution-red': '#dc2626',
         'ice-blue': '#0ea5e9',
-        'desert-yellow': '#ca8a04',
+        'desert-yellow': '#161514ff',
       },
       animation: {
         'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',

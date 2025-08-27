@@ -147,6 +147,7 @@ export default function ChatThread({ chatId }: { chatId: string | null }) {
             message_id: aiMsg.id,
             title: text,
             answer: aiResponse,
+            summary: summary,
           },
         ])
         .select()
