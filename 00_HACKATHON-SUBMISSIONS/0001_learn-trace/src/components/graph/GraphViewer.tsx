@@ -139,12 +139,12 @@ export default function GraphViewer() {
   // Function to get resource icon based on type
   // Function to get resource icon Unicode code based on type
   // Function to get resource icon Unicode code based on type
-const getResourceIconCode = (type: string) => {
+const getResourceImageURI = (type: string) => {
   switch (type) {
-    case 'youtube': return 'YT';
-    case 'notion': return 'N';
-    case 'github': return 'GH';
-    case 'google-docs': return 'GD';
+    case 'youtube': return "/assets/yt-icon.png";
+    case 'notion': return "/assets/notion-icon.png";
+    case 'github': return "/assets/github-icon.png";
+    case 'google-docs': return "/assets/docs-icon.png";
     default: return 'L';
   }
 };
@@ -309,13 +309,14 @@ const getResourceIconCode = (type: string) => {
             // Remove label completely or set it to empty string
             label: "",
             title: `${resource.title}`, // This shows on hover
-            shape: "icon", // Use icon shape instead of dot
-            icon: {
-              face: "Arial",
-              code: getResourceIconCode(resourceType), // Use Unicode codes instead of emojis
-              size: 30, // Size of the icon
-              color: "#000000", // White icon
-            },
+            shape: "image", // Use icon shape instead of dot
+            // icon: {
+            //   face: "Arial",
+            //   code: getResourceIconCode(resourceType), // Use Unicode codes instead of emojis
+            //   size: 30, // Size of the icon
+            //   color: "#000000", // White icon
+            // },
+            image: getResourceImageURI(resourceType),
             color: {
               background: "#10B981", // Emerald 500
               border: "#059669", // Emerald 600
