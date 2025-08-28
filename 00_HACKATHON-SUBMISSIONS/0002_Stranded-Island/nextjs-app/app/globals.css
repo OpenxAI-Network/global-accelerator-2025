@@ -9,7 +9,7 @@ body {
   min-height: 100vh;
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
   overflow-x: hidden;
-  background: linear-gradient(135deg, #87ceeb 0%, #98fb98 100%);
+  background: linear-gradient(135deg, #2ec4ff 0%, #13ff7d 100%);
 }
 
 /* Swipe to play interface */
@@ -68,15 +68,15 @@ body {
 
 /* Chat-style story container - perfectly centered */
 .story-container {
-  position: fixed;
+  position: absolute;
   top: 0;
   left: 0;
-  width: 100%;
-  height: 100vh;
+  right: 0;
+  bottom: 150px; /* keep space for input area */
   display: flex;
   flex-direction: column;
-  justify-content: flex-start;
-  align-items: center;
+  justify-content: center;   /* center vertically */
+  align-items: center;       /* center horizontally */
   z-index: 10;
   padding: 2rem;
   box-sizing: border-box;
@@ -151,13 +151,13 @@ body {
   display: block;
   font-size: 0.8rem;
   font-weight: 600;
-  color: #4ade80;
+  color: #ffffff;
   margin-bottom: 0.5rem;
   text-align: center;
-  background: rgba(74, 222, 128, 0.2);
+  background: rgba(0, 255, 94, 0.2);
   padding: 0.25rem 0.75rem;
   border-radius: 12px;
-  border: 1px solid rgba(74, 222, 128, 0.4);
+  border: 1px solid rgba(0, 255, 60, 0.4);
 }
 
 /* Bottom interface - larger and more prominent */
@@ -272,7 +272,7 @@ body {
 }
 
 .loading-text {
-  color: #1e3a8a;
+  color: #ffffff;
   font-size: 1.1rem;
   font-weight: 500;
 }
