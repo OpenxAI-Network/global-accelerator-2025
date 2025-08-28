@@ -3,7 +3,14 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabaseClient";
-import { Plus, MessageCircle, User, Settings, Menu, MoreHorizontal } from "lucide-react";
+import {
+  Plus,
+  MessageCircle,
+  User,
+  Settings,
+  Menu,
+  MoreHorizontal,
+} from "lucide-react";
 
 type Chat = {
   id: string;
@@ -55,11 +62,13 @@ export default function Sidebar() {
 
     const { data, error } = await supabase
       .from("chats")
-      .insert([{ 
-        title: "New Chat",
-        user_id: testUserId,
-        is_public: false
-      }])
+      .insert([
+        {
+          title: "New Chat",
+          user_id: testUserId,
+          is_public: false,
+        },
+      ])
       .select("id, title, created_at")
       .single();
 
@@ -129,10 +138,16 @@ export default function Sidebar() {
   // Show error if test user ID is not configured
   if (!testUserId) {
     return (
-      <div className={`bg-gradient-to-b from-slate-900 to-slate-800 text-slate-50 flex flex-col items-center justify-center transition-all duration-300 ease-in-out ${collapsed ? "w-14" : "w-72"}`}>
+      <div
+        className={`bg-gradient-to-b from-slate-900 to-slate-800 text-slate-50 flex flex-col items-center justify-center transition-all duration-300 ease-in-out ${
+          collapsed ? "w-14" : "w-72"
+        }`}
+      >
         <div className={`p-3 text-center ${collapsed ? "hidden" : "block"}`}>
           <p className="text-xs text-red-400 mb-3">Configuration Error</p>
-          <p className="text-xs text-slate-400">Test user ID not found in .env.local</p>
+          <p className="text-xs text-slate-400">
+            Test user ID not found in .env.local
+          </p>
         </div>
       </div>
     );
@@ -140,11 +155,15 @@ export default function Sidebar() {
 
   return (
     <div
-      className={`bg-gradient-to-b from-slate-900 via-slate-800 to-slate-900 text-slate-50 flex flex-col relative transition-all duration-300 ease-in-out shadow-2xl border-r border-slate-700 ${collapsed ? "w-14" : "w-72"}`}
+      className={`bg-gradient-to-b from-slate-900 via-slate-800 to-slate-900 text-slate-50 flex flex-col relative transition-all duration-300 ease-in-out shadow-2xl border-r border-slate-700 ${
+        collapsed ? "w-14" : "w-72"
+      }`}
       onClick={() => setContextMenu(null)}
     >
       {/* Header with Logo and Menu Toggle */}
-      <div className={`p-4 border-b border-slate-700 ${collapsed ? "p-3" : ""}`}>
+      <div
+        className={`p-4 border-b border-slate-700 ${collapsed ? "p-3" : ""}`}
+      >
         {!collapsed ? (
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-2">
@@ -183,7 +202,9 @@ export default function Sidebar() {
       <div className={`p-3 ${collapsed ? "p-1.5" : ""}`}>
         <button
           onClick={handleNewChat}
-          className={`w-full bg-indigo-700 hover:bg-indigo-600 text-white rounded-lg transition-all duration-200 flex items-center justify-center space-x-2 shadow-sm hover:shadow-md ${collapsed ? "p-2.5" : "p-3"}`}
+          className={`w-full bg-indigo-700 hover:bg-indigo-600 text-white rounded-lg transition-all duration-200 flex items-center justify-center space-x-2 shadow-sm hover:shadow-md ${
+            collapsed ? "p-2.5" : "p-3"
+          }`}
         >
           <Plus className="w-4 h-4" />
           {!collapsed && <span className="font-medium text-sm">New Chat</span>}
@@ -196,29 +217,41 @@ export default function Sidebar() {
           <div className="p-5 text-center text-slate-400 text-xs">
             <MessageCircle className="w-10 h-10 mx-auto mb-2 opacity-50" />
             <p className="mb-1">No conversations yet</p>
-            <p className="text-xs opacity-75">Start your first chat to begin learning!</p>
+            <p className="text-xs opacity-75">
+              Start your first chat to begin learning!
+            </p>
           </div>
         ) : (
           chats.map((chat) => (
             <div
               key={chat.id}
-              onClick={() => router.push(`/chat?chatId=${chat.id}`)}
               onContextMenu={(e) => {
                 if (collapsed) return;
                 e.preventDefault();
                 setContextMenu({ x: e.clientX, y: e.clientY, chatId: chat.id });
               }}
-              className={`relative group cursor-pointer rounded-lg transition-all duration-200 hover:bg-slate-700/30 ${collapsed ? "p-2.5 flex justify-center" : "p-3"}`}
+              className={`relative group cursor-pointer rounded-lg transition-all duration-200 hover:bg-slate-700/30 ${
+                collapsed ? "p-2.5 flex justify-center" : "p-3"
+              }`}
               title={collapsed ? chat.title : ""}
             >
               {collapsed ? (
-                <MessageCircle className="w-4 h-4 text-slate-400 group-hover:text-slate-50" />
+                <MessageCircle
+                  className="w-4 h-4 text-slate-400 group-hover:text-slate-50"
+                  onClick={() => router.push(`/chat?chatId=${chat.id}`)}
+                />
               ) : (
                 <div className="flex items-center space-x-2.5">
+                  {/* Chat Icon */}
                   <div className="w-8 h-8 bg-gray-700 rounded-lg flex items-center justify-center flex-shrink-0">
                     <MessageCircle className="w-4 h-4 text-slate-300" />
                   </div>
-                  <div className="flex-1 min-w-0">
+
+                  {/* Chat Info - Clickable to navigate */}
+                  <div
+                    className="flex-1 min-w-0 cursor-pointer"
+                    onClick={() => router.push(`/chat?chatId=${chat.id}`)}
+                  >
                     <h3 className="font-medium text-slate-50 truncate group-hover:text-indigo-300 transition-colors text-sm">
                       {chat.title || "Untitled Chat"}
                     </h3>
@@ -226,7 +259,23 @@ export default function Sidebar() {
                       {formatDate(chat.created_at)}
                     </p>
                   </div>
-                  <MoreHorizontal className="w-3.5 h-3.5 text-slate-400 opacity-0 group-hover:opacity-100 transition-opacity" />
+
+                  {/* Three Dots Menu - Clickable */}
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation(); // Prevent parent click
+                      const rect = e.currentTarget.getBoundingClientRect();
+                      setContextMenu({
+                        // show: true,
+                        x: rect.left,
+                        y: rect.bottom + 5,
+                        chatId: chat.id,
+                      });
+                    }}
+                    className="p-1 hover:bg-slate-600 rounded transition-colors opacity-0 group-hover:opacity-100"
+                  >
+                    <MoreHorizontal className="w-3.5 h-3.5 text-slate-400 hover:text-slate-200" />
+                  </button>
                 </div>
               )}
             </div>
@@ -256,16 +305,18 @@ export default function Sidebar() {
       )}
 
       {/* Profile Section (Bottom) */}
-      <div className={`border-t border-slate-700 ${collapsed ? "p-1.5" : "p-3"}`}>
+      <div
+        className={`border-t border-slate-700 ${collapsed ? "p-1.5" : "p-3"}`}
+      >
         {collapsed ? (
           <div className="space-y-2">
-            <button 
+            <button
               className="w-full flex justify-center p-2 rounded-lg hover:bg-slate-700/50 transition-colors"
               title="Profile"
             >
               <User className="w-4 h-4 text-slate-400 hover:text-slate-50" />
             </button>
-            <button 
+            <button
               className="w-full flex justify-center p-2 rounded-lg hover:bg-slate-700/50 transition-colors"
               title="Settings"
             >
@@ -281,7 +332,9 @@ export default function Sidebar() {
               </div>
               <div className="flex-1 min-w-0">
                 <p className="font-medium text-slate-50 text-sm">Test User</p>
-                <p className="text-xs text-slate-400 truncate">test@learntrace.com</p>
+                <p className="text-xs text-slate-400 truncate">
+                  test@learntrace.com
+                </p>
               </div>
             </div>
 
