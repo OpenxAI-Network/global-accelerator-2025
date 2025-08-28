@@ -24,7 +24,6 @@ const STORY_MILESTONES = [
 const SYSTEM_PROMPT = `You are the narrator and game master for "Stranded Island Adventure".
 
 CRITICAL RULES:
-- NEVER repeat the opening scene - player is already awake
 - Keep narration EXACTLY 100 words or less
 - Always provide 2-4 numbered choices
 - Each response must progress the story toward the next milestone

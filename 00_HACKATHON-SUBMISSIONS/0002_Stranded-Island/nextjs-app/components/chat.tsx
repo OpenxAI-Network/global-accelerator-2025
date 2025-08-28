@@ -37,7 +37,7 @@ export default function Chat() {
   const [isFading, setIsFading] = useState(false);
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
   const [hasMoved, setHasMoved] = useState(false);
-  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const storyContainerRef = useRef<HTMLDivElement>(null);
 
   // Mouse movement detection for swipe
   const handleMouseMove = (e: React.MouseEvent) => {
@@ -94,12 +94,28 @@ Type anything in the textbox below to begin your adventure.`,
     setHasMoved(false);
   };
 
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  // Scroll to show new AI messages above the text box
+  const scrollToShowNewContent = () => {
+    if (storyContainerRef.current) {
+      // Calculate the height of the bottom interface to ensure content appears above it
+      const bottomInterfaceHeight = 120; // Approximate height of bottom interface
+      const containerHeight = storyContainerRef.current.clientHeight;
+      const scrollHeight = storyContainerRef.current.scrollHeight;
+      
+      // Scroll to show new content above the bottom interface
+      const targetScrollTop = scrollHeight - containerHeight + bottomInterfaceHeight;
+      storyContainerRef.current.scrollTop = targetScrollTop;
+    }
   };
 
+  // Auto-scroll when new messages are added
   useEffect(() => {
-    scrollToBottom();
+    if (messages.length > 0) {
+      // Small delay to ensure the message is rendered
+      setTimeout(() => {
+        scrollToShowNewContent();
+      }, 100);
+    }
   }, [messages]);
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
@@ -179,6 +195,20 @@ Type anything in the textbox below to begin your adventure.`,
     }
   };
 
+  // Helper function to check if a user message should be highlighted as selected
+  const isUserMessageSelected = (msg: Message, index: number) => {
+    if (msg.type !== 'user') return false;
+    
+    // Find the next AI message after this user message
+    const nextAIMessageIndex = messages.findIndex((m, i) => i > index && m.type === 'ai');
+    
+    // If there's no next AI message, this is the latest user choice
+    if (nextAIMessageIndex === -1) return true;
+    
+    // If there is a next AI message, this user choice led to that response
+    return true;
+  };
+
   // Swipe interface
   if (showSwipeInterface) {
     return (
@@ -195,18 +225,20 @@ Type anything in the textbox below to begin your adventure.`,
 
   return (
     <div className="min-h-screen">
-      {/* Story Container - Text displayed directly on background */}
-      <div className="story-container">
-        {messages.length > 0 && (
-          <div className="story-text">
-            {messages[messages.length - 1].content}
+      {/* Chat-style Story Container */}
+      <div className="story-container" ref={storyContainerRef}>
+        {messages.map((msg, index) => (
+          <div key={msg.id} className={`chat-message ${msg.type === 'ai' ? 'ai-message' : 'user-message'} ${isUserMessageSelected(msg, index) ? 'selected' : ''}`}>
+            <div className={`message-bubble ${msg.type === 'ai' ? 'ai-bubble' : 'user-bubble'}`}>
+              {msg.content}
+            </div>
           </div>
-        )}
+        ))}
         
         {loading && (
           <div className="loading-container">
             <div className="loading-spinner"></div>
-            <div className="loading-text">AI is crafting your story...</div>
+            <div className="loading-text">The story unfolds...</div>
           </div>
         )}
         
@@ -219,7 +251,7 @@ Type anything in the textbox below to begin your adventure.`,
         )}
       </div>
 
-      {/* Bottom Interface - Simple and clean */}
+      {/* Bottom Interface - Larger and more prominent */}
       <div className="bottom-interface">
         <div className="bottom-interface-content">
           <div className="input-container">
@@ -229,7 +261,7 @@ Type anything in the textbox below to begin your adventure.`,
               value={message}
               onChange={(e) => setMessage(e.target.value)}
               onKeyPress={handleKeyPress}
-              placeholder="What do you say?"
+              placeholder="Enter your choices here..."
               disabled={loading}
               className="text-input"
             />
@@ -250,8 +282,6 @@ Type anything in the textbox below to begin your adventure.`,
           </button>
         </div>
       </div>
-      
-      <div ref={messagesEndRef} />
     </div>
   );
 }
