@@ -1,11 +1,13 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+//@ts-ignore
 import { Network, DataSet } from "vis-network/standalone";
 import { supabase } from "@/lib/supabaseClient";
 import { useRouter, useSearchParams } from "next/navigation";
 import { deleteNodeAndMessage } from "@/utils/deleteNode";
-import GraphUIComponents from "./GraphUIComponents";
+import GraphUI from "./GraphUI";
+import ShareButton from "../ShareButton";
 
 interface NetworkEventParams {
   nodes: string[];
@@ -80,6 +82,16 @@ export default function GraphViewer() {
   const [edges, setEdges] = useState<any[]>([]);
   const [notes, setNotes] = useState<Note[]>([]);
   const [resources, setResources] = useState<ExternalResource[]>([]);
+  const [isTree, setIsTree] = useState(false);
+
+  const testUserId = process.env.NEXT_PUBLIC_TEST_USER_ID;
+
+  const [chatData, setChatData] = useState<{
+    title: string;
+    is_public: boolean;
+  } | null>(null);
+
+  // Modal and UI states
   const [contextMenu, setContextMenu] = useState<ContextMenu>({
     show: false,
     x: 0,
@@ -119,13 +131,11 @@ export default function GraphViewer() {
     createdAt: "",
   });
 
-  const [isTree, setIsTree] = useState(false);
-
   const router = useRouter();
   const searchParams = useSearchParams();
   const chatId = searchParams.get("chatId");
 
-  // Function to detect resource type from URL
+  // Helper functions
   const detectResourceType = (url: string) => {
     if (url.includes("youtube.com") || url.includes("youtu.be"))
       return "youtube";
@@ -136,19 +146,22 @@ export default function GraphViewer() {
     return "link";
   };
 
-  // Function to get resource icon based on type
-  // Function to get resource icon Unicode code based on type
-  // Function to get resource icon Unicode code based on type
-const getResourceImageURI = (type: string) => {
-  switch (type) {
-    case 'youtube': return "/assets/yt-icon.png";
-    case 'notion': return "/assets/notion-icon.png";
-    case 'github': return "/assets/github-icon.png";
-    case 'google-docs': return "/assets/docs-icon.png";
-    default: return 'L';
-  }
-};
+  const getResourceImageURI = (type: string) => {
+    switch (type) {
+      case "youtube":
+        return "/assets/yt-icon.png";
+      case "notion":
+        return "/assets/notion-icon.png";
+      case "github":
+        return "/assets/github-icon.png";
+      case "google-docs":
+        return "/assets/docs-icon.png";
+      default:
+        return "L";
+    }
+  };
 
+  // Data fetching
   useEffect(() => {
     if (!chatId) return;
 
@@ -179,7 +192,7 @@ const getResourceImageURI = (type: string) => {
         return;
       }
 
-      // Fetch notes
+      // Fetch notes and resources
       const nodeIds = nodesData?.map((node) => node.id) || [];
       let notesData: Note[] = [];
       let resourcesData: ExternalResource[] = [];
@@ -217,9 +230,10 @@ const getResourceImageURI = (type: string) => {
         }
       }
 
+      // Process nodes
       const parsedNodes = nodesData?.map((node: any) => ({
         id: String(node.id),
-        label: node.title ?? "[No title]",
+        label: node.summary ?? "[No title]",
         title: node.title,
         subtitle: node.title,
       }));
@@ -245,14 +259,8 @@ const getResourceImageURI = (type: string) => {
             color: {
               background: "#F59E0B",
               border: "#D97706",
-              highlight: {
-                background: "#FBBF24",
-                border: "#F59E0B",
-              },
-              hover: {
-                background: "#FCD34D",
-                border: "#F59E0B",
-              },
+              highlight: { background: "#FBBF24", border: "#F59E0B" },
+              hover: { background: "#FCD34D", border: "#F59E0B" },
             },
             font: {
               color: "#0f0000ff",
@@ -280,10 +288,7 @@ const getResourceImageURI = (type: string) => {
           noteEdges.push({
             from: String(note.node_id),
             to: noteNodeId,
-            color: {
-              color: "#F59E0B",
-              opacity: 0.8,
-            },
+            color: { color: "#F59E0B", opacity: 0.8 },
             dashes: [5, 5],
             width: 1,
             arrows: { to: false },
@@ -306,30 +311,17 @@ const getResourceImageURI = (type: string) => {
 
           resourceNodes.push({
             id: resourceNodeId,
-            // Remove label completely or set it to empty string
             label: "",
-            title: `${resource.title}`, // This shows on hover
-            shape: "image", // Use icon shape instead of dot
-            // icon: {
-            //   face: "Arial",
-            //   code: getResourceIconCode(resourceType), // Use Unicode codes instead of emojis
-            //   size: 30, // Size of the icon
-            //   color: "#000000", // White icon
-            // },
+            title: `${resource.title}`,
+            shape: "image",
             image: getResourceImageURI(resourceType),
             color: {
-              background: "#10B981", // Emerald 500
-              border: "#059669", // Emerald 600
-              highlight: {
-                background: "#34D399", // Emerald 400
-                border: "#10B981",
-              },
-              hover: {
-                background: "#6EE7B7", // Emerald 300
-                border: "#10B981",
-              },
+              background: "#10B981",
+              border: "#059669",
+              highlight: { background: "#34D399", border: "#10B981" },
+              hover: { background: "#6EE7B7", border: "#10B981" },
             },
-            size: 20, // Size of the circular background
+            size: 20,
             borderWidth: 2,
             shadow: {
               enabled: true,
@@ -350,10 +342,7 @@ const getResourceImageURI = (type: string) => {
           resourceEdges.push({
             from: String(resource.node_id),
             to: resourceNodeId,
-            color: {
-              color: "#10B981",
-              opacity: 0.8,
-            },
+            color: { color: "#10B981", opacity: 0.8 },
             dashes: [5, 5],
             width: 1,
             arrows: { to: false },
@@ -383,6 +372,26 @@ const getResourceImageURI = (type: string) => {
     fetchGraphData();
   }, [chatId]);
 
+  useEffect(() => {
+    const fetchChatData = async () => {
+      if (!chatId || !testUserId) return;
+
+      const { data, error } = await supabase
+        .from("chats")
+        .select("title, is_public")
+        .eq("id", chatId)
+        .eq("user_id", testUserId)
+        .single();
+
+      if (!error && data) {
+        setChatData(data);
+      }
+    };
+
+    fetchChatData();
+  }, [chatId, testUserId]);
+
+  // Event handlers
   const handleExtendChat = (nodeId: string) => {
     const clickedNode = nodes.find((n) => n.id === nodeId);
     if (
@@ -399,12 +408,7 @@ const getResourceImageURI = (type: string) => {
   };
 
   const handleCreateNote = (nodeId: string) => {
-    setNoteModal({
-      show: true,
-      nodeId,
-      noteId: null,
-      content: "",
-    });
+    setNoteModal({ show: true, nodeId, noteId: null, content: "" });
   };
 
   const handleCreateResource = (nodeId: string) => {
@@ -415,6 +419,12 @@ const getResourceImageURI = (type: string) => {
       title: "",
       resourceLink: "",
     });
+  };
+
+  const handleShareUpdate = (isPublic: boolean) => {
+    if (chatData) {
+      setChatData({ ...chatData, is_public: isPublic });
+    }
   };
 
   const saveNote = async () => {
@@ -434,12 +444,11 @@ const getResourceImageURI = (type: string) => {
     } else {
       if (!noteModal.nodeId) return;
 
-      const { error } = await supabase.from("notes").insert([
-        {
-          node_id: noteModal.nodeId,
-          content: noteModal.content.trim(),
-        },
-      ]);
+      const { error } = await supabase
+        .from("notes")
+        .insert([
+          { node_id: noteModal.nodeId, content: noteModal.content.trim() },
+        ]);
 
       if (error) {
         console.error("Error saving note:", error);
@@ -615,6 +624,7 @@ const getResourceImageURI = (type: string) => {
     }
   };
 
+  // Network initialization
   useEffect(() => {
     if (!loading && containerRef.current && nodes.length > 0) {
       const visNodes = new DataSet(nodes);
@@ -627,11 +637,7 @@ const getResourceImageURI = (type: string) => {
           layout: {
             improvedLayout: true,
             hierarchical: isTree
-              ? {
-                  enabled: true,
-                  direction: "UD",
-                  sortMethod: "directed",
-                }
+              ? { enabled: true, direction: "UD", sortMethod: "directed" }
               : false,
           },
           interaction: {
@@ -670,14 +676,8 @@ const getResourceImageURI = (type: string) => {
             color: {
               background: "#4F46E5",
               border: "#3730A3",
-              highlight: {
-                background: "#8B5CF6",
-                border: "#6D28D9",
-              },
-              hover: {
-                background: "#A3BFFA",
-                border: "#4F46E5",
-              },
+              highlight: { background: "#8B5CF6", border: "#6D28D9" },
+              hover: { background: "#A3BFFA", border: "#4F46E5" },
             },
             shadow: {
               enabled: true,
@@ -697,19 +697,14 @@ const getResourceImageURI = (type: string) => {
               opacity: 0.8,
             },
             width: 2,
-            arrows: {
-              to: {
-                enabled: true,
-                type: "arrow",
-                scaleFactor: 0.6,
-              },
-            },
+            arrows: { to: { enabled: true, type: "arrow", scaleFactor: 0.6 } },
           },
         }
       );
 
       networkRef.current = network;
 
+      // Network event handlers
       network.on("click", (params: NetworkEventParams) => {
         setContextMenu({ show: false, x: 0, y: 0, nodeId: null });
 
@@ -762,12 +757,7 @@ const getResourceImageURI = (type: string) => {
           const y = params.pointer.DOM.y + containerRect.top;
 
           setTimeout(() => {
-            setContextMenu({
-              show: true,
-              x: x,
-              y: y,
-              nodeId: clickedNodeId,
-            });
+            setContextMenu({ show: true, x: x, y: y, nodeId: clickedNodeId });
           }, 10);
         }
       });
@@ -806,52 +796,35 @@ const getResourceImageURI = (type: string) => {
   }, [loading, nodes, edges, chatId, router, isTree]);
 
   return (
-    <div className="flex-1 w-full h-full relative">
-      {/* Toggle Button */}
-      <button
-        onClick={() => setIsTree((prev) => !prev)}
-        className="absolute top-4 right-4 px-3 py-1 bg-[#4F46E5] text-white rounded hover:bg-[#A3BFFA] z-10 cursor-pointer"
-      >
-        {isTree ? "Graph Mode" : "Tree Mode"}
-      </button>
-
-      <div className="absolute top-4 left-4 z-10">
-        <button
-          onClick={() => router.back()}
-          className="px-4 py-2 text-black rounded-lg shadow-soft transition cursor-pointer"
-        >
-          ← Back to Chat
-        </button>
-      </div>
-
-      <GraphUIComponents
-        contextMenu={contextMenu}
-        setContextMenu={setContextMenu}
-        noteModal={noteModal}
-        setNoteModal={setNoteModal}
-        noteViewer={noteViewer}
-        setNoteViewer={setNoteViewer}
-        resourceModal={resourceModal}
-        setResourceModal={setResourceModal}
-        resourceViewer={resourceViewer}
-        setResourceViewer={setResourceViewer}
-        handleExtendChat={handleExtendChat}
-        handleCreateNote={handleCreateNote}
-        handleCreateResource={handleCreateResource}
-        saveNote={saveNote}
-        saveResource={saveResource}
-        handleEditNote={handleEditNote}
-        handleDeleteNote={handleDeleteNote}
-        handleEditResource={handleEditResource}
-        handleDeleteResource={handleDeleteResource}
-        handleOpenResource={handleOpenResource}
-      />
-
-      {loading ? (
-        <div className="p-4">Loading graph...</div>
-      ) : (
-        <div ref={containerRef} className="w-full h-full" />
-      )}
-    </div>
+    <GraphUI
+      loading={loading}
+      isTree={isTree}
+      setIsTree={setIsTree}
+      containerRef={containerRef}
+      contextMenu={contextMenu}
+      setContextMenu={setContextMenu}
+      noteModal={noteModal}
+      setNoteModal={setNoteModal}
+      noteViewer={noteViewer}
+      setNoteViewer={setNoteViewer}
+      resourceModal={resourceModal}
+      setResourceModal={setResourceModal}
+      resourceViewer={resourceViewer}
+      setResourceViewer={setResourceViewer}
+      handleExtendChat={handleExtendChat}
+      handleCreateNote={handleCreateNote}
+      handleCreateResource={handleCreateResource}
+      saveNote={saveNote}
+      saveResource={saveResource}
+      handleEditNote={handleEditNote}
+      handleDeleteNote={handleDeleteNote}
+      handleEditResource={handleEditResource}
+      handleDeleteResource={handleDeleteResource}
+      handleOpenResource={handleOpenResource}
+      router={router}
+      chatId={chatId}
+      chatData={chatData}
+      onShareUpdate={handleShareUpdate}
+    />
   );
 }
