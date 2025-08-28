@@ -6,8 +6,6 @@ import { fetchFromPerplexity } from "@/lib/perplexity";
 import ChatBox from "./ChatBox";
 import { useRouter, useSearchParams } from "next/navigation";
 import ReactMarkdown from "react-markdown";
-import { GitGraph, LineChart } from "lucide-react";
-import { ChartLine } from "lucide-react";
 import { ChartNetwork } from "lucide-react";
 
 type Message = {
@@ -19,6 +17,9 @@ type Message = {
 export default function ChatThread({ chatId }: { chatId: string | null }) {
   const searchParams = useSearchParams();
   const router = useRouter();
+
+  // Get test user ID from environment variable
+  const testUserId = process.env.NEXT_PUBLIC_TEST_USER_ID;
 
   const [showPreview, setShowPreview] = useState(false);
 
@@ -39,7 +40,7 @@ export default function ChatThread({ chatId }: { chatId: string | null }) {
 
   // Load messages + last_node_id when effectiveChatId is available
   useEffect(() => {
-    if (!effectiveChatId) {
+    if (!effectiveChatId || !testUserId) {
       setMessages([]);
       setLastNodeId(null);
       return;
@@ -47,7 +48,27 @@ export default function ChatThread({ chatId }: { chatId: string | null }) {
 
     const fetchMessagesAndLastNode = async () => {
       try {
-        // Messages
+        // First verify that the chat belongs to the authenticated user
+        const { data: chatOwnerData, error: chatOwnerError } = await supabase
+          .from("chats")
+          .select("user_id, last_node_id")
+          .eq("id", effectiveChatId)
+          .single();
+
+        if (chatOwnerError) {
+          console.error("Error fetching chat ownership:", chatOwnerError);
+          return;
+        }
+
+        // Check if the current user owns this chat
+        if (chatOwnerData.user_id !== testUserId) {
+          console.error("User does not own this chat");
+          setMessages([]);
+          setLastNodeId(null);
+          return;
+        }
+
+        // Messages - only fetch if user owns the chat
         const { data: msgData, error: msgError } = await supabase
           .from("messages")
           .select("id, sender, content")
@@ -60,26 +81,16 @@ export default function ChatThread({ chatId }: { chatId: string | null }) {
           setMessages(msgData as Message[]);
         }
 
-        // Last node for this chat
-        const { data: chatData, error: chatError } = await supabase
-          .from("chats")
-          .select("last_node_id")
-          .eq("id", effectiveChatId)
-          .single();
+        // Set last node ID
+        setLastNodeId(chatOwnerData.last_node_id ?? null);
 
-        if (chatError && chatError.code !== "PGRST116") {
-          // ignore if no row found; otherwise log
-          console.error("Error fetching chat meta:", chatError);
-        } else if (chatData) {
-          setLastNodeId(chatData.last_node_id ?? null);
-        }
       } catch (err) {
         console.error("fetchMessagesAndLastNode failed:", err);
       }
     };
 
     fetchMessagesAndLastNode();
-  }, [effectiveChatId]);
+  }, [effectiveChatId, testUserId]);
 
   // Set reply context from URL params
   useEffect(() => {
@@ -95,9 +106,21 @@ export default function ChatThread({ chatId }: { chatId: string | null }) {
 
   const handleSend = async (text: string) => {
     const cid = effectiveChatId;
-    if (!cid) {
-      alert("No chat selected. Make sure the URL contains a chatId.");
-      console.error("handleSend called without effectiveChatId");
+    if (!cid || !testUserId) {
+      alert("No chat selected or user not authenticated.");
+      console.error("handleSend called without effectiveChatId or testUserId");
+      return;
+    }
+
+    // Verify chat ownership before sending
+    const { data: chatData, error: chatError } = await supabase
+      .from("chats")
+      .select("user_id")
+      .eq("id", cid)
+      .single();
+
+    if (chatError || chatData.user_id !== testUserId) {
+      alert("You don't have permission to send messages to this chat.");
       return;
     }
 
@@ -171,7 +194,8 @@ export default function ChatThread({ chatId }: { chatId: string | null }) {
       const { error: updateChatError } = await supabase
         .from("chats")
         .update({ last_node_id: nodeData.id })
-        .eq("id", cid);
+        .eq("id", cid)
+        .eq("user_id", testUserId); // Ensure user owns the chat
 
       if (updateChatError) {
         console.error("Failed to update chats.last_node_id:", updateChatError);
@@ -212,6 +236,18 @@ export default function ChatThread({ chatId }: { chatId: string | null }) {
     );
   };
 
+  // Show error if test user ID is not configured
+  if (!testUserId) {
+    return (
+      <div className="flex items-center justify-center h-full">
+        <div className="text-center">
+          <p className="text-red-500 mb-2">Configuration Error</p>
+          <p className="text-gray-500 text-sm">Test user ID not found in .env.local</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="flex flex-col h-full">
       <div className="flex-1 p-4 space-y-4 overflow-y-auto">
@@ -247,7 +283,6 @@ export default function ChatThread({ chatId }: { chatId: string | null }) {
             {/* Preview Popup */}
             {showPreview && (
               <div className="absolute bottom-20 right-0 bg-white rounded-lg shadow-lg border border-gray-300 p-2 w-15 h-10 z-50">
-                {/* You can replace with actual GraphViewer mini version */}
                 <div className="w-full h-full bg-gray-100 flex items-center justify-center">
                   <span className="text-sm text-gray-500">Graph</span>
                 </div>
