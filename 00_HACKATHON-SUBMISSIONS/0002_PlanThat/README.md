@@ -12,11 +12,11 @@ PlanThat is an innovative AI-powered social event planning platform that revolut
 
 ### **The Problem**
 Planning social events is typically a time-consuming and frustrating experience. Users struggle with:
-- **Decision paralysis**: Too many options and conflicting preferences
 - **Location discovery**: Finding suitable venues that accommodate everyone's needs
 - **Coordination complexity**: Managing multiple people's schedules and preferences
+- **Search Fatigue**: Users feel tired of constantly searching to find new locations and experiences.
 - **Information overload**: Researching venues, reviews, and logistics
-- **Recurring themes**: Going to the same place continuously because nothing else stands out to them
+- **Decision paralysis**: Too many options and conflicting preferences
 
 ### **The Solution**
 PlanThat streamlines the entire event planning process through intelligent automation:
@@ -33,16 +33,7 @@ PlanThat streamlines the entire event planning process through intelligent autom
 
 **📱 Responsive Design**: Modern, intuitive interface that works seamlessly across desktop and mobile devices, making event planning accessible anywhere.
 
-### **Key Differentiators**
-- **Privacy-First**: Local AI processing ensures user data never leaves their device
-- **Real-Time Data**: Live integration with OpenStreetMap for up-to-date venue information
-- **Social-Centric**: Built specifically for group coordination and social interaction
-- **Intelligent Automation**: Reduces planning time from hours to minutes
-- **Comprehensive Coverage**: Supports diverse event types from casual meetups to formal gatherings
-
-PlanThat transforms the complex, often frustrating process of event planning into a delightful, efficient experience that encourages more social connections and meaningful gatherings. 
-
-## 🚀 Features
+### 🚀 Features
 
 - **AI-Powered Recommendations**: Get personalized place recommendations using Ollama AI models
 - **Interactive Maps**: View locations on interactive maps with Points of Interest (POIs)
@@ -53,6 +44,18 @@ PlanThat transforms the complex, often frustrating process of event planning int
 - **Real-time Notifications**: Get notified about events, friend requests, and updates
 - **Responsive Design**: Works on desktop and mobile devices
 
+
+### **Key Differentiators**
+- **Privacy-First**: Local AI processing ensures user data never leaves their device
+- **Real-Time Data**: Live integration with OpenStreetMap for up-to-date venue information
+- **Social-Centric**: Built specifically for group coordination and social interaction
+- **Intelligent Automation**: Reduces planning time from hours to minutes
+- **Comprehensive Coverage**: Supports diverse event types from casual meetups to formal gatherings
+
+
+PlanThat transforms the complex, often frustrating process of event planning into a delightful, efficient experience that encourages more social connections and meaningful gatherings. 
+
+
 ## 📹 Demo Video
 
 Watch our demo video to see PlanThat in action:
@@ -60,6 +63,85 @@ Watch our demo video to see PlanThat in action:
 [![PlanThat Demo](https://img.youtube.com/vi/Ws9vrPQbhrQ/0.jpg)](https://youtu.be/Ws9vrPQbhrQ)
 
 **[Click here to watch the full demo](https://youtu.be/Ws9vrPQbhrQ)**
+
+## Challenges Faced
+
+While the application development was successful, there were still various challenges involved in the implementation of certain features.
+
+1.  **Map Markings using Public Keys**
+    Using OpenStreetMaps, based off wikipedia, and Overpass API, I was able to overcome the challenge of needing a private key/token to access map data.
+
+2.  **AI Prompting**
+    Using llama 3.2:3b, I was able to obtain accurate AI results that suited the users needs, where as I found with other AI models, the searches were too slow or incorrect.
+
+3.  **Calendar Integration**
+    With google calendar, I would have had to authenticate my application to pull and push calendar events from an external website, which involved creating a token and specialised email address. However I was able to create a postgres database implementation of a calendar instead.
+
+4.  **Postgres Database**
+    In order to solve any issues with local databases, I connected the application to a postgres database, enabling for total user access to the database.
+
+
+## User Potential and Adoption
+
+The user potential for the PlanThat app is endless, especially in a time where users are eager to explore their options and more likely to consume.
+
+93% of all online experiences start with a search engine, highlighting the demand for a search-like application for experiences. An 85% usage of the web to discover events, with a further 78% of those people purchasing within 24 hours demonstrates how individuals are eager to go out of their way to search for, and spend on activities/events that suit their needs. In conjunction, searches for group activities spiked by 72% in the previous 12 months, demonstrating how the event/activity industry is still growing.
+
+PlanThat's utilisation of AI to streamline the organisation, booking, and searching processes means it can position itself to both attract and retain users, giving the application a significantly high growth potential.
+
+- **93%** Of all online experiences start with a search engine result (attendstar)
+- **85%** Of event-goers use the web to discover events, with 78% resulting in purchases within 24 hours (attendstar)
+- **72%** Searches for "group activities" spiked by 72% in 12 months (Peach2020)
+
+## Future Feature Implementations
+
+- **Google Maps API**: The use of the Google maps API would increase accuracy of results in regards to address, opening hours, and allow for reviews and popular times to be displayed for each location.
+- **Calendar Intergration**: Users can integrate their own calendar into the application, so they can see how the events they planned lines up with their own schedules.
+- **Use of Real Time Location**: The ability for users to see how far away they are from places, thus affecting their decision
+- **Use of Tik Tok/Reviews**: When obtaining the results of the place, the AI can obtain either Tik Tok or other review content for the activity/location, allowing for users o make an informed judgement.
+- **Live Events/Activities**: The use of having live activities, such as weekly events (farmers markets, music parties, classes), or even one off events for nightlife such as concerts would increase user options.
+- **Holiday planning feature**: able to plan out holidays and what to do on specific days
+
+## Methods of Monetization
+
+PlanThat employs several strategies to monetize the application and ensure its sustainability:
+
+### 1. Business Recommendations
+One of the primary monetization methods is through business recommendations. This includes:
+-   **"Top Picks" Tab**: Businesses can pay to have their location prominently featured in a "top picks" tab, increasing their visibility and attracting more potential customers.
+-   **Targeted AI Recommendations**: Businesses can also pay to influence the AI's recommendation algorithm. This means the AI will show a preference towards suggesting their business (though it doesn't guarantee an exclusive suggestion). Alternatively, when a business appears in search results, it can secure preferential placement (e.g., positions 1 or 2) compared to its regular ranking (e.g., positions 3, 4, or 5).
+
+### 2. User Payment Plans
+Monetization through users is achieved via a free and paid tier of memberships. These tiers are differentiated in the following ways:
+-   **Different Locations**: Free users are limited to searching within their local area/state, while paid users have the flexibility to search for any location.
+-   **Amount of AI Recommendations**: Free users receive a set daily limit on AI requests/recommendations, whereas paid users enjoy unlimited access.
+-   **Amount of Events**: Free users can only schedule a limited number of events at a time, while paid users have the freedom to schedule an unlimited number of events.
+
+### 3. Business Deals
+A widely adopted method in advertising, this involves leveraging promotional deals:
+-   **Discount Offers**: The application offers discounts to users for various activities.
+-   **Percentage Fee**: In return for facilitating these discounts, the application receives a small percentage fee for every successful transaction.
+-   **Real-world Application**: This approach is evident in the launch of new restaurants/stores and in the nightlife sector, where applications like "Bondi lines" generate monetary gains through deals with different nightclubs, showcasing the effectiveness of this monetization strategy.
+
+## Why does this application win?
+
+PlanThat is a one of a kind application. By harnessing AI to streamline the entire event and activity planning process, it goes beyond all other competitors. It is positioned to not only be a strong chance for winning this competition, but also capture early adoption and sustained long term growth, evolving into a fully developed platform for public release.
+
+### Innovation
+It is the first application of its kind to utilise both geospatial discovery and AI to discover new locations and to streamline activity coordination with other individuals.
+
+### User Experience
+Responsive designs, real time notifications, and interactive maps provide a comfortable user experience, where they are in control at all times and not overloaded with information.
+
+### User Adoption
+By leveraging AI to simplify planning, discovery, and booking, PlanThat positions itself to both attract and retain users, and since it resides in a strong market demand with limited players, it has a significantly high growth potential.
+
+### Impact
+This application not only provides a plethora of options available to suit the user's needs, it also allows for easier communication, saving valuable user time.
+
+### Decentralised Vision
+With the transition of a postgres database into a more decentralised storage system provided by OpenxAI, in conjunction of an AI model that is also on a decentralised storage system, it encourages a decentralised vision.
+
 
 ## Tech Stack
 
@@ -86,14 +168,6 @@ Watch our demo video to see PlanThat in action:
 - **npm**: Package manager for Node.js dependencies
 - **pip**: Package manager for Python dependencies
   
-## Future Goals - possible additions
-
-- **Google Maps API**: the use of the Google Maps API for increased accuracy of results in regards to address, opening hours, popularity and if there are any results that OpenStreetMaps may have missed
-- **Google Calendar Intergration**: aiming for users to import their own Google Calendars into the program, as well as export event onto their Google Calendar
-- **Use of Real Time Location**: the ability for users to see how far away they are from places, thus affecting their decision
-- **More live events**: concerts and nightlife intergration into the application with specific events rather than venues
-- **Monetization**: Preferencing in the AI Prompt for locations, Top Picks of the week in the Your City section, users pay to access certain amount of prompts per day
-- **Holiday planning feature**: able to plan out holidays and what to do on specific days
 
 ## 📁 Folder Structure
 

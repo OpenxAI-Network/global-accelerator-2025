@@ -84,6 +84,7 @@ interface CityMapProps {
   zoom?: number
   className?: string
   amenity?: 'restaurant' | 'bar' | 'nightlife' | 'nature' | 'arts' | 'entertainment' | 'sports' | 'shopping' | 'live_music' | 'cafes' | 'fast_desserts' | 'results' | 'bookmarks' | null
+  activeAmenities?: Array<'restaurant' | 'bar' | 'nightlife' | 'nature' | 'arts' | 'entertainment' | 'sports' | 'shopping' | 'live_music' | 'cafes' | 'fast_desserts' | 'results' | 'bookmarks'>
   radius?: number // meters
   currentlyOpen?: boolean // filter for currently open places
   parsedResults?: any[] // AI-generated results with coordinates
@@ -152,6 +153,64 @@ function getFeatureLabel(tags: any): string | undefined {
 function getSuburb(tags: any): string | undefined {
   if (!tags) return undefined
   return tags['addr:suburb'] || tags['addr:neighbourhood'] || tags['addr:city'] || undefined
+}
+
+function getFullAddress(tags: any): string | undefined {
+  if (!tags) return undefined
+  
+  // First, try to use the computed address if available
+  if (tags['computed_address']) {
+    return tags['computed_address']
+  }
+  
+  const parts = []
+  
+  // Add house number and street
+  if (tags['addr:housenumber'] && tags['addr:street']) {
+    parts.push(`${tags['addr:housenumber']} ${tags['addr:street']}`)
+  } else if (tags['addr:street']) {
+    parts.push(tags['addr:street'])
+  }
+  
+  // Add suburb/neighbourhood
+  if (tags['addr:suburb']) {
+    parts.push(tags['addr:suburb'])
+  } else if (tags['addr:neighbourhood']) {
+    parts.push(tags['addr:neighbourhood'])
+  }
+  
+  // Add city
+  if (tags['addr:city']) {
+    parts.push(tags['addr:city'])
+  }
+  
+  // Add postcode
+  if (tags['addr:postcode']) {
+    parts.push(tags['addr:postcode'])
+  }
+  
+  // Add country
+  if (tags['addr:country']) {
+    parts.push(tags['addr:country'])
+  }
+  
+  // If we have any address parts, return them
+  if (parts.length > 0) {
+    return parts.join(', ')
+  }
+  
+  // Fallback: try to find any address-related information
+  const addressKeys = Object.keys(tags).filter(key => 
+    key.includes('addr') || key.includes('address') || key.includes('street') || key.includes('road')
+  )
+  if (addressKeys.length > 0) {
+    const addressValues = addressKeys.map(key => tags[key]).filter(Boolean)
+    if (addressValues.length > 0) {
+      return addressValues.join(', ')
+    }
+  }
+  
+  return undefined
 }
 
 function getShortDescription(tags: any): string | undefined {
@@ -311,7 +370,7 @@ function CaptureMapInstance({ onReady }: { onReady: (m: L.Map) => void }) {
   return null
 }
 
-export default function CityMap({ city, country, zoom = 15, className, amenity = null as CityMapProps['amenity'], radius = 1000, currentlyOpen = false, parsedResults = [], userId, onAddEvent }: CityMapProps) {
+export default function CityMap({ city, country, zoom = 15, className, amenity = null as CityMapProps['amenity'], activeAmenities = [], radius = 1000, currentlyOpen = false, parsedResults = [], userId, onAddEvent }: CityMapProps) {
   const [center, setCenter] = useState<[number, number] | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [pois, setPois] = useState<Poi[]>([])
@@ -328,12 +387,13 @@ export default function CityMap({ city, country, zoom = 15, className, amenity =
   const [filteredPois, setFilteredPois] = useState<Poi[]>([])
   useEffect(() => { poisRef.current = pois }, [pois])
 
-  // Filter POIs based on search query
+  // Filter and sort POIs based on search query
   useEffect(() => {
-    if (poiSearchQuery.trim() === '') {
-      setFilteredPois(pois)
-    } else {
-      const filtered = pois.filter(poi => {
+    let filtered = pois
+    
+    // Apply search filter if query exists
+    if (poiSearchQuery.trim() !== '') {
+      filtered = pois.filter(poi => {
         const searchTerm = poiSearchQuery.toLowerCase()
         const name = (poi.name || '').toLowerCase()
         const typeLabel = (poi.typeLabel || '').toLowerCase()
@@ -348,8 +408,33 @@ export default function CityMap({ city, country, zoom = 15, className, amenity =
                suburb.includes(searchTerm) || 
                address.includes(searchTerm)
       })
-      setFilteredPois(filtered)
     }
+    
+    // Sort POIs: those with opening hours and addresses first, then alphabetically
+    filtered.sort((a, b) => {
+      // Check if POIs have opening hours and addresses
+      const aHasOpeningHours = !!(a.tags?.opening_hours || a.tags?.opening_hour || a.tags?.hours || a.tags?.opening_time)
+      const bHasOpeningHours = !!(b.tags?.opening_hours || b.tags?.opening_hour || b.tags?.hours || b.tags?.opening_time)
+      
+      const aHasAddress = !!getFullAddress(a.tags)
+      const bHasAddress = !!getFullAddress(b.tags)
+      
+      // Calculate priority scores (higher score = higher priority)
+      const aScore = (aHasOpeningHours ? 2 : 0) + (aHasAddress ? 1 : 0)
+      const bScore = (bHasOpeningHours ? 2 : 0) + (bHasAddress ? 1 : 0)
+      
+      // If scores are different, sort by score (higher first)
+      if (aScore !== bScore) {
+        return bScore - aScore
+      }
+      
+      // If scores are the same, sort alphabetically by name
+      const aName = (a.name || '').toLowerCase()
+      const bName = (b.name || '').toLowerCase()
+      return aName.localeCompare(bName)
+    })
+    
+    setFilteredPois(filtered)
   }, [poiSearchQuery, pois])
 
   // Reset visible count when search query changes
@@ -626,6 +711,20 @@ export default function CityMap({ city, country, zoom = 15, className, amenity =
     setSelectedPoiId(null)
   }, [amenity])
 
+  // Force refresh POIs when data source changes to ensure addresses are loaded
+  useEffect(() => {
+    if (amenity === 'results' && parsedResults) {
+      // Trigger a re-render of POIs to ensure addresses are properly loaded
+      const timer = setTimeout(() => {
+        if (pois.length > 0) {
+          console.log('Refreshing POIs to ensure addresses are loaded')
+          setPois([...pois]) // Force re-render
+        }
+      }, 100)
+      return () => clearTimeout(timer)
+    }
+  }, [amenity, parsedResults, pois.length])
+
   // Fetch bookmarks when amenity is 'bookmarks'
   useEffect(() => {
     if (amenity === 'bookmarks' && userId) {
@@ -729,6 +828,82 @@ export default function CityMap({ city, country, zoom = 15, className, amenity =
         return
       }
 
+      // If we have combined results from multiple amenities, use them directly
+      if (activeAmenities && activeAmenities.length > 1 && parsedResults.length > 0) {
+        console.log('Using combined results from multiple amenities:', parsedResults.length, 'results')
+        console.log('Sample combined result structure:', parsedResults.length > 0 ? {
+          name: parsedResults[0].name,
+          address: parsedResults[0].address,
+          tags: parsedResults[0].tags,
+          opening_hours: parsedResults[0].opening_hours,
+          website: parsedResults[0].website
+        } : 'No data')
+        
+        // Convert combined results to POI format
+        const combinedPois: Poi[] = parsedResults
+          .map((result: any, index: number) => {
+            // Enhanced coordinate detection
+            let lat: number | null = null
+            let lon: number | null = null
+            
+            // Try different coordinate formats
+            if (result.lat && result.lon) {
+              lat = parseFloat(result.lat)
+              lon = parseFloat(result.lon)
+            } else if (result.coordinates && typeof result.coordinates === 'object') {
+              lat = parseFloat(result.coordinates.lat || result.coordinates.latitude)
+              lon = parseFloat(result.coordinates.lon || result.coordinates.longitude)
+            } else if (result.coordinates && typeof result.coordinates === 'string') {
+              const coords = result.coordinates.split(',').map((c: string) => parseFloat(c.trim()))
+              if (coords.length >= 2) {
+                lat = coords[0]
+                lon = coords[1]
+              }
+            }
+            
+            // Only include results with valid coordinates and names
+            if (lat && lon && !isNaN(lat) && !isNaN(lon) && result.name) {
+              return {
+                id: result.id || `combined-result-${index}`,
+                name: result.name,
+                lat,
+                lon,
+                tags: {
+                  description: result.description || result.address || '',
+                  image: result.image || '',
+                  suburb: result.suburb || '',
+                  opening_hours: result.opening_hours || result.hours || result.tags?.opening_hours || '',
+                  website: result.website || result.tags?.website || result.tags?.url || result.link || '',
+                  computed_address: result.address || result.tags?.computed_address || result.location || result.tags?.address || ''
+                },
+                typeLabel: result.typeLabel || 'Combined Result'
+              }
+            }
+            return null
+          })
+          .filter(Boolean) as Poi[]
+
+        console.log('Combined POIs for map:', combinedPois.length, 'places')
+
+        if (!isCancelled) {
+          // Ensure all POIs have valid data before setting
+          const validPois = combinedPois.filter(poi => {
+            const hasValidCoords = poi.lat && poi.lon && !isNaN(poi.lat) && !isNaN(poi.lon)
+            const hasName = poi.name && poi.name.trim() !== ''
+            return hasValidCoords && hasName
+          })
+          
+          console.log('Valid POIs for map:', validPois.length, 'places')
+          setPois(validPois)
+          setIsLoading(false)
+          // Update bookmarked POIs for combined results
+          if (userId && validPois.length > 0) {
+            updateBookmarkedPois()
+          }
+        }
+        return
+      }
+
       // Handle results amenity type (AI-generated results)
       if (amenity === 'results') {
         console.log('Processing AI results for map:', parsedResults.length, 'results')
@@ -821,10 +996,18 @@ export default function CityMap({ city, country, zoom = 15, className, amenity =
         console.log('Final POIs for map:', resultsPois.length, 'places')
 
         if (!isCancelled) {
-          setPois(resultsPois)
+          // Ensure all POIs have valid data before setting
+          const validPois = resultsPois.filter(poi => {
+            const hasValidCoords = poi.lat && poi.lon && !isNaN(poi.lat) && !isNaN(poi.lon)
+            const hasName = poi.name && poi.name.trim() !== ''
+            return hasValidCoords && hasName
+          })
+          
+          console.log('Valid POIs for map:', validPois.length, 'places')
+          setPois(validPois)
           setIsLoading(false)
           // Update bookmarked POIs for results
-          if (userId && resultsPois.length > 0) {
+          if (userId && validPois.length > 0) {
             updateBookmarkedPois()
           }
         }
@@ -833,35 +1016,41 @@ export default function CityMap({ city, country, zoom = 15, className, amenity =
 
       // Handle bookmarks amenity type
       if (amenity === 'bookmarks') {
-        if (!userId) {
-          setPois([])
-          setIsLoading(false)
+        if (userId) {
+          // Fetch bookmarks and convert to POIs
+          await fetchBookmarks()
+          const bookmarkPois: Poi[] = bookmarks.map((bookmark: any, index: number) => ({
+            id: bookmark.id,
+            name: bookmark.name,
+            lat: bookmark.latitude,
+            lon: bookmark.longitude,
+            tags: {
+              description: bookmark.description,
+              image: bookmark.image,
+              suburb: bookmark.suburb,
+              opening_hours: bookmark.hours,
+              website: bookmark.website
+            },
+            typeLabel: 'Bookmark'
+          }))
+          console.log('Bookmark POIs:', bookmarkPois.length, 'places')
+
+          if (!isCancelled) {
+            // Ensure all POIs have valid data before setting
+            const validPois = bookmarkPois.filter(poi => {
+              const hasValidCoords = poi.lat && poi.lon && !isNaN(poi.lat) && !isNaN(poi.lon)
+              const hasName = poi.name && poi.name.trim() !== ''
+              return hasValidCoords && hasName
+            })
+            
+            console.log('Valid bookmark POIs:', validPois.length, 'places')
+            setPois(validPois)
+            setIsLoading(false)
+          }
           return
         }
-        
-        // Fetch bookmarks and convert to POIs
-        await fetchBookmarks()
-        const bookmarkPois: Poi[] = bookmarks.map((bookmark: any, index: number) => ({
-          id: bookmark.id,
-          name: bookmark.name,
-          lat: bookmark.latitude,
-          lon: bookmark.longitude,
-          tags: {
-            description: bookmark.description,
-            image: bookmark.image,
-            suburb: bookmark.suburb,
-            opening_hours: bookmark.hours,
-            website: bookmark.website
-          },
-          typeLabel: 'Bookmark'
-        }))
-
-        if (!isCancelled) {
-          setPois(bookmarkPois)
-          setIsLoading(false)
-        }
-        return
       }
+
       try {
         setIsLoading(true)
         setError(null)
@@ -1104,6 +1293,8 @@ export default function CityMap({ city, country, zoom = 15, className, amenity =
       }
     }
 
+
+
     fetchPois()
 
     return () => { isCancelled = true }
@@ -1138,9 +1329,9 @@ export default function CityMap({ city, country, zoom = 15, className, amenity =
               url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
             />
             <RecenterOnChange center={center} zoom={zoom} />
-            {pois.map(p => (
+            {pois.map((p, index) => (
               <Marker
-                key={`${p.id}-${selectedPoiId === p.id ? 'sel' : 'norm'}`}
+                key={`${p.id}-${p.lat}-${p.lon}-${selectedPoiId === p.id ? 'sel' : 'norm'}`}
                 position={[p.lat, p.lon] as [number, number]}
                 icon={selectedPoiId === p.id ? redIcon : (amenity === 'results' ? greenIcon : amenity === 'bookmarks' ? purpleIcon : blueIcon)}
                 eventHandlers={{ click: () => handleSelectPoi(p) }}
@@ -1148,7 +1339,14 @@ export default function CityMap({ city, country, zoom = 15, className, amenity =
                 <Popup>
                   <div className="text-sm">
                     <div className="font-medium">{p.name ?? `${amenity?.charAt(0).toUpperCase()}${amenity?.slice(1)} (no name)`}</div>
-                    <div className="text-gray-600">{p.lat.toFixed(5)}, {p.lon.toFixed(5)}</div>
+                    {getFullAddress(p.tags) && (
+                      <div className="text-gray-600 mt-1">{getFullAddress(p.tags)}</div>
+                    )}
+                    {(p.tags?.opening_hours || p.tags?.opening_hour || p.tags?.hours || p.tags?.opening_time) && (
+                      <div className="text-gray-600 mt-1">
+                        <span className="font-medium">Hours:</span> {p.tags.opening_hours || p.tags.opening_hour || p.tags.hours || p.tags.opening_time}
+                      </div>
+                    )}
                     {getWebsite(p.tags) && (
                       <div className="mt-1"><a className="text-blue-600 underline" href={getWebsite(p.tags)!} target="_blank" rel="noopener noreferrer">Website</a></div>
                     )}
@@ -1217,16 +1415,30 @@ export default function CityMap({ city, country, zoom = 15, className, amenity =
           </div>
           
           <div className="bg-white border rounded-md divide-y max-h-72 overflow-auto">
-            {filteredPois.slice(0, visibleCount).map((p) => {
-              const opening = p.tags?.opening_hours ? String(p.tags.opening_hours) : undefined
+            {filteredPois.slice(0, visibleCount).map((p, index) => {
+              // Debug logging for first few POIs
+              if (filteredPois.indexOf(p) < 3) {
+                console.log('POI data:', p)
+                console.log('POI tags:', p.tags)
+                console.log('Full address:', getFullAddress(p.tags))
+                console.log('Computed address:', p.tags?.computed_address)
+                console.log('Opening hours:', p.tags?.opening_hours)
+                console.log('All opening hours keys:', Object.keys(p.tags || {}).filter(key => key.includes('opening') || key.includes('hours')))
+                console.log('Address-related keys:', Object.keys(p.tags || {}).filter(key => key.includes('addr') || key.includes('address') || key.includes('street')))
+              }
+              
+              // Try multiple opening hours formats
+              const opening = p.tags?.opening_hours || p.tags?.opening_hour || p.tags?.hours || p.tags?.opening_time
+              const openingString = opening ? String(opening) : undefined
               const suburb = getSuburb(p.tags)
+              const fullAddress = getFullAddress(p.tags)
               const desc = getShortDescription(p.tags) || p.typeLabel || amenity || ''
               const isSelected = selectedPoiId === p.id
               const website = getWebsite(p.tags)
-              const isOpen = opening ? isCurrentlyOpen(opening) : undefined
+              const isOpen = openingString ? isCurrentlyOpen(openingString) : undefined
               return (
                 <div
-                  key={p.id}
+                  key={`${p.id}-${p.lat}-${p.lon}-${index}`}
                   className={`w-full text-left p-3 select-none ${isSelected ? 'bg-red-50' : ''}`}
                 >
                   <button
@@ -1237,10 +1449,11 @@ export default function CityMap({ city, country, zoom = 15, className, amenity =
                     onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleSelectPoi(p) } }}
                     className="w-full text-left"
                   >
+                  {/* Name */}
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
-                      <div className={`font-medium ${isSelected ? 'text-red-700' : 'text-gray-900'}`}>{p.name || desc}</div>
-                      {opening && isOpen !== undefined && (
+                      <div className={`font-semibold text-lg ${isSelected ? 'text-red-700' : 'text-gray-900'}`}>{p.name || desc}</div>
+                      {openingString && isOpen !== undefined && (
                         <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
                           isOpen 
                             ? 'bg-green-100 text-green-800' 
@@ -1252,14 +1465,43 @@ export default function CityMap({ city, country, zoom = 15, className, amenity =
                     </div>
                     <div className="text-xs text-gray-500">{p.lat.toFixed(5)}, {p.lon.toFixed(5)}</div>
                   </div>
-                  <div className="mt-1 text-sm text-gray-700">{desc}</div>
-                  <div className="mt-1 text-xs text-gray-500 flex gap-4 flex-wrap">
-                    {suburb && <span>Suburb: {suburb}</span>}
-                    {opening && <span>Hours: {opening}</span>}
-                    {website && (
-                      <a className="text-blue-600 underline" href={website} target="_blank" rel="noopener noreferrer">Website</a>
-                    )}
+                  
+                  {/* Amenity Type */}
+                  <div className="mt-1">
+                    <p className="text-sm text-gray-600">
+                      <span className="font-medium">Type:</span> {p.typeLabel || amenity || 'Location'}
+                    </p>
                   </div>
+                  
+                  {/* Address - only show if available */}
+                  {fullAddress && (
+                    <div className="mt-1">
+                      <p className="text-sm text-gray-600">
+                        <span className="font-medium">Address:</span> {fullAddress}
+                      </p>
+                    </div>
+                  )}
+                  
+                  {/* Hours - only show if available */}
+                  {openingString && (
+                    <div className="mt-1">
+                      <p className="text-sm text-gray-600">
+                        <span className="font-medium">Hours:</span> {openingString}
+                      </p>
+                    </div>
+                  )}
+                  
+                  {/* Website - only show if available */}
+                  {website && (
+                    <div className="mt-1">
+                      <p className="text-sm text-gray-600">
+                        <span className="font-medium">Website:</span>{' '}
+                        <a className="text-blue-600 underline" href={website} target="_blank" rel="noopener noreferrer">
+                          Visit Website
+                        </a>
+                      </p>
+                    </div>
+                  )}
                   </button>
                   
                   {/* Bookmark and Event functionality */}
@@ -1298,7 +1540,7 @@ export default function CityMap({ city, country, zoom = 15, className, amenity =
                           // Create event data from POI
                           const eventData = {
                             name: p.name || desc,
-                            address: p.tags?.address || p.tags?.suburb || `${p.lat}, ${p.lon}`,
+                            address: p.tags?.computed_address || p.tags?.address || p.tags?.suburb || `${p.lat}, ${p.lon}`,
                             latitude: p.lat,
                             longitude: p.lon,
                             date: new Date().toISOString().split('T')[0],

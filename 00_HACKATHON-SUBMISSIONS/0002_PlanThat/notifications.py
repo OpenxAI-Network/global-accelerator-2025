@@ -94,3 +94,20 @@ def read_notification(notification_id):
     conn.commit()
     cursor.close()
     conn.close()
+
+def remove_all_notifications(user_id):
+    conn = get_db_connection()
+    if not conn:
+        return
+    
+    cursor = get_db_cursor(conn)
+    if not cursor:
+        conn.close()
+        return
+    
+    cursor.execute("""
+        DELETE FROM notifications WHERE user_id = %s
+    """, (user_id,))
+    conn.commit()
+    cursor.close()
+    conn.close()

@@ -412,6 +412,11 @@ def delete_user_notification():
     remove_notification(data["notification_id"])
     return jsonify({"message": "Notification deleted successfully"})
 
+@app.route("/notifications/delete_all", methods=['POST'])
+def delete_all_user_notifications():
+    data = request.get_json()
+    remove_all_notifications(data["user_id"])
+    return jsonify({"message": "All notifications deleted successfully"})
 
 
 #bookmarks

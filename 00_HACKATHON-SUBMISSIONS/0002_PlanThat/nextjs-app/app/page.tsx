@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import dynamic from 'next/dynamic'
 import OverpassControls from '../components/OverpassControls'
+import CityTabs from '../components/CityTabs'
 import Accordion from '../components/Accordion'
 import TimePicker from '../components/TimePicker'
 
@@ -39,7 +40,7 @@ export default function HomePage() {
   const [user, setUser] = useState<User | null>(null)
   const [loading, setLoading] = useState(true)
   const router = useRouter()
-  const [amenity, setAmenity] = useState<'restaurant' | 'bar' | 'nightlife' | 'nature' | 'arts' | 'entertainment' | 'sports' | 'shopping' | 'live_music' | 'cafes' | 'fast_desserts' | 'results' | 'bookmarks' | null>(null)
+  const [amenity, setAmenity] = useState<'restaurant' | 'bar' | 'nightlife' | 'nature' | 'arts' | 'entertainment' | 'sports' | 'shopping' | 'live_music' | 'cafes' | 'fast_desserts' | 'results' | 'bookmarks' | null>('restaurant')
   const [radius, setRadius] = useState<number>(1000)
   const [currentlyOpen, setCurrentlyOpen] = useState<boolean>(false)
   const [cityInput, setCityInput] = useState<string>('')
@@ -76,6 +77,7 @@ export default function HomePage() {
   const [showCustomPromptLocationSuggestions, setShowCustomPromptLocationSuggestions] = useState(false)
   const [citySuggestions, setCitySuggestions] = useState<LocationSuggestion[]>([])
   const [showCitySuggestions, setShowCitySuggestions] = useState(false)
+  const [isCityInputFocused, setIsCityInputFocused] = useState(false)
   const [selectedCityCountry, setSelectedCityCountry] = useState<string>('')
   const [locationValidationError, setLocationValidationError] = useState<string>('')
   const [customPromptValidationError, setCustomPromptValidationError] = useState<string>('')
@@ -102,6 +104,395 @@ export default function HomePage() {
   // Results search state
   const [resultsSearchQuery, setResultsSearchQuery] = useState('')
   const [filteredResults, setFilteredResults] = useState<any[]>([])
+
+  // City tabs state
+  const [cityTabs, setCityTabs] = useState<Array<{
+    id: string
+    type: 'restaurant' | 'bar' | 'nightlife' | 'nature' | 'arts' | 'entertainment' | 'sports' | 'shopping' | 'live_music' | 'cafes' | 'fast_desserts' | 'results' | 'bookmarks'
+    label: string
+    color: string
+  }>>([
+    { id: '1', type: 'restaurant', label: 'Restaurants', color: 'bg-blue-500' },
+    { id: '2', type: 'results', label: 'Results', color: 'bg-green-500' },
+    { id: '3', type: 'bookmarks', label: 'Bookmarks', color: 'bg-purple-500' }
+  ])
+  const [selectedTabIds, setSelectedTabIds] = useState<Set<string>>(new Set(['1', '2', '3']))
+  const [activeAmenities, setActiveAmenities] = useState<Array<'restaurant' | 'bar' | 'nightlife' | 'nature' | 'arts' | 'entertainment' | 'sports' | 'shopping' | 'live_music' | 'cafes' | 'fast_desserts' | 'results' | 'bookmarks'>>(['restaurant', 'results', 'bookmarks'])
+
+  // Update activeAmenities based on selected tabs and cycle through them
+  useEffect(() => {
+    const selectedTypes = cityTabs
+      .filter(tab => selectedTabIds.has(tab.id))
+      .map(tab => tab.type)
+    setActiveAmenities(selectedTypes)
+    
+    // Set amenity to the first selected type, or default to restaurant
+    if (selectedTypes.length > 0) {
+      setAmenity(selectedTypes[0])
+    } else {
+      setAmenity('restaurant')
+    }
+  }, [selectedTabIds, cityTabs])
+
+  // Create a combined results state for all selected amenities
+  const [combinedResults, setCombinedResults] = useState<any[]>([])
+
+  // Set amenity to 'results' when multiple amenities are selected to use combined results
+  useEffect(() => {
+    if (activeAmenities.length > 1) {
+      // When multiple amenities are selected, use 'results' to display combined data
+      setAmenity('results')
+    } else if (activeAmenities.length === 1) {
+      setAmenity(activeAmenities[0])
+    } else {
+      setAmenity('restaurant')
+    }
+  }, [activeAmenities])
+
+  // Function to fetch real data for a specific amenity type using Overpass API
+  const fetchAmenityData = async (amenityType: string) => {
+    if (!selectedCity || !selectedCountry || !radius) return []
+    
+    try {
+      // Get coordinates for the selected city
+      const geocodeResponse = await fetch(
+        `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(selectedCity)},${encodeURIComponent(selectedCountry)}&limit=1`
+      )
+      const geocodeData = await geocodeResponse.json()
+      
+      if (!geocodeData || geocodeData.length === 0) {
+        console.error('Could not geocode city:', selectedCity)
+        return []
+      }
+      
+      const [lat, lon] = [parseFloat(geocodeData[0].lat), parseFloat(geocodeData[0].lon)]
+      
+      // Build Overpass query based on amenity type
+      let overpassQuery = ''
+      
+      if (amenityType === 'restaurant') {
+        overpassQuery = `[
+          out:json][timeout:25];
+          (
+            nwr["amenity"="restaurant"](around:${radius},${lat},${lon});
+            nwr["amenity"="fast_food"](around:${radius},${lat},${lon});
+            nwr["cuisine"](around:${radius},${lat},${lon});
+          );
+          out body;
+        `
+      } else if (amenityType === 'bar') {
+        overpassQuery = `[
+          out:json][timeout:25];
+          (
+            nwr["amenity"="bar"](around:${radius},${lat},${lon});
+            nwr["amenity"="pub"](around:${radius},${lat},${lon});
+          );
+          out body;
+        `
+      } else if (amenityType === 'cafes') {
+        overpassQuery = `[
+          out:json][timeout:25];
+          (
+            nwr["amenity"="cafe"](around:${radius},${lat},${lon});
+            nwr["amenity"="coffee_shop"](around:${radius},${lat},${lon});
+          );
+          out body;
+        `
+      } else if (amenityType === 'nightlife') {
+        overpassQuery = `[
+          out:json][timeout:25];
+          (
+            nwr["amenity"="nightclub"](around:${radius},${lat},${lon});
+            nwr["amenity"="casino"](around:${radius},${lat},${lon});
+            nwr["amenity"="music_venue"](around:${radius},${lat},${lon});
+            nwr["amenity"="bar"](around:${radius},${lat},${lon});
+          );
+          out body;
+        `
+      } else if (amenityType === 'nature') {
+        overpassQuery = `[
+          out:json][timeout:25];
+          (
+            nwr["leisure"="park"](around:${radius},${lat},${lon});
+            nwr["natural"="beach"](around:${radius},${lat},${lon});
+            nwr["natural"="water"]["water"="lake"](around:${radius},${lat},${lon});
+            nwr["waterway"="river"](around:${radius},${lat},${lon});
+            nwr["natural"="peak"](around:${radius},${lat},${lon});
+            nwr["tourism"="viewpoint"](around:${radius},${lat},${lon});
+          );
+          out body;
+        `
+      } else if (amenityType === 'arts') {
+        overpassQuery = `[
+          out:json][timeout:25];
+          (
+            nwr["amenity"="arts_centre"](around:${radius},${lat},${lon});
+            nwr["amenity"="theatre"](around:${radius},${lat},${lon});
+            nwr["tourism"="gallery"](around:${radius},${lat},${lon});
+            nwr["tourism"="museum"](around:${radius},${lat},${lon});
+            nwr["leisure"="art_gallery"](around:${radius},${lat},${lon});
+          );
+          out body;
+        `
+      } else if (amenityType === 'entertainment') {
+        overpassQuery = `[
+          out:json][timeout:25];
+          (
+            nwr["amenity"="cinema"](around:${radius},${lat},${lon});
+            nwr["amenity"="theatre"](around:${radius},${lat},${lon});
+            nwr["leisure"="sports_centre"](around:${radius},${lat},${lon});
+            nwr["tourism"="theme_park"](around:${radius},${lat},${lon});
+            nwr["amenity"="aquarium"](around:${radius},${lat},${lon});
+          );
+          out body;
+        `
+      } else if (amenityType === 'sports') {
+        overpassQuery = `[
+          out:json][timeout:25];
+          (
+            nwr["leisure"="sports_centre"](around:${radius},${lat},${lon});
+            nwr["leisure"="fitness_centre"](around:${radius},${lat},${lon});
+            nwr["leisure"="swimming_pool"](around:${radius},${lat},${lon});
+            nwr["sport"="tennis"](around:${radius},${lat},${lon});
+            nwr["sport"="football"](around:${radius},${lat},${lon});
+            nwr["sport"="basketball"](around:${radius},${lat},${lon});
+          );
+          out body;
+        `
+      } else if (amenityType === 'shopping') {
+        overpassQuery = `[
+          out:json][timeout:25];
+          (
+            nwr["shop"](around:${radius},${lat},${lon});
+            nwr["amenity"="marketplace"](around:${radius},${lat},${lon});
+            nwr["leisure"="shopping_centre"](around:${radius},${lat},${lon});
+          );
+          out body;
+        `
+      } else if (amenityType === 'live_music') {
+        overpassQuery = `[
+          out:json][timeout:25];
+          (
+            nwr["amenity"="music_venue"](around:${radius},${lat},${lon});
+            nwr["amenity"="concert_hall"](around:${radius},${lat},${lon});
+            nwr["amenity"="theatre"](around:${radius},${lat},${lon});
+          );
+          out body;
+        `
+      } else {
+        // Default query for unknown amenity types
+        overpassQuery = `[
+          out:json][timeout:25];
+          nwr["amenity"](around:${radius},${lat},${lon});
+          out body;
+        `
+      }
+      
+      // Make the Overpass API call
+      const overpassResponse = await fetch('https://overpass-api.de/api/interpreter', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: `data=${encodeURIComponent(overpassQuery)}`
+      })
+      
+      if (!overpassResponse.ok) {
+        throw new Error(`Overpass API error: ${overpassResponse.status}`)
+      }
+      
+      const overpassData = await overpassResponse.json()
+      
+      console.log(`Raw Overpass data for ${amenityType}:`, overpassData.elements.slice(0, 2)) // Log first 2 elements
+      
+      // Convert Overpass data to our format with enhanced address processing
+      const pois = overpassData.elements
+        .filter((element: any) => element.type === 'node' || element.type === 'way' || element.type === 'relation')
+        .map((element: any) => {
+          let lat: number, lon: number
+          
+          if (element.type === 'node') {
+            lat = element.lat
+            lon = element.lon
+          } else if (element.center) {
+            lat = element.center.lat
+            lon = element.center.lon
+          } else if (element.lat && element.lon) {
+            // Some elements might have lat/lon directly
+            lat = element.lat
+            lon = element.lon
+          } else {
+            console.log('Skipping element without coordinates:', element)
+            return null
+          }
+          
+          // Ensure we have valid coordinates
+          if (isNaN(lat) || isNaN(lon)) {
+            console.log('Skipping element with invalid coordinates:', element)
+            return null
+          }
+          
+          // Enhanced address processing
+          const tags = element.tags || {}
+          const addressParts = []
+          
+          // Build address from available components
+          if (tags['addr:housenumber'] && tags['addr:street']) {
+            addressParts.push(`${tags['addr:housenumber']} ${tags['addr:street']}`)
+          } else if (tags['addr:street']) {
+            addressParts.push(tags['addr:street'])
+          }
+          
+          if (tags['addr:suburb']) {
+            addressParts.push(tags['addr:suburb'])
+          } else if (tags['addr:neighbourhood']) {
+            addressParts.push(tags['addr:neighbourhood'])
+          }
+          
+          if (tags['addr:city']) {
+            addressParts.push(tags['addr:city'])
+          }
+          
+          if (tags['addr:postcode']) {
+            addressParts.push(tags['addr:postcode'])
+          }
+          
+          if (tags['addr:country']) {
+            addressParts.push(tags['addr:country'])
+          }
+          
+          // Fallback: try to find any address-related information
+          if (addressParts.length === 0) {
+            const addressKeys = Object.keys(tags).filter(key => 
+              key.includes('addr') || key.includes('address') || key.includes('street') || key.includes('road')
+            )
+            if (addressKeys.length > 0) {
+              const addressValues = addressKeys.map(key => tags[key]).filter(Boolean)
+              if (addressValues.length > 0) {
+                addressParts.push(...addressValues.slice(0, 3)) // Limit to first 3 address components
+              }
+            }
+          }
+          
+          // Create a comprehensive address string
+          const fullAddress = addressParts.length > 0 ? addressParts.join(', ') : undefined
+          
+          return {
+            id: element.id,
+            name: tags.name || tags.amenity || amenityType,
+            lat,
+            lon,
+            tags: {
+              ...tags,
+              // Ensure address fields are properly mapped
+              'addr:housenumber': tags['addr:housenumber'],
+              'addr:street': tags['addr:street'],
+              'addr:suburb': tags['addr:suburb'],
+              'addr:city': tags['addr:city'],
+              'addr:postcode': tags['addr:postcode'],
+              'addr:country': tags['addr:country'],
+              'opening_hours': tags['opening_hours'],
+              'website': tags['website'],
+              'contact:website': tags['contact:website'],
+              'url': tags['url'],
+              // Add computed full address
+              'computed_address': fullAddress
+            },
+            typeLabel: amenityType
+          }
+        })
+        .filter(Boolean)
+      
+      console.log(`Processed POIs for ${amenityType}:`, pois.slice(0, 2)) // Log first 2 processed POIs
+      console.log(`Fetched ${pois.length} ${amenityType} places from Overpass API`)
+      return pois
+      
+    } catch (error) {
+      console.error(`Error fetching ${amenityType} data from Overpass API:`, error)
+      return []
+    }
+  }
+
+  // Fetch and combine data for all selected amenities
+  useEffect(() => {
+    const fetchAllAmenityData = async () => {
+      if (activeAmenities.length === 0) return
+      
+      const allData: any[] = []
+      
+      // Add AI results if selected
+      if (activeAmenities.includes('results')) {
+        console.log('Adding parsedResults to combined data:', parsedResults.length, 'items')
+        allData.push(...parsedResults)
+      }
+      
+      // Fetch data for other amenity types
+      for (const amenityType of activeAmenities) {
+        if (amenityType !== 'results' && amenityType !== 'bookmarks') {
+          console.log(`Fetching data for amenity type: ${amenityType}`)
+          const data = await fetchAmenityData(amenityType)
+          console.log(`Got ${data.length} results for ${amenityType}`)
+          
+          // Only add data if it has valid entries
+          const validData = data.filter((item: any) => {
+            const hasValidCoords = item.lat && item.lon && !isNaN(item.lat) && !isNaN(item.lon)
+            const hasName = item.name && item.name.trim() !== ''
+            return hasValidCoords && hasName
+          }).map((item: any) => {
+            // Ensure consistent data structure with all necessary fields
+            return {
+              ...item,
+              // Ensure tags object exists with all necessary fields
+              tags: {
+                ...item.tags,
+                // Preserve computed address
+                computed_address: item.tags?.computed_address || item.address || item.location,
+                // Preserve opening hours
+                opening_hours: item.tags?.opening_hours || item.opening_hours,
+                // Preserve website information
+                website: item.tags?.website || item.tags?.url || item.link,
+                // Preserve address components
+                address: item.tags?.address || item.address || item.location
+              },
+              // Ensure we have the computed address if available
+              address: item.address || item.tags?.computed_address || item.location || undefined,
+              // Ensure opening hours are accessible
+              opening_hours: item.opening_hours || item.tags?.opening_hours,
+              // Ensure website is accessible
+              website: item.website || item.tags?.website || item.tags?.url || item.link
+            }
+          })
+          
+          console.log(`Adding ${validData.length} valid results for ${amenityType}`)
+          allData.push(...validData)
+        }
+      }
+      
+      // Remove duplicates based on coordinates and name
+      const uniqueData = allData.filter((item: any, index: number, self: any[]) => {
+        const key = `${item.lat},${item.lon},${item.name}`
+        return index === self.findIndex((other: any) => 
+          `${other.lat},${other.lon},${other.name}` === key
+        )
+      })
+      
+      console.log('Total combined results before deduplication:', allData.length)
+      console.log('Total combined results after deduplication:', uniqueData.length)
+      console.log('Sample combined results:', uniqueData.slice(0, 3))
+      console.log('Sample combined result structure:', uniqueData.length > 0 ? {
+        name: uniqueData[0].name,
+        address: uniqueData[0].address,
+        tags: uniqueData[0].tags,
+        hasAddress: !!(uniqueData[0].address || uniqueData[0].tags?.computed_address),
+        hasTags: !!uniqueData[0].tags
+      } : 'No data')
+      setCombinedResults(uniqueData)
+    }
+    
+    fetchAllAmenityData()
+  }, [activeAmenities, selectedCity, selectedCountry, radius, parsedResults])
+
+
 
   useEffect(() => {
     // Check if user is authenticated
@@ -155,20 +546,32 @@ export default function HomePage() {
 
     // Filter results based on search query
   useEffect(() => {
-    console.log('Filtering results: parsedResults length =', parsedResults.length, 'searchQuery =', resultsSearchQuery)
-    console.log('Parsed results:', parsedResults)
+    // For the Plan Your Meetup section, always use parsedResults (AI results)
+    // regardless of how many tabs are selected in Your City
+    const resultsToShow = parsedResults
+    
+    console.log('Filtering results for Plan Your Meetup section: parsedResults length =', parsedResults.length, 'searchQuery =', resultsSearchQuery)
+    console.log('Results to show sample:', resultsToShow.slice(0, 2))
+    console.log('Combined results length:', combinedResults.length)
+    console.log('Parsed results length:', parsedResults.length)
     
     if (resultsSearchQuery.trim() === '') {
-      console.log('Setting filteredResults to all parsedResults')
-      setFilteredResults(parsedResults)
+      console.log('Setting filteredResults to all resultsToShow')
+      setFilteredResults(resultsToShow)
     } else {
-      const filtered = parsedResults.filter(result => {
+      const filtered = resultsToShow.filter(result => {
         const searchTerm = resultsSearchQuery.toLowerCase()
         const name = (result.name || '').toLowerCase()
-        const description = (result.description || '').toLowerCase()
-        const address = (result.address || '').toLowerCase()
-        const priceRange = (result.price_range || '').toLowerCase()
-        const openingHours = (result.opening_hours || '').toLowerCase()
+        const description = (result.description || result.tags?.description || '').toLowerCase()
+        const address = (
+          result.address || 
+          result.location || 
+          result.tags?.computed_address ||
+          result.tags?.address ||
+          ''
+        ).toLowerCase()
+        const priceRange = (result.price_range || result.tags?.price_range || '').toLowerCase()
+        const openingHours = (result.opening_hours || result.tags?.opening_hours || '').toLowerCase()
         
         return name.includes(searchTerm) || 
                description.includes(searchTerm) || 
@@ -179,7 +582,7 @@ export default function HomePage() {
       console.log('Setting filteredResults to', filtered.length, 'filtered results')
       setFilteredResults(filtered)
     }
-  }, [resultsSearchQuery, parsedResults])
+  }, [resultsSearchQuery, parsedResults, combinedResults, activeAmenities])
 
   // Reset active tab when filtered results change
   useEffect(() => {
@@ -273,7 +676,7 @@ export default function HomePage() {
   // City autocomplete effect
   useEffect(() => {
     const fetchCitySuggestions = async () => {
-      if (cityInput.length >= 3) {
+      if (cityInput.length >= 3 && isCityInputFocused) {
         try {
           const response = await fetch(
             `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(cityInput)}&limit=10&accept-language=en&featuretype=city`
@@ -304,7 +707,7 @@ export default function HomePage() {
 
     const timeoutId = setTimeout(fetchCitySuggestions, 300)
     return () => clearTimeout(timeoutId)
-  }, [cityInput, selectedCountry, user?.country])
+  }, [cityInput, selectedCountry, user?.country, isCityInputFocused])
 
   const handleUserSelect = (selectedUser: any) => {
     // Check if user is already selected
@@ -358,6 +761,72 @@ export default function HomePage() {
     setCityInput(cityName)
     setSelectedCityCountry(countryName)
     setShowCitySuggestions(false)
+    setIsCityInputFocused(false)
+  }
+
+  // Tab management functions
+  const addTab = (type: 'restaurant' | 'bar' | 'nightlife' | 'nature' | 'arts' | 'entertainment' | 'sports' | 'shopping' | 'live_music' | 'cafes' | 'fast_desserts' | 'results' | 'bookmarks') => {
+    const typeConfig = {
+      restaurant: { label: 'Restaurants', color: 'bg-blue-500' },
+      bar: { label: 'Bars', color: 'bg-indigo-500' },
+      nightlife: { label: 'Nightlife', color: 'bg-purple-500' },
+      nature: { label: 'Nature', color: 'bg-green-500' },
+      arts: { label: 'Arts', color: 'bg-pink-500' },
+      entertainment: { label: 'Entertainment', color: 'bg-yellow-500' },
+      sports: { label: 'Sports', color: 'bg-orange-500' },
+      shopping: { label: 'Shopping', color: 'bg-teal-500' },
+      live_music: { label: 'Live Music', color: 'bg-red-500' },
+      cafes: { label: 'Cafes', color: 'bg-amber-500' },
+      fast_desserts: { label: 'Fast Food / Desserts', color: 'bg-lime-500' },
+      results: { label: 'Results', color: 'bg-emerald-500' },
+      bookmarks: { label: 'Bookmarks', color: 'bg-violet-500' }
+    }
+
+    const config = typeConfig[type]
+    const newTab = {
+      id: Date.now().toString(),
+      type,
+      label: config.label,
+      color: config.color
+    }
+
+    setCityTabs(prev => [newTab, ...prev]) // Add to front
+    setSelectedTabIds(prev => new Set(Array.from(prev).concat(newTab.id))) // Auto-select new tab
+    setAmenity(type)
+  }
+
+  const removeTab = (tabId: string) => {
+    setCityTabs(prev => {
+      const newTabs = prev.filter(tab => tab.id !== tabId)
+      if (newTabs.length === 0) {
+        // If no tabs left, add a default one
+        const defaultTab = { id: 'default', type: 'restaurant' as const, label: 'Restaurants', color: 'bg-blue-500' }
+        setSelectedTabIds(new Set(['default']))
+        setAmenity('restaurant')
+        return [defaultTab]
+      }
+      
+      // Remove the tab from selectedTabIds
+      setSelectedTabIds(prev => {
+        const newSet = new Set(Array.from(prev))
+        newSet.delete(tabId)
+        return newSet
+      })
+      
+      return newTabs
+    })
+  }
+
+  const toggleTab = (tabId: string) => {
+    setSelectedTabIds(prev => {
+      const newSet = new Set(Array.from(prev))
+      if (newSet.has(tabId)) {
+        newSet.delete(tabId)
+      } else {
+        newSet.add(tabId)
+      }
+      return newSet
+    })
   }
 
   // Function to open calendar popup with plan data
@@ -399,7 +868,7 @@ export default function HomePage() {
     // Pre-fill the popup form with plan data
     setCalendarEventData({
       name: plan.name || 'PlanThat Event',
-      address: plan.address || plan.location || plan.name || locationInput || '',
+      address: plan.address || plan.location || plan.tags?.computed_address || plan.tags?.address || plan.name || locationInput || '',
       latitude: latitude,
       longitude: longitude,
       date: selectedDate || new Date().toISOString().split('T')[0],
@@ -681,17 +1150,21 @@ export default function HomePage() {
         const location = customPromptLocation.trim() || `${user?.city || 'Unknown'}, ${user?.country || 'Unknown'}`
         
         const role = `Act as an expert travel guide, focusing on recommending places to visit in the location provided by the user.`
-        const task = `Recommend 5 places to visit in the location provided by the user: ${location}, and the following query: ${userPrompt}. Base the result on the user's preferences: 
+        const task = `Recommend 5 places to visit in the location provided by the user: ${location}, and the following query: ${userPrompt}. 
+        
+        Base the result on the user's preferences: 
         The user has provided the following preferences: food: ${userFood}/10, drinks: ${userDrinks}/10, nightlife: ${userNightlife}/10, nature: ${userNature}/10, arts: ${userArts}/10, entertainment: ${userEntertainment}/10, sports: ${userSports}/10, shopping: ${userShopping}/10, music: ${userMusic}/10 diet_restrictions: ${userDietRestrictions}, dislikes: ${userDislikes}`
         const context = `Prioritise accuracracy: location names and address must match official places (e.g google maps), and the coordinates must be valid. 
         Prioritise accuracy over creativity, and focus on providing the most accurate and relevant information possible.
         Highlight why the place is a good fit for the user's preferences in a concise summary.`
+        
         const reasoning = `Internally, vet all suggested places to guarantee they are real, and that the coordinates are valid.
-        Cross check place names with reliable sources like google maps, tripadvisor, yelp, apple maps, and do the same for coordinates.
+        Cross check place names with reliable sources such as google maps, tripadvisor, timeout.com, yelp, apple maps, and do the same for coordinates.
         Ensure the place name is correct and not a typo.
         Also ensure the address of the place is correct and verified using an external source.
         Also ensure they fit the users preferences.
         If the place is not real, or is not backed by a reliable source, do not include it in the results.`
+        
         const output_format  = `Returning the information in JSON format with these keys: "name", "address", "coordinates", "summary", "image", "link", "price_range", "opening_hours". put all locations in a list, and have each location as a seperate list item`
         const stop_condition = `Task is complete when five verified unique locations are found, re returned on the specified format, and valid coordinates are provided, and validation has confirmed full compliance with all requirements. Alternatively, if the user has provided a specific location, the task is complete when a verified unique location is found at that location., alternatively, if there are no results, return an empty array.`
 
@@ -788,6 +1261,15 @@ export default function HomePage() {
       console.log('Parsed results:', parsed)
       console.log('Setting parsedResults with', parsed.length, 'items')
       setParsedResults(parsed)
+      
+      // If multiple tabs are selected, also update combined results
+      if (activeAmenities.length > 1) {
+        setCombinedResults(prevCombined => {
+          console.log('Updating combined results with new parsed results')
+          return [...prevCombined, ...parsed]
+        })
+      }
+      
       setActiveTab(0) // Reset to first tab
       
       // Automatically switch to Results tab on map if we have results with coordinates
@@ -1009,6 +1491,16 @@ export default function HomePage() {
         return combined
       })
       
+      // If multiple tabs are selected, also update combined results
+      if (activeAmenities.length > 1) {
+        setCombinedResults(prevCombined => {
+          console.log('Adding', newParsed.length, 'new results to existing combined results')
+          const combined = [...prevCombined, ...newParsed]
+          console.log('Updated combined results:', combined.length, 'total')
+          return combined
+        })
+      }
+      
       // Automatically switch to Results tab on map if we have new results with coordinates
       if (newParsed.length > 0 && newParsed.some((result: any) => result.coordinates)) {
         setAmenity('results')
@@ -1024,6 +1516,7 @@ export default function HomePage() {
   const handleReset = () => {
     setPlanResult('')
     setParsedResults([])
+    setCombinedResults([])
     setActiveTab(0)
     setIsFormMinimized(false)
     setHasGeneratedPlan(false)
@@ -1041,7 +1534,7 @@ export default function HomePage() {
     setCurrentPrompt('')
     setFormTab('inputs') // Reset to User Inputs tab
     setCustomPrompt('') // Clear custom prompt
-    setAmenity(null) // Clear the map amenity selection
+    setAmenity('restaurant') // Reset to default amenity
     setCurrentlyOpen(false) // Reset currently open filter
   }
 
@@ -1074,16 +1567,17 @@ export default function HomePage() {
     return null
   }
 
-  const OverpassControlsWrapper = () => (
-    <OverpassControls
-      amenity={amenity}
+  const CityTabsWrapper = () => (
+    <CityTabs
+      tabs={cityTabs}
+      selectedTabIds={selectedTabIds}
+      onAddTab={addTab}
+      onRemoveTab={removeTab}
+      onToggleTab={toggleTab}
       radius={radius}
       currentlyOpen={currentlyOpen}
-      onChange={({ amenity, radius, currentlyOpen }) => {
-        setAmenity(amenity)
-        setRadius(radius)
-        setCurrentlyOpen(currentlyOpen)
-      }}
+      onRadiusChange={setRadius}
+      onCurrentlyOpenChange={setCurrentlyOpen}
     />
   )
 
@@ -1149,7 +1643,7 @@ export default function HomePage() {
                         className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                       />
                       {showUserSearchResults && userSearchResults.length > 0 && (
-                        <div className="absolute z-20 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-auto">
+                        <div className="absolute z-[9999] w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-auto">
                           {userSearchResults.map((result, index) => (
                             <button
                               key={index}
@@ -1201,7 +1695,7 @@ export default function HomePage() {
                         }`}
                       />
                       {showSuggestions && locationSuggestions.length > 0 && (
-                        <div className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-auto">
+                        <div className="absolute z-[9999] w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-auto">
                           {locationSuggestions.map((suggestion, index) => (
                             <button
                               key={index}
@@ -1423,7 +1917,7 @@ export default function HomePage() {
                         className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                       />
                       {showUserSearchResults && userSearchResults.length > 0 && (
-                        <div className="absolute z-20 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-auto">
+                        <div className="absolute z-[9999] w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-auto">
                           {userSearchResults.map((result, index) => (
                             <button
                               key={index}
@@ -1475,7 +1969,7 @@ export default function HomePage() {
                         }`}
                       />
                       {showCustomPromptLocationSuggestions && customPromptLocationSuggestions.length > 0 && (
-                        <div className="absolute z-20 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-auto">
+                        <div className="absolute z-[9999] w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-auto">
                           {customPromptLocationSuggestions.map((suggestion, index) => (
                             <button
                               key={index}
@@ -1592,6 +2086,19 @@ export default function HomePage() {
                            {(() => {
                              const currentResults = filteredResults.length > 0 ? filteredResults : parsedResults;
                              const currentResult = currentResults[activeTab];
+                             
+                             // Debug logging for current result
+                             console.log('Current result being displayed:', currentResult);
+                             console.log('Current result structure:', currentResult ? {
+                               name: currentResult.name,
+                               address: currentResult.address,
+                               location: currentResult.location,
+                               tags: currentResult.tags,
+                               hasAddress: !!(currentResult.address || currentResult.location || currentResult.tags?.computed_address),
+                               hasTags: !!currentResult.tags,
+                               typeLabel: currentResult.typeLabel
+                             } : 'No current result');
+                             
                              return (
                                <>
                                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -1600,7 +2107,7 @@ export default function HomePage() {
                                        {currentResult.name}
                                      </h4>
                                      <p className="text-gray-600 text-sm mb-2">
-                                       {currentResult.summary || currentResult.description || 'No description available'}
+                                       {currentResult.summary || currentResult.description || currentResult.tags?.description || 'No description available'}
                                      </p>
                                    </div>
                                    {currentResult.image && (
@@ -1617,27 +2124,52 @@ export default function HomePage() {
                                    )}
                                  </div>
                                  
-                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                                 <div className="space-y-2 text-sm">
+                                   {/* Name */}
                                    <div>
-                                     <p><strong>Address:</strong> {currentResult.address || currentResult.location || currentResult.name || 'Not specified'}</p>
-                                     <p><strong>Coordinates:</strong> {
-                                       currentResult.coordinates 
-                                         ? (typeof currentResult.coordinates === 'object' 
-                                             ? `${currentResult.coordinates.lat || currentResult.coordinates.latitude}, ${currentResult.coordinates.lon || currentResult.coordinates.longitude}`
-                                             : currentResult.coordinates)
-                                         : currentResult.lat && currentResult.lon 
-                                           ? `${currentResult.lat}, ${currentResult.lon}`
-                                           : 'Not specified'
-                                     }</p>
-                                     <p><strong>Price Range:</strong> {currentResult.price_range || 'Not specified'}</p>
+                                     <p className="font-semibold text-lg text-gray-900">{currentResult.name}</p>
                                    </div>
+                                   
+                                   {/* Amenity Type */}
                                    <div>
-                                     <p><strong>Opening Hours:</strong> {currentResult.opening_hours || 'Not specified'}</p>
-                                     {currentResult.link && (
-                                       <p>
-                                         <strong>Link:</strong>{' '}
+                                     <p className="text-gray-600">
+                                       <span className="font-medium">Type:</span> {currentResult.typeLabel || 'Location'}
+                                     </p>
+                                   </div>
+                                   
+                                   {/* Address - only show if available */}
+                                   {(currentResult.address || 
+                                     currentResult.location || 
+                                     currentResult.tags?.computed_address ||
+                                     currentResult.tags?.address) && (
+                                     <div>
+                                       <p className="text-gray-600">
+                                         <span className="font-medium">Address:</span> {
+                                           currentResult.address || 
+                                           currentResult.location || 
+                                           currentResult.tags?.computed_address ||
+                                           currentResult.tags?.address
+                                         }
+                                       </p>
+                                     </div>
+                                   )}
+                                   
+                                   {/* Hours - only show if available */}
+                                   {(currentResult.opening_hours || currentResult.tags?.opening_hours) && (
+                                     <div>
+                                       <p className="text-gray-600">
+                                         <span className="font-medium">Hours:</span> {currentResult.opening_hours || currentResult.tags?.opening_hours}
+                                       </p>
+                                     </div>
+                                   )}
+                                   
+                                   {/* Website - only show if available */}
+                                   {(currentResult.link || currentResult.tags?.website || currentResult.tags?.url) && (
+                                     <div>
+                                       <p className="text-gray-600">
+                                         <span className="font-medium">Website:</span>{' '}
                                          <a
-                                           href={currentResult.link}
+                                           href={currentResult.link || currentResult.tags?.website || currentResult.tags?.url}
                                            target="_blank"
                                            rel="noopener noreferrer"
                                            className="text-blue-600 hover:text-blue-800 underline"
@@ -1645,8 +2177,8 @@ export default function HomePage() {
                                            Visit Website
                                          </a>
                                        </p>
-                                     )}
-                                   </div>
+                                     </div>
+                                   )}
                                  </div>
                                  
                                  {/* Add to Calendar Button */}
@@ -1687,7 +2219,7 @@ export default function HomePage() {
                        {parsedResults.length > 0 && filteredResults.length === 0 && (
                          <div className="mt-4 bg-blue-50 border border-blue-200 text-blue-800 px-4 py-3 rounded-md">
                            <p className="text-sm">
-                             <strong>Debug:</strong> Found {parsedResults.length} parsed results but 0 filtered results. 
+                             <strong>Debug:</strong> Found {parsedResults.length} results but 0 filtered results. 
                              This might indicate a filtering issue.
                            </p>
                          </div>
@@ -1765,15 +2297,27 @@ export default function HomePage() {
                     type="text"
                     value={cityInput}
                     onChange={(e) => setCityInput(e.target.value)}
+                    onFocus={() => setIsCityInputFocused(true)}
+                    onBlur={() => {
+                      // Delay hiding suggestions to allow clicking on them
+                      setTimeout(() => {
+                        setIsCityInputFocused(false)
+                        setShowCitySuggestions(false)
+                      }, 200)
+                    }}
                     placeholder="Enter city"
                     className="border border-gray-300 rounded-md px-2 py-1 text-sm"
                   />
                   {showCitySuggestions && citySuggestions.length > 0 && (
-                    <div className="absolute z-20 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-auto">
+                    <div className="absolute z-[9999] w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-auto">
                       {citySuggestions.map((suggestion, index) => (
                         <button
                           key={index}
-                          onClick={() => handleCitySelect(suggestion)}
+                          onClick={(e) => {
+                            e.preventDefault()
+                            handleCitySelect(suggestion)
+                          }}
+                          onMouseDown={(e) => e.preventDefault()}
                           className="w-full text-left px-3 py-2 hover:bg-gray-100 focus:bg-gray-100 focus:outline-none text-sm"
                         >
                           {suggestion.display_name}
@@ -1793,16 +2337,17 @@ export default function HomePage() {
             <p className="text-gray-600 mb-4">Here's a map of {cityInput || (selectedCity ?? user.city)}, {(selectedCityCountry || (selectedCountry ?? user.country))}.</p>
 
             {/* POI Controls */}
-            <OverpassControlsWrapper />
+            <CityTabsWrapper />
 
                          {/* Map */}
                            <MapClient 
                              city={(selectedCity ?? user.city)} 
                              country={(selectedCityCountry || (selectedCountry ?? user.country))} 
                              amenity={amenity} 
+                             activeAmenities={activeAmenities}
                              radius={radius} 
                              currentlyOpen={currentlyOpen} 
-                             parsedResults={parsedResults} 
+                             parsedResults={combinedResults} 
                              userId={user?.id}
                              onAddEvent={openCalendarPopup}
                            />

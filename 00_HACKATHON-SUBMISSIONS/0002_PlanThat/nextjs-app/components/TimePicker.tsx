@@ -101,7 +101,7 @@ export default function TimePicker({ value, onChange, label, className = '' }: T
         />
         
         {isOpen && (
-          <div className="absolute z-50 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-auto">
+          <div className="absolute z-[9999] w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-auto">
             {timeOptions.map((time) => (
               <button
                 key={time}

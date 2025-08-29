@@ -72,6 +72,16 @@ export default function Navigation() {
   const [isLoading, setIsLoading] = useState(true)
   const [sentFriendRequests, setSentFriendRequests] = useState<Set<number>>(new Set())
   const [friendsList, setFriendsList] = useState<Set<number>>(new Set())
+  const [activeNavItem, setActiveNavItem] = useState<string>('home')
+  const [friendsSearchQuery, setFriendsSearchQuery] = useState('')
+  const [friendsSearchResults, setFriendsSearchResults] = useState<SearchResult[]>([])
+  const [friendsSearchLoading, setFriendsSearchLoading] = useState(false)
+  const [friendsFilterQuery, setFriendsFilterQuery] = useState('')
+
+  // Helper function to get the other friend's name
+  const getOtherFriendName = (friend: Friend) => {
+    return friend.friend_1_id === user?.id ? friend.friend_2_name : friend.friend_1_name
+  }
 
   // Function to close all popups
   const closeAllPopups = () => {
@@ -80,6 +90,11 @@ export default function Navigation() {
     setShowSearch(false)
     setShowNotifications(false)
     setShowEventInvitations(false)
+  }
+
+  // Function to handle navigation item clicks
+  const handleNavItemClick = (itemName: string) => {
+    setActiveNavItem(itemName)
   }
 
   // Function to load user data from localStorage
@@ -285,6 +300,34 @@ export default function Navigation() {
     }
   }
 
+  // Clear all notifications
+  const clearAllNotifications = async () => {
+    if (!user) return
+    
+    setNotificationsLoading(true)
+    try {
+      const response = await fetch('http://localhost:5001/notifications/delete_all', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ user_id: user.id }),
+      })
+
+      if (response.ok) {
+        // Clear notifications from local state
+        setNotifications([])
+        console.log('All notifications cleared')
+      } else {
+        console.error('Error clearing all notifications')
+      }
+    } catch (error) {
+      console.error('Error clearing all notifications:', error)
+    } finally {
+      setNotificationsLoading(false)
+    }
+  }
+
   // Fetch event invitations
   const fetchEventInvitations = async (userId: number) => {
     try {
@@ -365,6 +408,38 @@ export default function Navigation() {
     }
   }
 
+  // Search friends function
+  const searchFriends = async (query: string) => {
+    if (!user || !query.trim()) {
+      setFriendsSearchResults([])
+      return
+    }
+    
+    setFriendsSearchLoading(true)
+    try {
+      const response = await fetch('http://localhost:5001/friends/search', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ user_id: user.id, query: query.trim() }),
+      })
+
+      if (response.ok) {
+        const data = await response.json()
+        setFriendsSearchResults(data)
+      } else {
+        console.error('Error searching friends')
+        setFriendsSearchResults([])
+      }
+    } catch (error) {
+      console.error('Error searching friends:', error)
+      setFriendsSearchResults([])
+    } finally {
+      setFriendsSearchLoading(false)
+    }
+  }
+
   // Search users
   const searchUsers = async (query: string) => {
     if (!query.trim() || !user) return
@@ -391,6 +466,30 @@ export default function Navigation() {
       setSearchLoading(false)
     }
   }
+
+  // Handle friends search input change
+  const handleFriendsSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const query = e.target.value
+    setFriendsSearchQuery(query)
+    
+    if (query.trim()) {
+      searchFriends(query)
+    } else {
+      setFriendsSearchResults([])
+    }
+  }
+
+  // Handle friends filter input change
+  const handleFriendsFilterChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setFriendsFilterQuery(e.target.value)
+  }
+
+  // Filter friends based on search query
+  const filteredFriends = friends.filter(friend => {
+    if (!friendsFilterQuery.trim()) return true
+    const friendName = getOtherFriendName(friend).toLowerCase()
+    return friendName.includes(friendsFilterQuery.toLowerCase())
+  })
 
   // Handle search input change
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -657,10 +756,6 @@ export default function Navigation() {
     return request.friend_1_id === user?.id ? request.friend_2_name : request.friend_1_name
   }
 
-  const getOtherFriendName = (friend: Friend) => {
-    return friend.friend_1_id === user?.id ? friend.friend_2_name : friend.friend_1_name
-  }
-
   // Show loading state briefly while checking authentication
   if (isLoading) {
     return (
@@ -696,11 +791,37 @@ export default function Navigation() {
           
           <div className="flex items-center space-x-4">
             <Link 
+              key="home"
+              href="/" 
+              onClick={() => handleNavItemClick('home')}
+              className={`text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium flex items-center relative ${
+                activeNavItem === 'home' ? 'text-gray-900' : ''
+              }`}
+            >
+              <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+              </svg>
+              Home
+              {activeNavItem === 'home' && (
+                <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-1.5 h-1.5 bg-gray-500 rounded-full"></div>
+              )}
+            </Link>
+            
+            <Link 
               key="calendar"
               href="/regular-calendar" 
-              className="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium"
+              onClick={() => handleNavItemClick('calendar')}
+              className={`text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium flex items-center relative ${
+                activeNavItem === 'calendar' ? 'text-gray-900' : ''
+              }`}
             >
+              <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+              </svg>
               Calendar
+              {activeNavItem === 'calendar' && (
+                <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-1.5 h-1.5 bg-gray-500 rounded-full"></div>
+              )}
             </Link>
             
             {/* Notifications */}
@@ -731,8 +852,13 @@ export default function Navigation() {
                       }
                     }
                   }
+                  
+                  // Update active nav item
+                  handleNavItemClick('notifications')
                 }}
-                className="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium flex items-center"
+                className={`text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium flex items-center relative ${
+                  activeNavItem === 'notifications' ? 'text-gray-900' : ''
+                }`}
               >
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-5 5v-5zM10.5 3.75a6 6 0 0 1 6 6v3.75l2.25 2.25V12a8.25 8.25 0 0 0-16.5 0v3.75l2.25-2.25V9.75a6 6 0 0 1 6-6z" />
@@ -742,31 +868,47 @@ export default function Navigation() {
                     {notifications.filter(n => !n.read).length}
                   </span>
                 )}
+                {activeNavItem === 'notifications' && (
+                  <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-1.5 h-1.5 bg-gray-500 rounded-full"></div>
+                )}
               </button>
               
               {showNotifications && (
-                <div key="notifications-dropdown" className="absolute right-0 mt-2 w-80 bg-white rounded-md shadow-lg border border-gray-200 z-50">
+                <div key="notifications-dropdown" className="absolute right-0 mt-2 w-80 bg-white rounded-md shadow-lg border border-gray-200 z-[9999]">
                   <div className="p-4">
                     <div className="flex items-center justify-between mb-3">
                       <h3 className="text-lg font-medium text-gray-900">Notifications</h3>
-                      {notifications.filter(n => !n.read).length > 0 && (
-                        <button
-                          onClick={() => {
-                            const unreadIds = notifications.filter(n => !n.read).map(n => n.id)
-                            markNotificationsAsRead(unreadIds)
-                          }}
-                          disabled={notificationsLoading}
-                          className="text-xs text-blue-600 hover:text-blue-800 disabled:opacity-50 transition-colors"
-                        >
-                          Mark all as read
-                        </button>
-                      )}
+                      <div className="flex gap-2">
+                        {notifications.filter(n => !n.read).length > 0 && (
+                          <button
+                            onClick={() => {
+                              const unreadIds = notifications.filter(n => !n.read).map(n => n.id)
+                              markNotificationsAsRead(unreadIds)
+                            }}
+                            disabled={notificationsLoading}
+                            className="text-xs text-blue-600 hover:text-blue-800 disabled:opacity-50 transition-colors"
+                          >
+                            Mark all as read
+                          </button>
+                        )}
+                        {notifications.length > 0 && (
+                          <button
+                            onClick={clearAllNotifications}
+                            disabled={notificationsLoading}
+                            className="text-xs text-red-600 hover:text-red-800 disabled:opacity-50 transition-colors"
+                          >
+                            Clear all
+                          </button>
+                        )}
+                      </div>
                     </div>
                     {notifications.length === 0 ? (
                       <p className="text-gray-500 text-sm">No notifications</p>
                     ) : (
                       <div className="space-y-2 max-h-60 overflow-y-auto">
-                        {notifications.map((notification) => (
+                        {notifications
+                          .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
+                          .map((notification) => (
                           <div 
                             key={notification.id} 
                             className={`p-3 rounded-lg border flex items-start gap-2 ${
@@ -833,8 +975,13 @@ export default function Navigation() {
                       await fetchEventInvitations(user.id)
                     }
                   }
+                  
+                  // Update active nav item
+                  handleNavItemClick('event-invitations')
                 }}
-                className="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium flex items-center"
+                className={`text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium flex items-center relative ${
+                  activeNavItem === 'event-invitations' ? 'text-gray-900' : ''
+                }`}
               >
                 <svg className="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
@@ -845,10 +992,13 @@ export default function Navigation() {
                     {eventInvitations.length}
                   </span>
                 )}
+                {activeNavItem === 'event-invitations' && (
+                  <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-1.5 h-1.5 bg-gray-500 rounded-full"></div>
+                )}
               </button>
               
               {showEventInvitations && (
-                <div key="event-invitations-dropdown" className="absolute right-0 mt-2 w-80 bg-white rounded-md shadow-lg border border-gray-200 z-50">
+                <div key="event-invitations-dropdown" className="absolute right-0 mt-2 w-80 bg-white rounded-md shadow-lg border border-gray-200 z-[9999]">
                   <div className="p-4">
                     <h3 className="text-lg font-medium text-gray-900 mb-3">Event Invitations</h3>
                     {eventInvitations.length === 0 ? (
@@ -905,17 +1055,25 @@ export default function Navigation() {
                   
                   // Toggle search popup
                   setShowSearch(!wasOpen)
+                  
+                  // Update active nav item
+                  handleNavItemClick('search')
                 }}
-                className="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium flex items-center"
+                className={`text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium flex items-center relative ${
+                  activeNavItem === 'search' ? 'text-gray-900' : ''
+                }`}
               >
                 <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                 </svg>
                 Search Users
+                {activeNavItem === 'search' && (
+                  <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-1.5 h-1.5 bg-gray-500 rounded-full"></div>
+                )}
               </button>
               
               {showSearch && (
-                <div key="search-dropdown" className="absolute right-0 mt-2 w-80 bg-white rounded-md shadow-lg border border-gray-200 z-50">
+                <div key="search-dropdown" className="absolute right-0 mt-2 w-80 bg-white rounded-md shadow-lg border border-gray-200 z-[9999]">
                   <div className="p-4">
                     <h3 className="text-lg font-medium text-gray-900 mb-3">Search Users</h3>
                     <div className="mb-3">
@@ -998,19 +1156,30 @@ export default function Navigation() {
                   
                   // Toggle friend requests popup
                   setShowFriendRequests(!wasOpen)
+                  
+                  // Update active nav item
+                  handleNavItemClick('friend-requests')
                 }}
-                className="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium flex items-center"
+                className={`text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium flex items-center relative ${
+                  activeNavItem === 'friend-requests' ? 'text-gray-900' : ''
+                }`}
               >
+                <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z" />
+                </svg>
                 Friend Requests
                 {friendRequests.length > 0 && (
                   <span key="friend-requests-badge" className="ml-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
                     {friendRequests.length}
                   </span>
                 )}
+                {activeNavItem === 'friend-requests' && (
+                  <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-1.5 h-1.5 bg-gray-500 rounded-full"></div>
+                )}
               </button>
               
               {showFriendRequests && (
-                <div key="friend-requests-dropdown" className="absolute right-0 mt-2 w-80 bg-white rounded-md shadow-lg border border-gray-200 z-50">
+                <div key="friend-requests-dropdown" className="absolute right-0 mt-2 w-80 bg-white rounded-md shadow-lg border border-gray-200 z-[9999]">
                   <div className="p-4">
                     <h3 className="text-lg font-medium text-gray-900 mb-3">Friend Requests</h3>
                     {friendRequests.length === 0 ? (
@@ -1060,26 +1229,81 @@ export default function Navigation() {
                   
                   // Toggle friends popup
                   setShowFriends(!wasOpen)
+                  
+                  // Update active nav item
+                  handleNavItemClick('friends')
                 }}
-                className="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium flex items-center"
+                className={`text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium flex items-center relative ${
+                  activeNavItem === 'friends' ? 'text-gray-900' : ''
+                }`}
               >
+                <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                </svg>
                 Friends
                 {friends.length > 0 && (
                   <span key="friends-badge" className="ml-1 bg-blue-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
                     {friends.length}
                   </span>
                 )}
+                {activeNavItem === 'friends' && (
+                  <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-1.5 h-1.5 bg-gray-500 rounded-full"></div>
+                )}
               </button>
               
               {showFriends && (
-                <div key="friends-dropdown" className="absolute right-0 mt-2 w-80 bg-white rounded-md shadow-lg border border-gray-200 z-50">
+                <div key="friends-dropdown" className="absolute right-0 mt-2 w-80 bg-white rounded-md shadow-lg border border-gray-200 z-[9999]">
                   <div className="p-4">
                     <h3 className="text-lg font-medium text-gray-900 mb-3">Friends</h3>
+                    
+                    {/* Friends Filter Search Bar */}
+                    <div className="mb-3">
+                      <div className="relative">
+                        <input
+                          type="text"
+                          value={friendsFilterQuery}
+                          onChange={handleFriendsFilterChange}
+                          placeholder="Search your friends..."
+                          className="w-full px-3 py-2 pl-8 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+                        />
+                        <div className="absolute inset-y-0 left-0 pl-2 flex items-center pointer-events-none">
+                          <svg className="h-4 w-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                          </svg>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    {/* Search Results */}
+                    {friendsSearchQuery && friendsSearchResults.length > 0 && (
+                      <div className="mb-3">
+                        <h4 className="text-sm font-medium text-gray-700 mb-2">Search Results</h4>
+                        <div className="space-y-2 max-h-40 overflow-y-auto">
+                          {friendsSearchResults.map((result) => (
+                            <div key={result.id} className="flex items-center justify-between p-2 bg-blue-50 rounded-lg">
+                              <span className="text-sm text-gray-900">{result.username}</span>
+                              <button
+                                onClick={() => sendFriendRequest(result.id)}
+                                disabled={loading || sentFriendRequests.has(result.id) || friendsList.has(result.id)}
+                                className="px-2 py-1 text-xs bg-blue-500 text-white rounded hover:bg-blue-600 disabled:opacity-50 transition-colors"
+                              >
+                                {friendsList.has(result.id) ? 'Friends' : 
+                                 sentFriendRequests.has(result.id) ? 'Request Sent' : 'Add Friend'}
+                              </button>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                    
+                    {/* Friends List */}
                     {friends.length === 0 ? (
                       <p className="text-gray-500 text-sm">No friends yet</p>
+                    ) : filteredFriends.length === 0 ? (
+                      <p className="text-gray-500 text-sm">No friends found matching "{friendsFilterQuery}"</p>
                     ) : (
-                      <div className="space-y-3">
-                        {friends.map((friend) => (
+                      <div className="space-y-3 max-h-60 overflow-y-auto">
+                        {filteredFriends.map((friend) => (
                           <div key={friend.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
                             <div className="flex-1">
                               <p className="text-sm font-medium text-gray-900">
