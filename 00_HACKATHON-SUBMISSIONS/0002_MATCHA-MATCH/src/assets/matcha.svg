@@ -1,0 +1,16 @@
+<svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Cup -->
+  <path d="M20 40C20 35 24 30 30 30H34C40 30 44 35 44 40V48C44 53 40 58 34 58H30C24 58 20 53 20 48V40Z" fill="#4ADE80" stroke="#22C55E" stroke-width="2"/>
+  
+  <!-- Handle -->
+  <path d="M44 44C48 44 52 48 52 52C52 56 48 60 44 60" stroke="#22C55E" stroke-width="2" fill="none"/>
+  
+  <!-- Steam -->
+  <path d="M28 20C28 20 30 18 32 20C34 22 36 20 36 20" stroke="#22C55E" stroke-width="2" fill="none" opacity="0.6"/>
+  <path d="M32 18C32 18 34 16 36 18C38 20 40 18 40 18" stroke="#22C55E" stroke-width="2" fill="none" opacity="0.4"/>
+  
+  <!-- Matcha powder -->
+  <circle cx="32" cy="42" r="3" fill="#16A34A" opacity="0.8"/>
+  <circle cx="28" cy="46" r="2" fill="#16A34A" opacity="0.6"/>
+  <circle cx="36" cy="46" r="2" fill="#16A34A" opacity="0.6"/>
+</svg>

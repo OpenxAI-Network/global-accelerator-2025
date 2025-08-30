@@ -1,0 +1,155 @@
+@import url('https://fonts.googleapis.com/css2?family=Bree+Serif&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Bree+Serif&family=Sour+Gummy:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@300..700&display=swap');
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ========================================
+   STANDARDIZED COLOR SYSTEM
+   All colors defined here for easy editing
+   ======================================== */
+
+@layer base {
+  :root {
+    /* ===== MASTER COLOR PALETTE ===== */
+    /* EDIT COLORS HERE - ONLY PLACE YOU NEED TO CHANGE! */
+    --MASTER-website: 120 25% 58%;    /* #6FAE74 - Website background */
+    --MASTER-header: 120 30% 78%;     /* #BEDAC0 - Header */
+    --MASTER-cards: 120 25% 35%;      /* #405842 - Cards, popovers */
+    --MASTER-text: 90 10% 20%;        /* #2A2A2A - Primary text */
+    --MASTER-accent: 120 40% 90%;     /* #E5F0E6 - Additional accents */
+
+    /* ===== SEMANTIC COLOR MAPPING ===== */
+    /* These automatically use the master palette above */
+    --background: var(--MASTER-website);           /* Main website background */
+    --foreground: var(--MASTER-text);              /* Primary text color */
+    --card: var(--MASTER-cards);                   /* Card backgrounds */
+    --card-foreground: var(--MASTER-text);         /* Card text */
+    --popover: var(--MASTER-cards);                /* Popover backgrounds */
+    --popover-foreground: var(--MASTER-text);      /* Popover text */
+    --primary: var(--MASTER-header);               /* Primary elements */
+    --primary-foreground: var(--MASTER-text);      /* Primary text */
+    --secondary: var(--MASTER-website);            /* Secondary elements */
+    --secondary-foreground: var(--MASTER-text);    /* Secondary text */
+    --muted: var(--MASTER-website);                /* Muted backgrounds */
+    --muted-foreground: 90 10% 40%;               /* #666666 - Muted text */
+    --accent: var(--MASTER-accent);                /* Accent elements */
+    --accent-foreground: var(--MASTER-text);       /* Accent text */
+    --destructive: 0 84% 60%;                      /* Error/delete red */
+    --destructive-foreground: 0 0% 100%;          /* White text on red */
+    --border: 120 25% 60%;                         /* #7AA87D - Borders */
+    --input: var(--MASTER-cards);                  /* Input backgrounds */
+    --ring: var(--MASTER-accent);                  /* Focus rings */
+    --radius: 0.5rem;
+
+    /* ===== SIDEBAR COLORS ===== */
+    --sidebar-background: var(--MASTER-website);
+    --sidebar-foreground: var(--MASTER-text);
+    --sidebar-primary: var(--MASTER-text);
+    --sidebar-primary-foreground: var(--MASTER-header);
+    --sidebar-accent: var(--MASTER-header);
+    --sidebar-accent-foreground: var(--MASTER-text);
+    --sidebar-border: var(--border);
+    --sidebar-ring: var(--MASTER-accent);
+  }
+
+  /* Line clamp utilities for text truncation */
+  .line-clamp-1 {
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 1;
+  }
+  
+  .line-clamp-2 {
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+  }
+  
+  .line-clamp-3 {
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 3;
+  }
+
+  .dark {
+    --background: 222.2 84% 4.9%;
+    --foreground: 210 40% 98%;
+
+    --card: 222.2 84% 4.9%;
+    --card-foreground: 210 40% 98%;
+
+    --popover: 222.2 84% 4.9%;
+    --popover-foreground: 210 40% 98%;
+
+    --primary: 210 40% 98%;
+    --primary-foreground: 222.2 47.4% 11.2%;
+
+    --secondary: 217.2 32.6% 17.5%;
+    --secondary-foreground: 210 40% 98%;
+
+    --muted: 217.2 32.6% 17.5%;
+    --muted-foreground: 215 20.2% 65.1%;
+
+    --accent: 217.2 32.6% 17.5%;
+    --accent-foreground: 210 40% 98%;
+
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 217.2 32.6% 17.5%;
+    --input: 217.2 32.6% 17.5%;
+    --ring: 212.7 26.8% 83.9%;
+    --sidebar-background: 240 5.9% 10%;
+    --sidebar-foreground: 240 4.8% 95.9%;
+    --sidebar-primary: 224.3 76.3% 48%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 240 3.7% 15.9%;
+    --sidebar-accent-foreground: 240 4.8% 95.9%;
+    --sidebar-border: 240 3.7% 15.9%;
+    --sidebar-ring: 217.2 91.2% 59.8%;
+  }
+}
+
+@layer base {
+  html, body {
+    font-family: 'Fredoka', system-ui, serif;
+  }
+  .font-cute {
+    font-family: 'Sour Gummy', system-ui, sans-serif;
+    letter-spacing: 0.01em;
+  }
+
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+/* Custom gentle wiggle animation for logo */
+@keyframes gentle-wiggle {
+  0%, 100% {
+    transform: translateY(0px) rotate(0deg);
+  }
+  25% {
+    transform: translateY(-2px) rotate(2deg);
+  }
+  50% {
+    transform: translateY(0px) rotate(0deg);
+  }
+  75% {
+    transform: translateY(2px) rotate(-2deg);
+  }
+}
+
+.animate-gentle-wiggle {
+  animation: gentle-wiggle 4s ease-in-out infinite;
+  animation-delay: 2s; /* Start after 2 seconds */
+}
