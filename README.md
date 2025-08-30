@@ -9,6 +9,8 @@ Read the whitepaper here: https://drive.google.com/file/d/1XymU2a37rgZ__e8wpmPP-
 ![TailwindCSS](https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)
 ![Supabase](https://img.shields.io/badge/Supabase-181818?style=for-the-badge&logo=supabase&logoColor=white)
 
+![](https://github.com/lucylow/global-accelerator-2025/blob/main/Screenshot%20(810).png?raw=true)
+
 ## 🎯 Overview
 
 PropGuard AI is an advanced property risk assessment and valuation platform that combines artificial intelligence, blockchain technology, and distributed computing to provide comprehensive property analysis for lenders, investors, and regulatory compliance.
