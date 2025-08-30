@@ -1,0 +1,34 @@
+{
+  "name": "aegis-smart-contracts",
+  "version": "1.0.0",
+  "description": "AEGIS Universal Lending Protocol Smart Contracts",
+  "main": "index.js",
+  "scripts": {
+    "compile": "hardhat compile",
+    "test": "hardhat test",
+    "deploy:testnet": "hardhat run scripts/deploy.ts --network zeta_testnet",
+    "deploy:mainnet": "hardhat run scripts/deploy.ts --network zeta_mainnet",
+    "deploy:localnet": "hardhat run scripts/deploy.ts --network localnet",
+    "demo": "hardhat run scripts/demo.ts",
+    "cli": "hardhat run scripts/cli.ts",
+    "cli:lock": "hardhat run scripts/cli.ts lock-collateral",
+    "cli:borrow": "hardhat run scripts/cli.ts borrow",
+    "cli:positions": "hardhat run scripts/cli.ts positions",
+    "cli:risk": "hardhat run scripts/cli.ts risk-profile",
+    "cli:price": "hardhat run scripts/cli.ts price",
+    "cli:info": "hardhat run scripts/cli.ts info"
+  },
+  "dependencies": {
+    "@openzeppelin/contracts": "^5.0.0",
+    "@zetachain/protocol-contracts": "^0.0.6",
+    "@zetachain/standard-contracts": "^0.0.6"
+  },
+  "devDependencies": {
+    "@nomicfoundation/hardhat-toolbox": "^4.0.0",
+    "@nomicfoundation/hardhat-verify": "^2.0.0",
+    "@types/node": "^20.0.0",
+    "dotenv": "^16.0.0",
+    "hardhat": "^2.19.0",
+    "typescript": "^5.0.0"
+  }
+} 

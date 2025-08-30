@@ -1,0 +1,45 @@
+# Core AI and ML dependencies
+google-generativeai>=0.3.0
+vertexai>=1.38.0
+openai>=1.0.0
+anthropic>=0.7.0
+
+# Redis for message brokering
+redis>=5.0.0
+aioredis>=2.0.0
+
+# Knowledge Graph and Vector Database
+neo4j>=5.0.0
+chromadb>=0.4.0
+sentence-transformers>=2.2.0
+
+# Blockchain and Web3
+web3>=6.0.0
+eth-account>=0.9.0
+py-solc-x>=2.0.0
+
+# Data processing and analysis
+pandas>=2.0.0
+numpy>=1.24.0
+scikit-learn>=1.3.0
+
+# Web framework and API
+fastapi>=0.100.0
+uvicorn>=0.23.0
+websockets>=11.0.0
+
+# Image processing for multimodal agents
+Pillow>=10.0.0
+opencv-python>=4.8.0
+
+# Utilities
+pydantic>=2.0.0
+python-dotenv>=1.0.0
+asyncio-mqtt>=0.11.0
+aiofiles>=23.0.0
+loguru>=0.7.0
+
+# Testing
+pytest>=7.4.0
+pytest-asyncio>=0.21.0
+pytest-mock>=3.11.0

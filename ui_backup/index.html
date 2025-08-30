@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aegis AI Agent - Intelligent Security & Cross-Chain Management</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-content">
+                <div class="logo-section">
+                    <div class="logo">
+                        <i class="fas fa-shield-alt"></i>
+                        <span>Aegis AI</span>
+                    </div>
+                    <div class="status-indicator">
+                        <span class="status-dot active"></span>
+                        <span class="status-text">Active</span>
+                    </div>
+                </div>
+                <div class="header-actions">
+                    <button class="btn btn-secondary" id="settingsBtn">
+                        <i class="fas fa-cog"></i>
+                        Settings
+                    </button>
+                    <button class="btn btn-primary" id="connectBtn">
+                        <i class="fas fa-wallet"></i>
+                        Connect Wallet
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Sidebar -->
+            <aside class="sidebar">
+                <nav class="sidebar-nav">
+                    <div class="nav-section">
+                        <h3>Navigation</h3>
+                        <ul class="nav-list">
+                            <li class="nav-item active">
+                                <a href="#dashboard">
+                                    <i class="fas fa-tachometer-alt"></i>
+                                    Dashboard
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="#security">
+                                    <i class="fas fa-shield-alt"></i>
+                                    Security
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="#portfolio">
+                                    <i class="fas fa-chart-line"></i>
+                                    Portfolio
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="#crosschain">
+                                    <i class="fas fa-link"></i>
+                                    Cross-Chain
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="#analytics">
+                                    <i class="fas fa-chart-bar"></i>
+                                    Analytics
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                    
+                    <div class="nav-section">
+                        <h3>AI Agents</h3>
+                        <ul class="nav-list">
+                            <li class="nav-item">
+                                <a href="#perception">
+                                    <i class="fas fa-eye"></i>
+                                    Perception
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="#cognitive">
+                                    <i class="fas fa-brain"></i>
+                                    Cognitive
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="#action">
+                                    <i class="fas fa-rocket"></i>
+                                    Action
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="#learning">
+                                    <i class="fas fa-graduation-cap"></i>
+                                    Learning
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </nav>
+            </aside>
+
+            <!-- Main Area -->
+            <div class="main-area">
+                <!-- Dashboard Overview -->
+                <section class="dashboard-section">
+                    <div class="section-header">
+                        <h1>AI Agent Dashboard</h1>
+                        <p>Real-time monitoring and intelligent decision making</p>
+                    </div>
+                    
+                    <!-- Quick Stats -->
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-icon">
+                                <i class="fas fa-shield-alt"></i>
+                            </div>
+                            <div class="stat-content">
+                                <h3>Security Score</h3>
+                                <p class="stat-value">94.2</p>
+                                <span class="stat-change positive">+2.1%</span>
+                            </div>
+                        </div>
+                        
+                        <div class="stat-card">
+                            <div class="stat-icon">
+                                <i class="fas fa-chart-line"></i>
+                            </div>
+                            <div class="stat-content">
+                                <h3>Portfolio Value</h3>
+                                <p class="stat-value">$127.4K</p>
+                                <span class="stat-change positive">+5.3%</span>
+                            </div>
+                        </div>
+                        
+                        <div class="stat-card">
+                            <div class="stat-icon">
+                                <i class="fas fa-exclamation-triangle"></i>
+                            </div>
+                            <div class="stat-content">
+                                <h3>Active Threats</h3>
+                                <p class="stat-value">2</p>
+                                <span class="stat-change negative">+1</span>
+                            </div>
+                        </div>
+                        
+                        <div class="stat-card">
+                            <div class="stat-icon">
+                                <i class="fas fa-link"></i>
+                            </div>
+                            <div class="stat-content">
+                                <h3>Cross-Chain</h3>
+                                <p class="stat-value">5</p>
+                                <span class="stat-change neutral">Active</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- AI Agent Status -->
+                    <div class="agent-status-section">
+                        <h2>AI Agent Status</h2>
+                        <div class="agent-grid">
+                            <div class="agent-card perception">
+                                <div class="agent-header">
+                                    <i class="fas fa-eye"></i>
+                                    <h3>Perception Agent</h3>
+                                    <span class="status-badge active">Active</span>
+                                </div>
+                                <div class="agent-metrics">
+                                    <div class="metric">
+                                        <span class="metric-label">Events Processed</span>
+                                        <span class="metric-value">1,247</span>
+                                    </div>
+                                    <div class="metric">
+                                        <span class="metric-label">Response Time</span>
+                                        <span class="metric-value">45ms</span>
+                                    </div>
+                                    <div class="metric">
+                                        <span class="metric-label">Accuracy</span>
+                                        <span class="metric-value">98.7%</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="agent-card cognitive">
+                                <div class="agent-header">
+                                    <i class="fas fa-brain"></i>
+                                    <h3>Cognitive Agent</h3>
+                                    <span class="status-badge active">Active</span>
+                                </div>
+                                <div class="agent-metrics">
+                                    <div class="metric">
+                                        <span class="metric-label">Decisions Made</span>
+                                        <span class="metric-value">89</span>
+                                    </div>
+                                    <div class="metric">
+                                        <span class="metric-label">Analysis Time</span>
+                                        <span class="metric-value">2.3s</span>
+                                    </div>
+                                    <div class="metric">
+                                        <span class="metric-label">Confidence</span>
+                                        <span class="metric-value">94.2%</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="agent-card action">
+                                <div class="agent-header">
+                                    <i class="fas fa-rocket"></i>
+                                    <h3>Action Agent</h3>
+                                    <span class="status-badge active">Active</span>
+                                </div>
+                                <div class="agent-metrics">
+                                    <div class="metric">
+                                        <span class="metric-label">Actions Executed</span>
+                                        <span class="metric-value">156</span>
+                                    </div>
+                                    <div class="metric">
+                                        <span class="metric-label">Success Rate</span>
+                                        <span class="metric-value">99.4%</span>
+                                    </div>
+                                    <div class="metric">
+                                        <span class="metric-label">Avg. Time</span>
+                                        <span class="metric-value">1.8s</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="agent-card learning">
+                                <div class="agent-header">
+                                    <i class="fas fa-graduation-cap"></i>
+                                    <h3>Learning Module</h3>
+                                    <span class="status-badge active">Active</span>
+                                </div>
+                                <div class="agent-metrics">
+                                    <div class="metric">
+                                        <span class="metric-label">Models Updated</span>
+                                        <span class="metric-value">12</span>
+                                    </div>
+                                    <div class="metric">
+                                        <span class="metric-label">Training Cycles</span>
+                                        <span class="metric-value">47</span>
+                                    </div>
+                                    <div class="metric">
+                                        <span class="metric-label">Improvement</span>
+                                        <span class="metric-value">+3.2%</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Chat Interface -->
+                <section class="chat-section">
+                    <div class="chat-header">
+                        <h2>AI Assistant</h2>
+                        <div class="chat-controls">
+                            <button class="btn btn-sm btn-secondary" id="clearChatBtn">
+                                <i class="fas fa-trash"></i>
+                                Clear
+                            </button>
+                            <button class="btn btn-sm btn-secondary" id="exportChatBtn">
+                                <i class="fas fa-download"></i>
+                                Export
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="chat-container">
+                        <div class="chat-messages" id="chatMessages">
+                            <!-- Messages will be populated here -->
+                        </div>
+                        
+                        <div class="chat-input-container">
+                            <div class="input-wrapper">
+                                <textarea 
+                                    id="chatInput" 
+                                    placeholder="Ask me anything about security, portfolio management, or cross-chain operations..."
+                                    rows="1"
+                                ></textarea>
+                                <button class="send-btn" id="sendBtn">
+                                    <i class="fas fa-paper-plane"></i>
+                                </button>
+                            </div>
+                            
+                            <!-- Quick Actions -->
+                            <div class="quick-actions">
+                                <button class="quick-action-btn" data-action="security-check">
+                                    <i class="fas fa-shield-alt"></i>
+                                    Security Check
+                                </button>
+                                <button class="quick-action-btn" data-action="portfolio-review">
+                                    <i class="fas fa-chart-line"></i>
+                                    Portfolio Review
+                                </button>
+                                <button class="quick-action-btn" data-action="risk-assessment">
+                                    <i class="fas fa-exclamation-triangle"></i>
+                                    Risk Assessment
+                                </button>
+                                <button class="quick-action-btn" data-action="cross-chain-status">
+                                    <i class="fas fa-link"></i>
+                                    Cross-Chain Status
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </main>
+    </div>
+
+    <!-- Settings Modal -->
+    <div class="modal" id="settingsModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Settings</h2>
+                <button class="close-btn" id="closeSettingsBtn">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="settings-section">
+                    <h3>AI Configuration</h3>
+                    <div class="setting-item">
+                        <label for="aiModel">AI Model</label>
+                        <select id="aiModel">
+                            <option value="gemini-2.5-pro">Gemini 2.5 Pro</option>
+                            <option value="gemini-2.5-flash">Gemini 2.5 Flash</option>
+                            <option value="gpt-4">GPT-4</option>
+                        </select>
+                    </div>
+                    <div class="setting-item">
+                        <label for="responseSpeed">Response Speed</label>
+                        <select id="responseSpeed">
+                            <option value="fast">Fast</option>
+                            <option value="balanced">Balanced</option>
+                            <option value="thorough">Thorough</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="settings-section">
+                    <h3>Notifications</h3>
+                    <div class="setting-item">
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="securityAlerts" checked>
+                            <span class="checkmark"></span>
+                            Security Alerts
+                        </label>
+                    </div>
+                    <div class="setting-item">
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="portfolioUpdates" checked>
+                            <span class="checkmark"></span>
+                            Portfolio Updates
+                        </label>
+                    </div>
+                    <div class="setting-item">
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="aiDecisions">
+                            <span class="checkmark"></span>
+                            AI Decision Notifications
+                        </label>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" id="cancelSettingsBtn">Cancel</button>
+                <button class="btn btn-primary" id="saveSettingsBtn">Save Settings</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notification Toast -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <script src="script.js"></script>
+</body>
+</html>

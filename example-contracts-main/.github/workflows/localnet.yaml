@@ -1,0 +1,56 @@
+name: Run Localnet
+
+on:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  setup-matrix:
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.set-matrix.outputs.matrix }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Test Matrix
+        id: set-matrix
+        run: |
+          test_dirs=$(find examples/*/scripts -type f -name 'localnet.sh' -print0 | xargs -0 dirname | xargs dirname)
+          matrix_json=$(echo "$test_dirs" | jq -R '{"example-dir": .}' | jq -s . | jq -c .)
+          echo "matrix=$matrix_json" >> $GITHUB_OUTPUT
+
+  test:
+    needs: setup-matrix
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        include: ${{ fromJSON(needs.setup-matrix.outputs.matrix) }}
+      fail-fast: false
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install Foundry
+        uses: foundry-rs/foundry-toolchain@v1
+
+      - name: Install Anchor (Solana)
+        uses: metadaoproject/setup-anchor@v3.1
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          registry-url: "https://registry.npmjs.org"
+
+      - name: Run Test Script
+        run: |
+          cd "${{ matrix.example-dir }}"
+          yarn
+          forge soldeer update
+          chmod +x ./scripts/localnet.sh
+          ./scripts/localnet.sh start
