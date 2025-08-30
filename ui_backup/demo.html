@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aegis AI Agent - Interface Demo</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        .demo-section {
+            background: var(--bg-primary);
+            border-radius: var(--radius-lg);
+            padding: var(--spacing-xl);
+            margin-bottom: var(--spacing-xl);
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--border-color);
+        }
+        
+        .demo-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: var(--spacing-lg);
+            margin: var(--spacing-lg) 0;
+        }
+        
+        .demo-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            padding: var(--spacing-lg);
+            text-align: center;
+        }
+        
+        .demo-card h3 {
+            color: var(--primary-color);
+            margin-bottom: var(--spacing-md);
+        }
+        
+        .demo-card p {
+            color: var(--text-secondary);
+            margin-bottom: var(--spacing-md);
+        }
+        
+        .demo-button {
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            padding: var(--spacing-sm) var(--spacing-md);
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            transition: all var(--transition-fast);
+        }
+        
+        .demo-button:hover {
+            background: var(--primary-dark);
+            transform: translateY(-1px);
+        }
+        
+        .feature-list {
+            list-style: none;
+            padding: 0;
+        }
+        
+        .feature-list li {
+            padding: var(--spacing-sm) 0;
+            border-bottom: 1px solid var(--border-light);
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+        }
+        
+        .feature-list li:last-child {
+            border-bottom: none;
+        }
+        
+        .feature-list i {
+            color: var(--success-color);
+            width: 20px;
+        }
+        
+        .highlight-box {
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+            color: white;
+            padding: var(--spacing-lg);
+            border-radius: var(--radius-lg);
+            text-align: center;
+            margin: var(--spacing-lg) 0;
+        }
+        
+        .highlight-box h2 {
+            margin-bottom: var(--spacing-md);
+        }
+        
+        .highlight-box p {
+            opacity: 0.9;
+            font-size: 1.125rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-content">
+                <div class="logo-section">
+                    <div class="logo">
+                        <i class="fas fa-shield-alt"></i>
+                        <span>Aegis AI - Demo</span>
+                    </div>
+                    <div class="status-indicator">
+                        <span class="status-dot active"></span>
+                        <span class="status-text">Demo Mode</span>
+                    </div>
+                </div>
+                <div class="header-actions">
+                    <button class="btn btn-secondary" onclick="window.open('index.html', '_blank')">
+                        <i class="fas fa-external-link-alt"></i>
+                        Open Full Interface
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <div class="main-area">
+                <!-- Demo Introduction -->
+                <div class="demo-section">
+                    <div class="section-header">
+                        <h1>Aegis AI Agent Interface Demo</h1>
+                        <p>Experience the future of AI-powered security and cross-chain management</p>
+                    </div>
+                    
+                    <div class="highlight-box">
+                        <h2>🚀 Interactive AI Agent System</h2>
+                        <p>This demo showcases the key features and capabilities of the Aegis AI Agent interface. 
+                        Explore the components below to see how AI can revolutionize your DeFi security and management.</p>
+                    </div>
+                </div>
+
+                <!-- Key Features Demo -->
+                <div class="demo-section">
+                    <h2>✨ Key Features</h2>
+                    <div class="demo-grid">
+                        <div class="demo-card">
+                            <i class="fas fa-robot" style="font-size: 2rem; color: var(--primary-color); margin-bottom: var(--spacing-md);"></i>
+                            <h3>AI-Powered Chat</h3>
+                            <p>Natural language interaction with intelligent responses for security, portfolio, and cross-chain queries.</p>
+                            <button class="demo-button" onclick="demoChat()">Try Chat Demo</button>
+                        </div>
+                        
+                        <div class="demo-card">
+                            <i class="fas fa-chart-line" style="font-size: 2rem; color: var(--success-color); margin-bottom: var(--spacing-md);"></i>
+                            <h3>Real-Time Dashboard</h3>
+                            <p>Live monitoring of security scores, portfolio values, and AI agent performance metrics.</p>
+                            <button class="demo-button" onclick="demoDashboard()">View Dashboard</button>
+                        </div>
+                        
+                        <div class="demo-card">
+                            <i class="fas fa-shield-alt" style="font-size: 2rem; color: var(--warning-color); margin-bottom: var(--spacing-md);"></i>
+                            <h3>Security Monitoring</h3>
+                            <p>24/7 threat detection, risk assessment, and automated protective measures.</p>
+                            <button class="demo-button" onclick="demoSecurity()">Security Demo</button>
+                        </div>
+                        
+                        <div class="demo-card">
+                            <i class="fas fa-link" style="font-size: 2rem; color: var(--info-color); margin-bottom: var(--spacing-md);"></i>
+                            <h3>Cross-Chain Operations</h3>
+                            <p>Seamless asset management across multiple blockchain networks with AI optimization.</p>
+                            <button class="demo-button" onclick="demoCrossChain()">Cross-Chain Demo</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- AI Agent Architecture -->
+                <div class="demo-section">
+                    <h2>🤖 AI Agent Architecture</h2>
+                    <p>The Aegis system uses a sophisticated multi-agent architecture for comprehensive security and management:</p>
+                    
+                    <div class="demo-grid">
+                        <div class="demo-card">
+                            <h3><i class="fas fa-eye"></i> Perception Agent</h3>
+                            <p>Monitors blockchain events, market conditions, and security threats in real-time.</p>
+                            <ul class="feature-list">
+                                <li><i class="fas fa-check"></i> Event processing: 1,000+ events/sec</li>
+                                <li><i class="fas fa-check"></i> Response time: <50ms</li>
+                                <li><i class="fas fa-check"></i> Accuracy: 98.7%</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="demo-card">
+                            <h3><i class="fas fa-brain"></i> Cognitive Agent</h3>
+                            <p>Analyzes data patterns, makes intelligent decisions, and generates actionable insights.</p>
+                            <ul class="feature-list">
+                                <li><i class="fas fa-check"></i> Decision making: 89 decisions today</li>
+                                <li><i class="fas fa-check"></i> Analysis time: 2.3s average</li>
+                                <li><i class="fas fa-check"></i> Confidence: 94.2%</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="demo-card">
+                            <h3><i class="fas fa-rocket"></i> Action Agent</h3>
+                            <p>Executes security measures, portfolio adjustments, and cross-chain operations.</p>
+                            <ul class="feature-list">
+                                <li><i class="fas fa-check"></i> Actions executed: 156 today</li>
+                                <li><i class="fas fa-check"></i> Success rate: 99.4%</li>
+                                <li><i class="fas fa-check"></i> Average time: 1.8s</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="demo-card">
+                            <h3><i class="fas fa-graduation-cap"></i> Learning Module</h3>
+                            <p>Continuously improves AI models based on new data and user feedback.</p>
+                            <ul class="feature-list">
+                                <li><i class="fas fa-check"></i> Models updated: 12 this week</li>
+                                <li><i class="fas fa-check"></i> Training cycles: 47 completed</li>
+                                <li><i class="fas fa-check"></i> Improvement: +3.2%</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Interactive Demos -->
+                <div class="demo-section">
+                    <h2>🎮 Interactive Demonstrations</h2>
+                    <p>Try these interactive features to experience the AI agent capabilities:</p>
+                    
+                    <div class="demo-grid">
+                        <div class="demo-card">
+                            <h3>Chat Simulation</h3>
+                            <p>Experience AI responses to common queries about security, portfolio, and cross-chain operations.</p>
+                            <button class="demo-button" onclick="simulateChat()">Start Chat Demo</button>
+                        </div>
+                        
+                        <div class="demo-card">
+                            <h3>Real-Time Updates</h3>
+                            <p>Watch as agent metrics and statistics update in real-time to simulate live system monitoring.</p>
+                            <button class="demo-button" onclick="toggleRealTimeUpdates()">Toggle Updates</button>
+                        </div>
+                        
+                        <div class="demo-card">
+                            <h3>Settings Configuration</h3>
+                            <p>Explore the settings modal to configure AI models, response speed, and notification preferences.</p>
+                            <button class="demo-button" onclick="showSettingsDemo()">Open Settings</button>
+                        </div>
+                        
+                        <div class="demo-card">
+                            <h3>Responsive Design</h3>
+                            <p>Resize your browser window to see how the interface adapts to different screen sizes.</p>
+                            <button class="demo-button" onclick="testResponsiveness()">Test Responsiveness</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Technology Stack -->
+                <div class="demo-section">
+                    <h2>🛠️ Technology Stack</h2>
+                    <p>The interface is built with modern web technologies for optimal performance and user experience:</p>
+                    
+                    <div class="demo-grid">
+                        <div class="demo-card">
+                            <h3>Frontend</h3>
+                            <ul class="feature-list">
+                                <li><i class="fas fa-check"></i> HTML5 semantic markup</li>
+                                <li><i class="fas fa-check"></i> CSS3 with custom properties</li>
+                                <li><i class="fas fa-check"></i> Vanilla JavaScript ES6+</li>
+                                <li><i class="fas fa-check"></i> Responsive design system</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="demo-card">
+                            <h3>Design System</h3>
+                            <ul class="feature-list">
+                                <li><i class="fas fa-check"></i> Inter font family</li>
+                                <li><i class="fas fa-check"></i> Font Awesome icons</li>
+                                <li><i class="fas fa-check"></i> CSS Grid & Flexbox</li>
+                                <li><i class="fas fa-check"></i> Smooth animations</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="demo-card">
+                            <h3>Features</h3>
+                            <ul class="feature-list">
+                                <li><i class="fas fa-check"></i> Real-time updates</li>
+                                <li><i class="fas fa-check"></i> Local storage</li>
+                                <li><i class="fas fa-check"></i> Toast notifications</li>
+                                <li><i class="fas fa-check"></i> Modal dialogs</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="demo-card">
+                            <h3>Integration</h3>
+                            <ul class="feature-list">
+                                <li><i class="fas fa-check"></i> Python backend ready</li>
+                                <li><i class="fas fa-check"></i> API endpoints</li>
+                                <li><i class="fas fa-check"></i> WebSocket support</li>
+                                <li><i class="fas fa-check"></i> Blockchain integration</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Call to Action -->
+                <div class="demo-section">
+                    <div class="highlight-box">
+                        <h2>🚀 Ready to Experience the Full Interface?</h2>
+                        <p>Open the complete Aegis AI Agent interface to explore all features and capabilities.</p>
+                        <button class="demo-button" onclick="window.open('index.html', '_blank')" style="margin-top: var(--spacing-md); padding: var(--spacing-md) var(--spacing-lg); font-size: 1.125rem;">
+                            <i class="fas fa-external-link-alt"></i>
+                            Launch Full Interface
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // Demo functionality
+        function demoChat() {
+            alert('Chat Demo: The full chat interface is available in the main interface. Open index.html to experience real-time AI conversations!');
+        }
+        
+        function demoDashboard() {
+            alert('Dashboard Demo: The real-time dashboard with live statistics and agent monitoring is available in the main interface.');
+        }
+        
+        function demoSecurity() {
+            alert('Security Demo: Experience real-time security monitoring, threat detection, and risk assessment in the main interface.');
+        }
+        
+        function demoCrossChain() {
+            alert('Cross-Chain Demo: Monitor cross-chain operations, asset bridging, and multi-chain portfolio management in the main interface.');
+        }
+        
+        function simulateChat() {
+            const messages = [
+                "🔒 Security Status: Your portfolio security score is 94.2/100 (Excellent)",
+                "📊 Portfolio Value: $127.4K (+5.3% this week)",
+                "⚠️ Risk Assessment: 2 active threats detected and mitigated",
+                "🔗 Cross-Chain: 5 active connections, 99.4% success rate"
+            ];
+            
+            let i = 0;
+            const interval = setInterval(() => {
+                if (i < messages.length) {
+                    showDemoMessage(messages[i]);
+                    i++;
+                } else {
+                    clearInterval(interval);
+                }
+            }, 1000);
+        }
+        
+        function showDemoMessage(message) {
+            const toast = document.createElement('div');
+            toast.className = 'toast info';
+            toast.style.position = 'fixed';
+            toast.style.top = '20px';
+            toast.style.right = '20px';
+            toast.style.zIndex = '10000';
+            toast.innerHTML = `
+                <i class="toast-icon fas fa-info-circle"></i>
+                <div class="toast-content">
+                    <div class="toast-title">AI Demo</div>
+                    <div class="toast-message">${message}</div>
+                </div>
+                <button class="toast-close" onclick="this.parentElement.remove()">
+                    <i class="fas fa-times"></i>
+                </button>
+            `;
+            document.body.appendChild(toast);
+            
+            setTimeout(() => {
+                if (toast.parentElement) {
+                    toast.remove();
+                }
+            }, 5000);
+        }
+        
+        let realTimeUpdates = false;
+        function toggleRealTimeUpdates() {
+            realTimeUpdates = !realTimeUpdates;
+            const button = event.target;
+            if (realTimeUpdates) {
+                button.textContent = 'Stop Updates';
+                button.style.background = 'var(--danger-color)';
+                startDemoUpdates();
+            } else {
+                button.textContent = 'Start Updates';
+                button.style.background = 'var(--primary-color)';
+            }
+        }
+        
+        function startDemoUpdates() {
+            if (!realTimeUpdates) return;
+            
+            const stats = document.querySelectorAll('.stat-value');
+            stats.forEach(stat => {
+                const current = stat.textContent;
+                if (current.includes('$')) {
+                    const num = parseFloat(current.replace(/[$,K]/g, ''));
+                    const change = (Math.random() - 0.5) * 2;
+                    stat.textContent = '$' + (num * (1 + change / 100) / 1000).toFixed(1) + 'K';
+                }
+            });
+            
+            setTimeout(startDemoUpdates, 2000);
+        }
+        
+        function showSettingsDemo() {
+            alert('Settings Demo: The settings modal with AI configuration options is available in the main interface. Open index.html and click the Settings button!');
+        }
+        
+        function testResponsiveness() {
+            alert('Responsiveness Test: Try resizing your browser window or opening the developer tools to simulate different screen sizes. The interface will automatically adapt!');
+        }
+        
+        // Add some interactive elements
+        document.addEventListener('DOMContentLoaded', () => {
+            // Add hover effects to demo cards
+            document.querySelectorAll('.demo-card').forEach(card => {
+                card.addEventListener('mouseenter', () => {
+                    card.style.transform = 'translateY(-5px)';
+                    card.style.boxShadow = 'var(--shadow-lg)';
+                });
+                
+                card.addEventListener('mouseleave', () => {
+                    card.style.transform = 'translateY(0)';
+                    card.style.boxShadow = 'none';
+                });
+            });
+        });
+    </script>
+</body>
+</html>

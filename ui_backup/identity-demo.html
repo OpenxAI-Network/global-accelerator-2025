@@ -1,0 +1,697 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aegis Identity Management - Multi-Chain Wallet Linking Demo</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="styles/identity.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        .demo-banner {
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+            color: white;
+            padding: var(--spacing-lg);
+            border-radius: var(--radius-lg);
+            margin-bottom: var(--spacing-xl);
+            text-align: center;
+        }
+        
+        .demo-banner h2 {
+            margin-bottom: var(--spacing-sm);
+            font-size: 1.5rem;
+        }
+        
+        .demo-banner p {
+            opacity: 0.9;
+            margin: 0;
+        }
+        
+        .feature-highlight {
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            padding: var(--spacing-lg);
+            margin-bottom: var(--spacing-lg);
+        }
+        
+        .feature-highlight h3 {
+            color: var(--primary-color);
+            margin-bottom: var(--spacing-md);
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+        }
+        
+        .demo-navigation {
+            display: flex;
+            gap: var(--spacing-md);
+            margin-bottom: var(--spacing-xl);
+            flex-wrap: wrap;
+        }
+        
+        .demo-nav-btn {
+            padding: var(--spacing-sm) var(--spacing-md);
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            color: var(--text-primary);
+            text-decoration: none;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+        }
+        
+        .demo-nav-btn:hover {
+            border-color: var(--primary-color);
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-sm);
+        }
+        
+        .demo-nav-btn.active {
+            background: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-content">
+                <div class="logo-section">
+                    <div class="logo">
+                        <i class="fas fa-shield-alt"></i>
+                        <span>Aegis Identity</span>
+                    </div>
+                    <div class="status-indicator">
+                        <span class="status-dot active"></span>
+                        <span class="status-text">Demo Mode</span>
+                    </div>
+                </div>
+                <div class="header-actions">
+                    <button class="btn btn-secondary" onclick="window.open('index.html', '_blank')">
+                        <i class="fas fa-external-link-alt"></i>
+                        Main Interface
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <div class="main-area">
+                <!-- Demo Banner -->
+                <div class="demo-banner">
+                    <h2>
+                        <i class="fas fa-id-card"></i>
+                        Multi-Chain Identity Management Demo
+                    </h2>
+                    <p>Experience the future of unified blockchain identity with Aegis AI</p>
+                </div>
+
+                <!-- Demo Navigation -->
+                <div class="demo-navigation">
+                    <a href="#overview" class="demo-nav-btn active" onclick="showSection('overview')">
+                        <i class="fas fa-info-circle"></i>
+                        Overview
+                    </a>
+                    <a href="#features" class="demo-nav-btn" onclick="showSection('features')">
+                        <i class="fas fa-star"></i>
+                        Features
+                    </a>
+                    <a href="#demo" class="demo-nav-btn" onclick="showSection('demo')">
+                        <i class="fas fa-play"></i>
+                        Live Demo
+                    </a>
+                    <a href="#technical" class="demo-nav-btn" onclick="showSection('technical')">
+                        <i class="fas fa-code"></i>
+                        Technical Details
+                    </a>
+                </div>
+
+                <!-- Overview Section -->
+                <section id="overview" class="demo-section">
+                    <div class="section-header">
+                        <h1>Unified Multi-Chain Identity</h1>
+                        <p>Connect your wallets across different blockchains into a single, secure Aegis identity</p>
+                    </div>
+                    
+                    <div class="highlight-box">
+                        <h2>🚀 What is Multi-Chain Identity?</h2>
+                        <p>Multi-chain identity allows you to link wallets from different blockchain networks (Bitcoin, Solana, Ethereum, etc.) to a single canonical identity on ZetaChain. This creates a unified profile that can be used across all connected networks.</p>
+                    </div>
+
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-icon">
+                                <i class="fas fa-link"></i>
+                            </div>
+                            <div class="stat-content">
+                                <h3>Cross-Chain</h3>
+                                <p class="stat-value">5+ Networks</p>
+                                <span class="stat-description">BTC, SOL, ETH, AVAX, BASE</span>
+                            </div>
+                        </div>
+                        
+                        <div class="stat-card">
+                            <div class="stat-icon">
+                                <i class="fas fa-shield-alt"></i>
+                            </div>
+                            <div class="stat-content">
+                                <h3>Security</h3>
+                                <p class="stat-value">Cryptographic</p>
+                                <span class="stat-description">Signature verification</span>
+                            </div>
+                        </div>
+                        
+                        <div class="stat-card">
+                            <div class="stat-icon">
+                                <i class="fas fa-user"></i>
+                            </div>
+                            <div class="stat-content">
+                                <h3>Unified Profile</h3>
+                                <p class="stat-value">Single Identity</p>
+                                <span class="stat-description">Across all chains</span>
+                            </div>
+                        </div>
+                        
+                        <div class="stat-card">
+                            <div class="stat-icon">
+                                <i class="fas fa-rocket"></i>
+                            </div>
+                            <div class="stat-content">
+                                <h3>ZetaChain</h3>
+                                <p class="stat-value">Universal</p>
+                                <span class="stat-description">Smart contracts</span>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Features Section -->
+                <section id="features" class="demo-section" style="display: none;">
+                    <div class="section-header">
+                        <h1>Key Features & Capabilities</h1>
+                        <p>Discover what makes Aegis Identity Management powerful and secure</p>
+                    </div>
+
+                    <div class="feature-highlight">
+                        <h3>
+                            <i class="fas fa-wallet"></i>
+                            Multi-Chain Wallet Linking
+                        </h3>
+                        <p>Link wallets from Bitcoin, Solana, Ethereum, Avalanche, Base, and Polygon networks. Each wallet is cryptographically verified through signature validation to ensure ownership.</p>
+                        <ul>
+                            <li><strong>Bitcoin:</strong> Native BTC address linking with message signing</li>
+                            <li><strong>Solana:</strong> Phantom and other Solana wallet integration</li>
+                            <li><strong>EVM Chains:</strong> MetaMask and other EVM wallet support</li>
+                            <li><strong>Cross-Chain:</strong> Seamless integration between networks</li>
+                        </ul>
+                    </div>
+
+                    <div class="feature-highlight">
+                        <h3>
+                            <i class="fas fa-shield-alt"></i>
+                            Cryptographic Security
+                        </h3>
+                        <p>All wallet linking is secured through cryptographic signatures. Users must prove ownership of each wallet by signing a specific message, ensuring only legitimate owners can link wallets.</p>
+                        <ul>
+                            <li><strong>Message Signing:</strong> Custom messages for each linking request</li>
+                            <li><strong>Signature Verification:</strong> Multi-chain signature validation</li>
+                            <li><strong>Replay Protection:</strong> Timestamp-based request validation</li>
+                            <li><strong>Secure Storage:</strong> Encrypted storage of linked addresses</li>
+                        </ul>
+                    </div>
+
+                    <div class="feature-highlight">
+                        <h3>
+                            <i class="fas fa-user-circle"></i>
+                            Unified Identity Profile
+                        </h3>
+                        <p>Create and manage a single identity profile that spans across all connected blockchains. Your reputation, verification status, and linked wallets are unified under one Aegis identity.</p>
+                        <ul>
+                            <li><strong>Profile Management:</strong> Username, avatar, and reputation scoring</li>
+                            <li><strong>Cross-Chain Reputation:</strong> Unified trust score across networks</li>
+                            <li><strong>Verification System:</strong> KYC and identity verification</li>
+                            <li><strong>Activity Tracking:</strong> Monitor usage across all chains</li>
+                        </ul>
+                    </div>
+
+                    <div class="feature-highlight">
+                        <h3>
+                            <i class="fas fa-cogs"></i>
+                            Developer-Friendly API
+                        </h3>
+                        <p>Built with developers in mind, the Aegis Identity API provides comprehensive endpoints for integrating multi-chain identity into your applications.</p>
+                        <ul>
+                            <li><strong>RESTful API:</strong> Standard HTTP endpoints for all operations</li>
+                            <li><strong>Rate Limiting:</strong> Built-in protection against abuse</li>
+                            <li><strong>Webhook Support:</strong> Real-time notifications for identity changes</li>
+                            <li><strong>SDK Support:</strong> JavaScript/TypeScript libraries available</li>
+                        </ul>
+                    </div>
+                </section>
+
+                <!-- Live Demo Section -->
+                <section id="demo" class="demo-section" style="display: none;">
+                    <div class="section-header">
+                        <h1>Live Identity Management Demo</h1>
+                        <p>Experience the wallet linking process in real-time</p>
+                    </div>
+
+                    <div class="demo-container">
+                        <div class="demo-sidebar">
+                            <h3>Demo Instructions</h3>
+                            <ol>
+                                <li>Click "Connect Wallet" to simulate connecting an EVM wallet</li>
+                                <li>Select a chain type to link (BTC, Solana, etc.)</li>
+                                <li>Enter a wallet address for the selected chain</li>
+                                <li>Click "Link Wallet" to simulate the linking process</li>
+                                <li>Observe the signature verification and linking flow</li>
+                            </ol>
+                            
+                            <div class="demo-notes">
+                                <h4>Demo Notes:</h4>
+                                <ul>
+                                    <li>This is a simulation - no real wallets are connected</li>
+                                    <li>Signature verification is simulated for demonstration</li>
+                                    <li>All data is stored locally and resets on page refresh</li>
+                                    <li>Real implementation would use actual blockchain signatures</li>
+                                </ul>
+                            </div>
+                        </div>
+                        
+                        <div class="demo-main">
+                            <div id="identityDemoContainer">
+                                <!-- Identity management demo will be loaded here -->
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Technical Details Section -->
+                <section id="technical" class="demo-section" style="display: none;">
+                    <div class="section-header">
+                        <h1>Technical Implementation</h1>
+                        <p>Deep dive into the architecture and technical details</p>
+                    </div>
+
+                    <div class="feature-highlight">
+                        <h3>
+                            <i class="fas fa-code"></i>
+                            Smart Contract Architecture
+                        </h3>
+                        <p>The MultiChainIdentity contract on ZetaChain manages all wallet linking and identity data:</p>
+                        <pre><code>// Key contract functions:
+function linkBTCWallet(bytes calldata btcAddr, bytes calldata signature, string calldata message)
+function linkSolanaWallet(bytes32 solanaAddr, bytes calldata signature, string calldata message)
+function linkEVMWallet(address evmAddr, bytes calldata signature, string calldata message)
+function getUserByChainAddress(ChainType chainType, bytes32 chainAddress) external view returns (address)</code></pre>
+                    </div>
+
+                    <div class="feature-highlight">
+                        <h3>
+                            <i class="fas fa-server"></i>
+                            Backend API Architecture
+                        </h3>
+                        <p>The Node.js backend provides secure API endpoints with comprehensive validation:</p>
+                        <ul>
+                            <li><strong>Express.js:</strong> Fast, unopinionated web framework</li>
+                            <li><strong>Rate Limiting:</strong> Protection against API abuse</li>
+                            <li><strong>Signature Verification:</strong> Multi-chain signature validation</li>
+                            <li><strong>Security Headers:</strong> Helmet.js for security</li>
+                            <li><strong>CORS Support:</strong> Cross-origin resource sharing</li>
+                        </ul>
+                    </div>
+
+                    <div class="feature-highlight">
+                        <h3>
+                            <i class="fas fa-palette"></i>
+                            Frontend Implementation
+                        </h3>
+                        <p>React-based frontend with modern UI/UX patterns:</p>
+                        <ul>
+                            <li><strong>React Hooks:</strong> Functional components with state management</li>
+                            <li><strong>Responsive Design:</strong> Mobile-first responsive layout</li>
+                            <li><strong>CSS Variables:</strong> Consistent design system</li>
+                            <li><strong>Font Awesome:</strong> Rich icon library</li>
+                            <li><strong>Inter Font:</strong> Modern, readable typography</li>
+                        </ul>
+                    </div>
+
+                    <div class="feature-highlight">
+                        <h3>
+                            <i class="fas fa-database"></i>
+                            Data Storage & Security
+                        </h3>
+                        <p>Secure data management with blockchain integration:</p>
+                        <ul>
+                            <li><strong>On-Chain Storage:</strong> Critical identity data stored on ZetaChain</li>
+                            <li><strong>Off-Chain Cache:</strong> Performance optimization with Redis</li>
+                            <li><strong>Encrypted Storage:</strong> Sensitive data encryption</li>
+                            <li><strong>Audit Trails:</strong> Complete transaction history</li>
+                            <li><strong>Privacy Controls:</strong> User-configurable privacy settings</li>
+                        </ul>
+                    </div>
+                </section>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // Demo navigation functionality
+        function showSection(sectionId) {
+            // Hide all sections
+            document.querySelectorAll('.demo-section').forEach(section => {
+                section.style.display = 'none';
+            });
+            
+            // Show selected section
+            document.getElementById(sectionId).style.display = 'block';
+            
+            // Update navigation buttons
+            document.querySelectorAll('.demo-nav-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+        }
+
+        // Load identity demo when demo section is shown
+        document.addEventListener('DOMContentLoaded', function() {
+            // Simulate loading the identity demo
+            const demoContainer = document.getElementById('identityDemoContainer');
+            if (demoContainer) {
+                demoContainer.innerHTML = `
+                    <div class="demo-placeholder">
+                        <i class="fas fa-spinner fa-spin fa-2x"></i>
+                        <p>Loading Identity Management Demo...</p>
+                        <button class="btn btn-primary" onclick="loadIdentityDemo()">
+                            <i class="fas fa-play"></i>
+                            Start Demo
+                        </button>
+                    </div>
+                `;
+            }
+        });
+
+        function loadIdentityDemo() {
+            const demoContainer = document.getElementById('identityDemoContainer');
+            demoContainer.innerHTML = `
+                <div class="identity-demo-content">
+                    <div class="demo-header">
+                        <h3>Identity Management Demo</h3>
+                        <p>Simulated wallet linking and identity management</p>
+                    </div>
+                    
+                    <div class="demo-simulation">
+                        <div class="simulation-step">
+                            <h4>Step 1: Connect Wallet</h4>
+                            <button class="btn btn-primary" onclick="simulateWalletConnection()">
+                                <i class="fas fa-wallet"></i>
+                                Connect Demo Wallet
+                            </button>
+                        </div>
+                        
+                        <div class="simulation-step" id="step2" style="display: none;">
+                            <h4>Step 2: Select Chain</h4>
+                            <div class="chain-options">
+                                <button class="btn btn-secondary" onclick="selectChain('BTC')">Bitcoin</button>
+                                <button class="btn btn-secondary" onclick="selectChain('SOLANA')">Solana</button>
+                                <button class="btn btn-secondary" onclick="selectChain('EVM')">Ethereum</button>
+                            </div>
+                        </div>
+                        
+                        <div class="simulation-step" id="step3" style="display: none;">
+                            <h4>Step 3: Enter Address</h4>
+                            <input type="text" id="demoAddress" placeholder="Enter wallet address" class="wallet-address-input">
+                            <button class="btn btn-primary" onclick="simulateLinking()">
+                                <i class="fas fa-link"></i>
+                                Link Wallet
+                            </button>
+                        </div>
+                        
+                        <div class="simulation-result" id="result" style="display: none;">
+                            <h4>Result</h4>
+                            <div class="result-content"></div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function simulateWalletConnection() {
+            document.getElementById('step2').style.display = 'block';
+            showMessage('Wallet connected successfully!', 'success');
+        }
+
+        function selectChain(chainType) {
+            document.getElementById('step3').style.display = 'block';
+            showMessage(`${chainType} chain selected`, 'info');
+        }
+
+        function simulateLinking() {
+            const address = document.getElementById('demoAddress').value;
+            if (!address) {
+                showMessage('Please enter a wallet address', 'error');
+                return;
+            }
+            
+            // Simulate linking process
+            showMessage('Linking wallet...', 'info');
+            
+            setTimeout(() => {
+                document.getElementById('result').style.display = 'block';
+                document.querySelector('.result-content').innerHTML = `
+                    <div class="success-message">
+                        <i class="fas fa-check-circle"></i>
+                        <p>Wallet linked successfully!</p>
+                        <small>Address: ${address}</small>
+                    </div>
+                `;
+                showMessage('Wallet linked successfully!', 'success');
+            }, 2000);
+        }
+
+        function showMessage(message, type) {
+            // Create toast notification
+            const toast = document.createElement('div');
+            toast.className = `toast toast-${type}`;
+            toast.innerHTML = `
+                <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-circle' : 'info-circle'}"></i>
+                <span>${message}</span>
+            `;
+            
+            document.body.appendChild(toast);
+            
+            // Show toast
+            setTimeout(() => toast.classList.add('show'), 100);
+            
+            // Hide toast after 3 seconds
+            setTimeout(() => {
+                toast.classList.remove('show');
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
+        // Add some CSS for the demo
+        const style = document.createElement('style');
+        style.textContent = `
+            .demo-container {
+                display: grid;
+                grid-template-columns: 300px 1fr;
+                gap: var(--spacing-xl);
+            }
+            
+            .demo-sidebar {
+                background: var(--bg-primary);
+                padding: var(--spacing-lg);
+                border-radius: var(--radius-lg);
+                border: 1px solid var(--border-color);
+            }
+            
+            .demo-sidebar h3 {
+                margin-bottom: var(--spacing-md);
+                color: var(--text-primary);
+            }
+            
+            .demo-sidebar ol {
+                padding-left: var(--spacing-lg);
+                margin-bottom: var(--spacing-lg);
+            }
+            
+            .demo-sidebar li {
+                margin-bottom: var(--spacing-sm);
+                color: var(--text-secondary);
+            }
+            
+            .demo-notes {
+                background: var(--bg-tertiary);
+                padding: var(--spacing-md);
+                border-radius: var(--radius-md);
+                border: 1px solid var(--border-color);
+            }
+            
+            .demo-notes h4 {
+                margin-bottom: var(--spacing-sm);
+                color: var(--text-primary);
+            }
+            
+            .demo-notes ul {
+                list-style: none;
+                padding: 0;
+            }
+            
+            .demo-notes li {
+                padding: var(--spacing-xs) 0;
+                color: var(--text-secondary);
+                font-size: 0.9rem;
+            }
+            
+            .demo-notes li::before {
+                content: '•';
+                color: var(--primary-color);
+                margin-right: var(--spacing-xs);
+            }
+            
+            .demo-main {
+                background: var(--bg-primary);
+                padding: var(--spacing-xl);
+                border-radius: var(--radius-lg);
+                border: 1px solid var(--border-color);
+            }
+            
+            .demo-placeholder {
+                text-align: center;
+                padding: var(--spacing-2xl);
+                color: var(--text-secondary);
+            }
+            
+            .demo-placeholder i {
+                margin-bottom: var(--spacing-md);
+                color: var(--primary-color);
+            }
+            
+            .demo-placeholder p {
+                margin-bottom: var(--spacing-lg);
+            }
+            
+            .identity-demo-content {
+                max-width: 600px;
+                margin: 0 auto;
+            }
+            
+            .demo-header {
+                text-align: center;
+                margin-bottom: var(--spacing-xl);
+            }
+            
+            .demo-header h3 {
+                color: var(--text-primary);
+                margin-bottom: var(--spacing-sm);
+            }
+            
+            .demo-header p {
+                color: var(--text-secondary);
+            }
+            
+            .simulation-step {
+                background: var(--bg-secondary);
+                padding: var(--spacing-lg);
+                border-radius: var(--radius-lg);
+                margin-bottom: var(--spacing-lg);
+                border: 1px solid var(--border-color);
+            }
+            
+            .simulation-step h4 {
+                color: var(--text-primary);
+                margin-bottom: var(--spacing-md);
+            }
+            
+            .chain-options {
+                display: flex;
+                gap: var(--spacing-md);
+                flex-wrap: wrap;
+            }
+            
+            .simulation-result {
+                background: var(--bg-secondary);
+                padding: var(--spacing-lg);
+                border-radius: var(--radius-lg);
+                border: 1px solid var(--border-color);
+            }
+            
+            .success-message {
+                text-align: center;
+                color: var(--success-color);
+            }
+            
+            .success-message i {
+                font-size: 2rem;
+                margin-bottom: var(--spacing-sm);
+            }
+            
+            .success-message p {
+                font-size: 1.1rem;
+                font-weight: 600;
+                margin-bottom: var(--spacing-sm);
+            }
+            
+            .success-message small {
+                color: var(--text-secondary);
+                font-family: 'Courier New', monospace;
+            }
+            
+            .toast {
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: var(--bg-primary);
+                border: 1px solid var(--border-color);
+                border-radius: var(--radius-md);
+                padding: var(--spacing-md);
+                box-shadow: var(--shadow-lg);
+                display: flex;
+                align-items: center;
+                gap: var(--spacing-sm);
+                transform: translateX(100%);
+                transition: transform 0.3s ease;
+                z-index: 1000;
+            }
+            
+            .toast.show {
+                transform: translateX(0);
+            }
+            
+            .toast-success {
+                border-color: var(--success-color);
+                color: var(--success-color);
+            }
+            
+            .toast-error {
+                border-color: var(--danger-color);
+                color: var(--danger-color);
+            }
+            
+            .toast-info {
+                border-color: var(--info-color);
+                color: var(--info-color);
+            }
+            
+            @media (max-width: 768px) {
+                .demo-container {
+                    grid-template-columns: 1fr;
+                }
+                
+                .chain-options {
+                    flex-direction: column;
+                }
+            }
+        `;
+        document.head.appendChild(style);
+    </script>
+</body>
+</html>

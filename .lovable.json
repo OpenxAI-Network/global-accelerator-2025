@@ -1,0 +1,29 @@
+{
+  "build": {
+    "command": "npm run build",
+    "output": "dist",
+    "install": "npm install"
+  },
+  "routes": [
+    {
+      "source": "/",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/ui",
+      "destination": "/ui/index.html"
+    },
+    {
+      "source": "/demo",
+      "destination": "/ui/demo.html"
+    }
+  ],
+  "headers": {
+    "/*": {
+      "Cache-Control": "public, max-age=0, must-revalidate"
+    },
+    "/assets/*": {
+      "Cache-Control": "public, max-age=31536000, immutable"
+    }
+  }
+}
