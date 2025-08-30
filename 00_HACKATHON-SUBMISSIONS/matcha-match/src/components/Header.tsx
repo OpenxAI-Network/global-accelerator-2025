@@ -62,8 +62,9 @@ export default function Header() {
           <div className="flex justify-end items-center space-x-3">
             <Button
               onClick={() => {
-                // Navigate to AIFinder page and open chat widget
-                navigate("/?openChat=true");
+                // This will open the chat widget when clicked
+                const event = new CustomEvent('openChatWidget');
+                window.dispatchEvent(event);
               }}
               variant="outline"
               size="sm"

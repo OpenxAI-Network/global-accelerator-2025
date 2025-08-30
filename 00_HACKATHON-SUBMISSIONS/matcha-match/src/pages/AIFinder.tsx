@@ -1,12 +1,11 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import Header from "@/components/Header";
-import AIChatInterface from "@/components/AIChatInterface";
+import ChatWidget from "@/components/ChatWidget";
 import TopPlacesCarousel from "@/components/TopPlacesCarousel";
 import { MessageCircle, Sparkles, X } from "lucide-react";
 
 export default function AIFinder() {
-  const [showChat, setShowChat] = useState(false);
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
 
@@ -14,7 +13,9 @@ export default function AIFinder() {
   useEffect(() => {
     const openChat = searchParams.get('openChat');
     if (openChat === 'true') {
-      setShowChat(true);
+      // Open the unified chat widget
+      const event = new CustomEvent('openChatWidget');
+      window.dispatchEvent(event);
       // Remove the query parameter from URL without navigation
       navigate('/', { replace: true });
     }
@@ -24,22 +25,7 @@ export default function AIFinder() {
     <div className="min-h-screen bg-background">
       <Header />
       <div className="w-full px-4 py-8">
-        {/* AI Chat Button */}
-        <div className="flex justify-end mb-6 max-w-7xl mx-auto">
-          <button
-            onClick={() => setShowChat(!showChat)}
-            className={`flex items-center space-x-2 px-4 py-2 rounded-full transition-all ${
-              showChat 
-                ? 'bg-primary text-foreground shadow-lg' 
-                : 'bg-primary text-foreground border-2 border-background hover:bg-primary/80'
-            } font-cute`}
-          >
-            <MessageCircle className="w-4 h-4" />
-            <span className="font-medium">
-              {showChat ? 'Hide AI Chat' : 'Ask AI Guide'}
-            </span>
-          </button>
-        </div>
+
         
         {/* Main Content - Centered */}
         <div className="text-center space-y-8 max-w-4xl mx-auto">
@@ -127,30 +113,8 @@ export default function AIFinder() {
           </p>
         </div>
       </div>
-      {/* AI Chat Popup - Bottom of Screen */}
-      {showChat && (
-        <div className="fixed bottom-0 left-0 right-0 z-50">
-          <div className="bg-appprimary rounded-t-3xl shadow-2xl border-t-2 border-appbg max-h-[80vh] overflow-hidden">
-            {/* Chat Header */}
-            <div className="bg-appbg text-foreground px-6 py-4 rounded-t-3xl flex items-center justify-between">
-              <div className="flex items-center space-x-3">
-                <MessageCircle className="w-5 h-5" />
-                <h3 className="font-semibold">AI Matcha Guide</h3>
-              </div>
-              <button
-                onClick={() => setShowChat(false)}
-                className="p-2 hover:bg-appprimary rounded-full transition-colors"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-            {/* Chat Interface */}
-            <div className="h-[60vh]">
-              <AIChatInterface />
-            </div>
-          </div>
-        </div>
-      )}
+      {/* Chat Widget - Fixed at bottom-right corner */}
+      <ChatWidget />
     </div>
   );
 }

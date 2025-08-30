@@ -4,6 +4,7 @@ import { Calendar as UICalendar } from "@/components/ui/calendar";
 import Header from "@/components/Header";
 import { Trophy, Flame, Star, ChevronLeft, ChevronRight } from "lucide-react";
 import matchaIcon from "@/assets/matcha.svg";
+import ChatWidget from "@/components/ChatWidget";
 
 // Import all 10 matcha images
 import img1 from "@/assets/matcha_images/1.jpg";
@@ -346,6 +347,9 @@ export default function CalendarPage() {
           </button>
         </div>
       </div>
+      
+      {/* Chat Widget - Fixed at bottom-right corner */}
+      <ChatWidget />
     </div>
   );
 }

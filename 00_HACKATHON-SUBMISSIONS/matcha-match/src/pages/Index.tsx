@@ -7,6 +7,7 @@ import MapView from "@/components/MapView"; // current MapView fetches its own d
 import TopPlacesCarousel from "@/components/TopPlacesCarousel";
 import { mockMatchaPlaces, MatchaPlace } from "@/data/mockMatcha";
 import { useToast } from "@/hooks/use-toast";
+import ChatWidget from "@/components/ChatWidget";
 
 // CHANGED: keep a single place to define your API base
 const API_BASE = import.meta.env.VITE_API_BASE_URL || "http://localhost:8001/api";
@@ -157,6 +158,9 @@ export default function Index() {
           <MapView />
         )}
       </div>
+      
+      {/* Chat Widget - Fixed at bottom-right corner */}
+      <ChatWidget />
     </div>
   );
 }
