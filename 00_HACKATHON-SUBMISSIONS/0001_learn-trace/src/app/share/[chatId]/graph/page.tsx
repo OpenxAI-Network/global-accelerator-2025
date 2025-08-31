@@ -3,13 +3,11 @@ import { notFound } from "next/navigation";
 import PublicGraphViewer from "@/components/PublicGraphViewer";
 
 interface ShareGraphPageProps {
-  params: {
-    chatId: string;
-  };
+  params: Promise<{ chatId: string }>;
 }
 
 export default async function ShareGraphPage({ params }: ShareGraphPageProps) {
-  const { chatId } = params;
+  const { chatId } = await params;
 
   const { data: chatData, error } = await supabase
     .from("chats")

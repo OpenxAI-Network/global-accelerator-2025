@@ -3,7 +3,7 @@
 import React from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
-import logo from "../../public/logo1.png";
+import logo from "@/public/logo1.png";
 
 export default function Navbar() {
   const router = useRouter();

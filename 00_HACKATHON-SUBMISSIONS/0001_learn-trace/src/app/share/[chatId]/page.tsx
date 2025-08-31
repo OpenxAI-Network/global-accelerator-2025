@@ -3,9 +3,7 @@ import { notFound } from "next/navigation";
 import PublicChatView from "@/components/PublicChatView";
 
 interface SharePageProps {
-  params: {
-    chatId: string;
-  };
+  params: { chatId: string };
 }
 
 export default async function SharePage({ params }: SharePageProps) {
@@ -29,7 +27,7 @@ export default async function SharePage({ params }: SharePageProps) {
     .order("created_at", { ascending: true });
 
   return (
-    <PublicChatView 
+    <PublicChatView
       chat={chatData}
       messages={messages || []}
     />
