@@ -256,3 +256,4 @@ We're excited to see what innovative AI applications you'll create! Remember:
 ---
 
 *This hackathon is organized by OpenxAI in partnership with NVIDIA and the global AI community.* 
+"My HACK INDIA SUBMISSION ??" 
