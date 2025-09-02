@@ -2,7 +2,7 @@
 
 ## Project Information
 - Name: Nathan Roland
-- Teamname: Dr Banana
+- Team: Solo
 - Project Name: PlanThat
 - Track Specification: Social Network
 
@@ -402,3 +402,4 @@ The application uses PostgreSQL with the following main tables:
 - `POST /bookmarks/add` - Add bookmark
 - `GET /bookmarks/get` - Get user bookmarks
 - `POST /bookmarks/remove` - Remove bookmark
+
