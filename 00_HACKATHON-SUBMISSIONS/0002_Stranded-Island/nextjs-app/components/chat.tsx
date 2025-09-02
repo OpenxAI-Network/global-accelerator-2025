@@ -25,6 +25,7 @@ export default function Chat() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [gameStarted, setGameStarted] = useState(false);
+  const [actionType, setActionType] = useState<'do' | 'say'>('do');
   const [storyState, setStoryState] = useState<StoryState>({
     choices: [],
     currentLocation: "Unknown Shore",
@@ -71,6 +72,9 @@ export default function Chat() {
       id: '1',
       type: 'ai',
       content: `Welcome to your mysterious island adventure. You're about to embark on a journey where every choice matters and the story unfolds based on your decisions.
+
+      Throughout the story you will have the opportunity to choose whether to do something or say something.
+The things you do or say impact will impact how things play out.
 
 Type anything in the textbox below to begin your adventure.`,
       timestamp: new Date()
@@ -135,10 +139,15 @@ Type anything in the textbox below to begin your adventure.`,
       return;
     }
 
+    // Format the message based on action type
+    const formattedMessage = actionType === 'do' 
+      ? `You chose to do: ${message}` 
+      : `You chose to say: "${message}"`;
+
     const userMessage: Message = {
       id: Date.now().toString(),
       type: 'user',
-      content: message,
+      content: formattedMessage,
       timestamp: new Date()
     };
 
@@ -153,7 +162,7 @@ Type anything in the textbox below to begin your adventure.`,
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          message: message,
+          message: formattedMessage,
           storyState: storyState
         }),
       });
@@ -255,13 +264,31 @@ Type anything in the textbox below to begin your adventure.`,
       <div className="bottom-interface">
         <div className="bottom-interface-content">
           <div className="input-container">
+            {/* Do/Say Selector */}
+            <div className="action-selector">
+              <button
+                className={`action-button ${actionType === 'do' ? 'active' : ''}`}
+                onClick={() => setActionType('do')}
+                disabled={loading}
+              >
+                Do
+              </button>
+              <button
+                className={`action-button ${actionType === 'say' ? 'active' : ''}`}
+                onClick={() => setActionType('say')}
+                disabled={loading}
+              >
+                Say
+              </button>
+            </div>
+            
             <input
               id="message-input"
               type="text"
               value={message}
               onChange={(e) => setMessage(e.target.value)}
               onKeyPress={handleKeyPress}
-              placeholder="Enter your choices here..."
+              placeholder={actionType === 'do' ? "What do you do?" : "What do you say?"}
               disabled={loading}
               className="text-input"
             />

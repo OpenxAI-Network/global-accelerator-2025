@@ -25,7 +25,7 @@ const SYSTEM_PROMPT = `You are the narrator and game master for "Stranded Island
 
 CRITICAL RULES:
 - Keep narration EXACTLY 100 words or less
-- Always provide 2-4 numbered choices
+- Respond to player'sspecific action - your response should be in first person from the player's perspective
 - Each response must progress the story toward the next milestone
 - Guide player to next milestone in 2 prompts maximum
 - Tone: Engaging, thrilling, with some humor
@@ -33,9 +33,13 @@ CRITICAL RULES:
 - CRITICAL: The story MUST end after milestone 5
 
 RESPONSE FORMAT:
-1. Brief narration continuing from previous choice (100 words max)
-2. 2-4 numbered choices for next action
-3. Each choice should move story forward`;
+1. Describe the consequences/outcome of their action
+2. Describe the scene they're currently in, the setting or the person they're interacting with - this can include dialoge from the person they're with
+3. Provide some suggestions that the user could do next
+
+The purpose is to give the player opportunities to make decisions and progress the story.
+
+The player will tell you what they DO or SAY - respond naturally to their specific action and continue the story.`;
 
 export async function POST(request: NextRequest) {
   try {
@@ -78,58 +82,8 @@ What would you like to do first?
       });
     }
 
-    // Milestone-specific choices
-    const milestoneChoices: Record<number, string[]> = {
-      1: [
-        "Search the beach for washed-up items and clues",
-        "Explore the jungle for food, water, and shelter",
-        "Climb to higher ground to survey the island",
-        "Check the coral reef for resources and signs of life"
-      ],
-      2: [
-        "Follow the strange footprints you discovered",
-        "Investigate the abandoned campsite",
-        "Examine the markings carved into trees",
-        "Follow the sound of distant activity"
-      ],
-      3: [
-        "Approach cautiously and call out to them",
-        "Hide and observe from a distance",
-        "Set up a trap to capture them",
-        "Leave a message and wait for contact"
-      ],
-      4: [
-        "Accept their help and work together to survive",
-        "Fight for control of the island",
-        "Negotiate a peaceful coexistence",
-        "Escape the island together"
-      ],
-      5: [
-        "Start a new adventure",
-        "Explore alternative endings",
-        "Review your journey",
-        "Share your story"
-      ]
-    };
-
-    const choices = milestoneChoices[currentMilestone] || ["Continue exploring the island"];
-
-    // Determine the selected choice - CRITICAL FIX
-    let selectedChoice = "";
-    let choiceNumber = 0;
-    
-    // Check if message is a number (choice selection)
-    if (!isNaN(parseInt(message))) {
-      choiceNumber = parseInt(message);
-      if (choiceNumber >= 1 && choiceNumber <= choices.length) {
-        selectedChoice = choices[choiceNumber - 1];
-      } else {
-        selectedChoice = "Continue exploring the island";
-      }
-    } else {
-      // If not a number, use the message as the choice
-      selectedChoice = message;
-    }
+    // Use the user's message directly as their action
+    const selectedChoice = message;
 
     // Update story state with player's choice
     const updatedStoryState: StoryState = {
@@ -197,13 +151,6 @@ What would you like to do first?
 
 Congratulations! You have successfully completed your journey through the mysterious island. 
 
-Your adventure has taken you from waking up confused on a sandy beach, through survival challenges, discovering evidence of another person, encountering them, and finally reaching a resolution.
-
-The story is now complete. You can:
-1. Start a new adventure
-2. Review your journey
-3. Share your story with others
-
 Thank you for playing Stranded Island Adventure!`;
 
       return NextResponse.json({
@@ -237,16 +184,16 @@ PREVIOUS AI NARRATION:
 ${storyState?.lastAIMessage || "No previous narration"}
 
 CRITICAL INSTRUCTIONS (Do not display these in your response):
-1. Your response must directly continue from the player's choice "${selectedChoice}"
-2. DO NOT ignore what the player chose - build your story around their specific choice
-3. Reference previous choices and events for continuity
+1. Your response must directly continue from the player's action: "${selectedChoice}"
+2. DO NOT ignore what the player did/said - build your story around their specific action
+3. Reference previous actions and events for continuity
 4. Keep narration EXACTLY 100 words or less
-5. Provide 2-4 numbered choices for next action
-6. Each choice must progress the story forward
+5. Respond naturally to their action and set up the next situation via setting or dialogue or consequences
+6. Each response must progress the story forward
 7. ${isMilestoneCompletion ? 'MILESTONE MUST BE COMPLETED IN THIS RESPONSE' : 'Do not complete milestone yet - this is step 1'}
 8. ${isFinalMilestone ? 'THIS IS THE FINAL MILESTONE - THE STORY MUST END' : 'Continue building toward next milestone'}
 
-REMEMBER: The player chose "${selectedChoice}" - your story MUST continue from that exact choice, not from something else!
+REMEMBER: The player's action was "${selectedChoice}" - your story MUST continue from that exact action, not from something else!
 ${isMilestoneCompletion ? 'CRITICAL: Complete the milestone now - this is step 2!' : 'CRITICAL: Do not complete milestone yet - this is step 1!'}
 ${isFinalMilestone ? 'CRITICAL: This is the final milestone - complete the story and provide ending options!' : ''}`;
 
@@ -275,16 +222,9 @@ ${isFinalMilestone ? 'CRITICAL: This is the final milestone - complete the story
     // CRITICAL: Check if game is completed
     if (nextCurrentMilestone > 5) {
       // Game is complete - provide final ending
-      const finalEndingMessage = `🎉 **ADVENTURE COMPLETE!** 🎉
+      const finalEndingMessage = `ADVENTURE COMPLETE!
 
 Congratulations! You have successfully completed your journey through the mysterious island. 
-
-Your adventure has taken you from waking up confused on a sandy beach, through survival challenges, discovering evidence of another person, encountering them, and finally reaching a resolution.
-
-The story is now complete. You can:
-1. Start a new adventure
-2. Review your journey
-3. Share your story with others
 
 Thank you for playing Stranded Island Adventure!`;
 

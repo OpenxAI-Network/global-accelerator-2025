@@ -9,7 +9,7 @@ body {
   min-height: 100vh;
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
   overflow-x: hidden;
-  background: linear-gradient(135deg, #2ec4ff 0%, #13ff7d 100%);
+  background: linear-gradient(135deg, #00b7ff 0%, #00ff73 100%);
 }
 
 /* Swipe to play interface */
@@ -23,7 +23,7 @@ body {
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  background: linear-gradient(135deg, #87ceeb 0%, #98fb98 100%);
+  background: linear-gradient(135deg, #00b7ff 0%, #00ff73 100%);
   z-index: 1000;
   transition: opacity 1s ease-out;
 }
@@ -183,6 +183,51 @@ body {
   flex: 1;
   display: flex;
   gap: 1.5rem;
+  align-items: center;
+}
+
+/* Do/Say Action Selector */
+.action-selector {
+  display: flex;
+  gap: 0.5rem;
+  margin-right: 1rem;
+}
+
+.action-button {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem;
+  background: rgba(160, 174, 192, 0.3);
+  color: #e2e8f0;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  backdrop-filter: blur(10px);
+}
+
+.action-button:hover {
+  background: rgba(160, 174, 192, 0.4);
+  transform: translateY(-1px);
+}
+
+.action-button.active {
+  background: rgba(135, 206, 235, 0.4);
+  color: #ffffff;
+  border: 1px solid rgba(135, 206, 235, 0.6);
+}
+
+.action-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.action-icon {
+  font-size: 1rem;
 }
 
 .text-input {
