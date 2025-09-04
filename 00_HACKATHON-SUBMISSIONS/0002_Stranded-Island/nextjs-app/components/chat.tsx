@@ -291,6 +291,10 @@ Type anything in the textbox below to begin your adventure.`,
               placeholder={actionType === 'do' ? "What do you do?" : "What do you say?"}
               disabled={loading}
               className="text-input"
+              autoComplete="off"
+              autoCorrect="off"
+              autoCapitalize="off"
+              spellCheck="false"
             />
             <button
               onClick={sendMessage}
