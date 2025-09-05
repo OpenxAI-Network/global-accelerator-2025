@@ -25,7 +25,7 @@ const SYSTEM_PROMPT = `You are the narrator and game master for "Stranded Island
 
 CRITICAL RULES:
 - Keep narration SHORT (max 80 words, aim for 60-70)
-- Respond to player's specific action - your response should be in first person from the player's perspective
+- Respond to player's specific action - your response should be in second person from the player's perspective (addressed as You)
 - Each response MUST move closer to the next milestone. Do not stall.
 - Each milestone MUST be completed within exactly 2 turns (step 1 → step 2).
 - At step 2, milestone MUST be completed, no exceptions.
@@ -111,28 +111,28 @@ What would you like to do first?
       if (milestoneStep === 1) {
         milestoneGuidance = "Goal: This is step 1 of 2. Guide player toward Survival & Search phase. They must search the island for clues while surviving.";
       } else {
-        milestoneGuidance = "Goal: This is step 2 of 2. COMPLETE the Survival & Search milestone. Player must find evidence of another person (footprints, campsite, markings, sounds).";
+        milestoneGuidance = "Goal: This is step 2 of 2. COMPLETE the Survival & Search milestone. Player finds a clue as to what happend to them";
         isMilestoneCompletion = true;
       }
     } else if (currentMilestone === 2) {
       if (milestoneStep === 1) {
-        milestoneGuidance = "Goal: This is step 1 of 2. Guide player toward Evidence Discovery. They must find evidence of another person.";
+        milestoneGuidance = "Goal: This is step 1 of 2. Guide player toward Evidence Discovery. They must wonder if there is anyone else on the island.";
       } else {
-        milestoneGuidance = "Goal: This is step 2 of 2. COMPLETE the Evidence Discovery milestone. Player must discover clear evidence of another person.";
+        milestoneGuidance = "Goal: This is step 2 of 2. COMPLETE the Evidence Discovery milestone. Player must discover clear evidence of another person (footprints, campsite, markings, sounds).";
         isMilestoneCompletion = true;
       }
     } else if (currentMilestone === 3) {
       if (milestoneStep === 1) {
         milestoneGuidance = "Goal: This is step 1 of 2. Guide player toward Encounter. They must approach meeting another person.";
       } else {
-        milestoneGuidance = "Goal: This is step 2 of 2. COMPLETE the Encounter milestone. Player must meet another person on the island.";
+        milestoneGuidance = "Goal: This is step 2 of 2. COMPLETE the Encounter milestone. They must interact with the other person";
         isMilestoneCompletion = true;
       }
     } else if (currentMilestone === 4) {
       if (milestoneStep === 1) {
-        milestoneGuidance = "Goal: This is step 1 of 2. Guide player toward Ending. This interaction determines the final outcome.";
+        milestoneGuidance = "Goal: This is step 1 of 2. Guide player toward conflict with person. This interaction determines the final outcome.";
       } else {
-        milestoneGuidance = "Goal: This is step 2 of 2. COMPLETE the Encounter milestone and lead to Ending. Final interaction determines outcome.";
+        milestoneGuidance = "Goal: This is step 2 of 2. COMPLETE the Encounter milestone and lead to Ending. Final interaction determines outcome. They must resolve the conflict with or escape from the other person.";
         isMilestoneCompletion = true;
       }
     } else if (currentMilestone === 5) {
@@ -143,29 +143,6 @@ What would you like to do first?
         isMilestoneCompletion = true;
         isFinalMilestone = true;
       }
-    }
-
-    // CRITICAL: If this is the final milestone completion, end the story
-    if (isFinalMilestone && milestoneStep === 2) {
-      const finalEndingMessage = `ADVENTURE COMPLETE!
-
-Congratulations! You have successfully completed your journey through the mysterious island. 
-
-Thank you for playing Stranded Island Adventure!`;
-
-      return NextResponse.json({
-        message: finalEndingMessage,
-        success: true,
-        currentMilestone: 5,
-        nextMilestone: "COMPLETED",
-        milestoneStep: 2,
-        updatedStoryState: {
-          ...updatedStoryState,
-          currentMilestone: 5,
-          milestoneStep: 2,
-          lastAIMessage: finalEndingMessage
-        }
-      });
     }
 
     // Create comprehensive prompt for AI with STRONG emphasis on milestone completion

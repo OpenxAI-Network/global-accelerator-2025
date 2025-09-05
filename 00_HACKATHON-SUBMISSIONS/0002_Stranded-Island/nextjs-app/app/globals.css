@@ -36,7 +36,7 @@ body {
 .game-title {
   font-size: 7rem;
   font-weight: 900;
-  color: #ffffff;
+  color: #1e3a8a;
   margin-bottom: 2rem;
   text-align: center;
   letter-spacing: -0.02em;
@@ -44,7 +44,7 @@ body {
 
 .swipe-instruction {
   font-size: 1.8rem;
-  color: #ffffff;
+  color: #1e3a8a;
   text-shadow: 1px 1px 4px rgba(255, 255, 255, 0.6);
   text-align: center;
   animation: pulse 2s infinite;
@@ -117,7 +117,7 @@ body {
   letter-spacing: 0.01em;
   white-space: pre-line;
   background: transparent;
-  color: white;
+  color: #1e3a8a;
   text-align: left;
   border: 1px solid rgba(255, 255, 255, 0.2);
   box-sizing: border-box;
@@ -127,7 +127,7 @@ body {
   width: 100%;
   max-width: 900px;
   background: transparent;
-  color: white;
+  color: #1e3a8a;
   border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
@@ -135,7 +135,7 @@ body {
   width: 100%;
   max-width: 600px;
   background: transparent;
-  color: white;
+  color: #1e3a8a;
   border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
@@ -151,7 +151,7 @@ body {
   display: block;
   font-size: 0.8rem;
   font-weight: 600;
-  color: #ffffff;
+  color: #1e3a8a;
   margin-bottom: 0.5rem;
   text-align: center;
   background: rgba(0, 255, 94, 0.2);
@@ -198,8 +198,8 @@ body {
   align-items: center;
   gap: 0.5rem;
   padding: 0.75rem 1rem;
-  background: rgba(160, 174, 192, 0.3);
-  color: #e2e8f0;
+  background: rgba(59, 130, 246, 0.4);
+  color: #1e3a8a;
   border: none;
   border-radius: 8px;
   font-size: 0.9rem;
@@ -210,13 +210,13 @@ body {
 }
 
 .action-button:hover {
-  background: rgba(160, 174, 192, 0.4);
+  background: rgba(59, 130, 246, 0.5);
   transform: translateY(-1px);
 }
 
 .action-button.active {
   background: rgba(135, 206, 235, 0.4);
-  color: #ffffff;
+  color: #1e3a8a;
   border: 1px solid rgba(135, 206, 235, 0.6);
 }
 
@@ -233,28 +233,28 @@ body {
 .text-input {
   flex: 1;
   padding: 1rem 1.5rem;
-  background: rgba(160, 174, 192, 0.3);
+  background: rgba(59, 130, 246, 0.4);
   border: none;
   border-radius: 8px;
   font-size: 1rem;
-  color: white;
+  color: #1e3a8a;
   transition: all 0.2s ease;
   backdrop-filter: blur(10px);
 }
 
 .text-input::placeholder {
-  color: rgba(255, 255, 255, 0.7);
+  color: rgba(30, 58, 138, 0.7);
 }
 
 .text-input:focus {
   outline: none;
-  background: rgba(160, 174, 192, 0.4);
+  background: rgba(59, 130, 246, 0.5);
 }
 
 .send-button {
   padding: 1rem 2rem;
-  background: rgba(160, 174, 192, 0.3);
-  color: #e2e8f0;
+  background: rgba(59, 130, 246, 0.4);
+  color: #1e3a8a;
   border: none;
   border-radius: 8px;
   font-size: 1rem;
@@ -265,7 +265,7 @@ body {
 }
 
 .send-button:hover {
-  background: rgba(160, 174, 192, 0.4);
+  background: rgba(59, 130, 246, 0.5);
   transform: translateY(-1px);
 }
 
@@ -275,8 +275,8 @@ body {
 
 .reset-button {
   padding: 1rem 2rem;
-  background: rgba(160, 174, 192, 0.3);
-  color: #e2e8f0;
+  background: rgba(59, 130, 246, 0.4);
+  color: #1e3a8a;
   border: none;
   border-radius: 8px;
   font-size: 1rem;
@@ -287,7 +287,7 @@ body {
 }
 
 .reset-button:hover {
-  background: rgba(160, 174, 192, 0.4);
+  background: rgba(59, 130, 246, 0.5);
   transform: translateY(-1px);
 }
 
@@ -317,7 +317,7 @@ body {
 }
 
 .loading-text {
-  color: #ffffff;
+  color: #1e3a8a;
   font-size: 1.1rem;
   font-weight: 500;
 }
