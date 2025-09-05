@@ -74,7 +74,7 @@ export default function Chat() {
       content: `Welcome to your mysterious island adventure. You're about to embark on a journey where every choice matters and the story unfolds based on your decisions.
 
       Throughout the story you will have the opportunity to choose whether to do something or say something.
-The things you do or say impact will impact how things play out.
+The things you do or say will impact how things play out.
 
 Type anything in the textbox below to begin your adventure.`,
       timestamp: new Date()
