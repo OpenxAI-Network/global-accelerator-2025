@@ -1,0 +1,1143 @@
+'use client'
+
+import { useState, useEffect } from 'react'
+import { MessageSquare, Plus, Upload, Users, BookOpen, Bot, LogOut, User, UserCheck, Filter, ChevronUp, ChevronDown, ArrowUp, ArrowDown, Bold, Italic, Code, Type, List, Hash, Image, ChevronDown as ChevronDownIcon, ChevronUp as ChevronUpIcon, ArrowLeft, GraduationCap, Search, X, Trash2 } from 'lucide-react'
+import { useAuth } from '../../../contexts/AuthContext'
+import { useFriends } from '../../../contexts/FriendsContext'
+import ProtectedRoute from '../../../components/ProtectedRoute'
+import Link from 'next/link'
+import { useRouter, useParams } from 'next/navigation'
+import AIQuestionModal from '../../../components/AIQuestionModal'
+import DocumentUpload from '../../../components/DocumentUpload'
+import { permissions, getRoleDisplayName, getRoleColor } from '../../../utils/permissions'
+import RichTextEditor, { RichTextDisplay } from '../../../components/RichTextEditor'
+
+// Fallback class data for demo classes
+const classData = {
+  finc3012: {
+    id: 'finc3012',
+    name: 'Derivative Securities',
+    code: 'FINC3012',
+    description: 'Advanced study of derivative instruments and their applications in financial markets.',
+    instructor: 'Dr. Sarah Chen',
+    semester: 'Semester 1, 2024',
+    studentCount: 45,
+    color: 'bg-blue-500'
+  },
+  amme2000: {
+    id: 'amme2000',
+    name: 'Engineering Analysis',
+    code: 'AMME2000',
+    description: 'Mathematical and computational methods for engineering problem solving.',
+    instructor: 'Prof. Michael Rodriguez',
+    semester: 'Semester 1, 2024',
+    studentCount: 78,
+    color: 'bg-green-500'
+  },
+  buss1000: {
+    id: 'buss1000',
+    name: 'Future of Business',
+    code: 'BUSS1000',
+    description: 'Exploring emerging business trends and digital transformation strategies.',
+    instructor: 'Dr. Emily Watson',
+    semester: 'Semester 1, 2024',
+    studentCount: 120,
+    color: 'bg-purple-500'
+  },
+  engg1810: {
+    id: 'engg1810',
+    name: 'Introduction to Engineering Computing',
+    code: 'ENGG1810',
+    description: 'Fundamentals of programming and computational thinking for engineers.',
+    instructor: 'Prof. David Kim',
+    semester: 'Semester 1, 2024',
+    studentCount: 95,
+    color: 'bg-orange-500'
+  }
+}
+
+// Demo questions for fallback
+const demoQuestions = {
+  finc3012: [
+    {
+      id: 1,
+      title: 'What is the difference between forwards and futures contracts?',
+      content: 'I\'m studying derivative securities and I\'m confused about the key differences between forwards and futures contracts. Can someone explain the main distinctions and when each would be used?',
+      tags: ['derivatives', 'forwards', 'futures', 'contracts'],
+      created_at: new Date().toISOString(),
+      username: 'finance_student',
+      answer_count: 2,
+      votes: 5
+    }
+  ],
+  amme2000: [
+    {
+      id: 1,
+      title: 'Understanding Laplace transforms in engineering',
+      content: 'I\'m having trouble applying Laplace transforms to solve differential equations in engineering problems. Can someone provide a step-by-step example?',
+      tags: ['laplace', 'differential-equations', 'engineering-math'],
+      created_at: new Date().toISOString(),
+      username: 'eng_student',
+      answer_count: 1,
+      votes: 4
+    }
+  ],
+  buss1000: [
+    {
+      id: 1,
+      title: 'Impact of AI on traditional business models',
+      content: 'How is artificial intelligence transforming traditional business models and what should students prepare for?',
+      tags: ['ai', 'business-models', 'digital-transformation'],
+      created_at: new Date().toISOString(),
+      username: 'business_student',
+      answer_count: 3,
+      votes: 6
+    }
+  ],
+  engg1810: [
+    {
+      id: 1,
+      title: 'Understanding recursion in programming',
+      content: 'I\'m learning about recursion in our programming course. Can someone explain how it works with a simple example?',
+      tags: ['recursion', 'programming', 'algorithms'],
+      created_at: new Date().toISOString(),
+      username: 'coding_student',
+      answer_count: 2,
+      votes: 3
+    }
+  ]
+}
+
+interface Question {
+  id: string | number
+  title: string
+  content: string
+  tags: string[]
+  created_at: string
+  username: string
+  answer_count: number
+  votes: number
+  authorId?: string
+}
+
+interface Answer {
+  id: string
+  question_id: string | number
+  content: string
+  username: string
+  created_at: string
+  is_ai_generated: boolean
+  votes: number
+}
+
+export default function ClassForum() {
+  const { user, logout } = useAuth()
+  const { isFriend } = useFriends()
+  const router = useRouter()
+  const params = useParams()
+  const classId = params.classId as string
+  
+  const [activeTab, setActiveTab] = useState<'questions' | 'discussion' | 'documents'>('questions')
+  const [questions, setQuestions] = useState<Question[]>([])
+  const [selectedQuestion, setSelectedQuestion] = useState<Question | null>(null)
+  const [answers, setAnswers] = useState<Answer[]>([])
+  const [loading, setLoading] = useState(false)
+  const [showAskForm, setShowAskForm] = useState(false)
+  const [questionTitle, setQuestionTitle] = useState('')
+  const [questionContent, setQuestionContent] = useState('')
+  const [questionTags, setQuestionTags] = useState('')
+  const [answerContent, setAnswerContent] = useState('')
+  const [userProfilePicture, setUserProfilePicture] = useState('')
+  const [questionVotes, setQuestionVotes] = useState<{[key: string]: 'up' | 'down' | null}>({})
+  const [searchQuery, setSearchQuery] = useState('')
+  const [isSearching, setIsSearching] = useState(false)
+  const [showAIModal, setShowAIModal] = useState(false)
+  const [currentClass, setCurrentClass] = useState<any>(null)
+  const [classNotFound, setClassNotFound] = useState(false)
+  const [documents, setDocuments] = useState<any[]>([])
+  const [documentsLoading, setDocumentsLoading] = useState(false)
+
+  // Load class data and questions
+  const fetchUserVotes = async () => {
+    if (!user?.id || questions.length === 0) return
+
+    try {
+      const votePromises = questions.map(async (question) => {
+        const response = await fetch(`/api/votes?userId=${user.id}&questionId=${question.id}`)
+        const data = await response.json()
+        return { questionId: question.id, vote: data.vote }
+      })
+
+      const voteResults = await Promise.all(votePromises)
+      const newVotes: {[key: string]: 'up' | 'down' | null} = {}
+      
+      voteResults.forEach(result => {
+        newVotes[String(result.questionId)] = result.vote
+      })
+      
+      setQuestionVotes(newVotes)
+    } catch (error) {
+      console.error('Error fetching user votes:', error)
+    }
+  }
+
+  const fetchDocuments = async () => {
+    setDocumentsLoading(true)
+    try {
+      const response = await fetch(`/api/upload-documents?classId=${classId}`)
+      const data = await response.json()
+      
+      if (data.success) {
+        setDocuments(data.documents)
+      }
+    } catch (error) {
+      console.error('Error fetching documents:', error)
+    } finally {
+      setDocumentsLoading(false)
+    }
+  }
+
+  const handleDocumentUploadSuccess = (document: any) => {
+    setDocuments(prev => [document, ...prev])
+  }
+
+  useEffect(() => {
+    if (classId) {
+      fetchClassData()
+      fetchQuestions()
+      fetchDocuments()
+    }
+  }, [classId])
+
+  useEffect(() => {
+    if (user && questions.length > 0) {
+      fetchUserVotes()
+    }
+  }, [user, questions.length])
+
+  const fetchClassData = async () => {
+    try {
+      const response = await fetch(`/api/class-details?classId=${classId}`)
+      const data = await response.json()
+      
+      if (data.class) {
+        setCurrentClass(data.class)
+        setClassNotFound(false)
+      } else {
+        // Fallback to hardcoded data for demo classes
+        const fallbackClass = classData[classId as keyof typeof classData]
+        if (fallbackClass) {
+          setCurrentClass(fallbackClass)
+          setClassNotFound(false)
+        } else {
+          setClassNotFound(true)
+        }
+      }
+    } catch (error) {
+      console.error('Error fetching class data:', error)
+      // Fallback to hardcoded data
+      const fallbackClass = classData[classId as keyof typeof classData]
+      if (fallbackClass) {
+        setCurrentClass(fallbackClass)
+        setClassNotFound(false)
+      } else {
+        setClassNotFound(true)
+      }
+    }
+  }
+
+  const fetchQuestions = async () => {
+    try {
+      const response = await fetch(`/api/questions?classId=${classId}`)
+      const data = await response.json()
+      
+      if (data.questions) {
+        setQuestions(data.questions)
+      }
+    } catch (error) {
+      console.error('Error fetching questions:', error)
+      // Fallback to demo questions if database fails
+      if (demoQuestions[classId as keyof typeof demoQuestions]) {
+        setQuestions(demoQuestions[classId as keyof typeof demoQuestions])
+      }
+    }
+  }
+
+  // Load user profile picture
+  useEffect(() => {
+    if (user?.id) {
+      const savedProfile = localStorage.getItem(`userProfile_${user.id}`)
+      if (savedProfile) {
+        const profile = JSON.parse(savedProfile)
+        setUserProfilePicture(profile.picture || '')
+      }
+    }
+  }, [user])
+
+  const handleQuestionClick = (question: Question) => {
+    setSelectedQuestion(question)
+    setActiveTab('discussion')
+    
+    // Demo answers
+    const demoAnswers: Answer[] = [
+      {
+        id: '1',
+        question_id: question.id,
+        content: 'This is a helpful answer to your question. Let me explain the key concepts...',
+        username: 'helpful_student',
+        created_at: new Date().toISOString(),
+        is_ai_generated: false,
+        votes: 2
+      }
+    ]
+    setAnswers(demoAnswers)
+  }
+
+  const handleAskQuestion = async () => {
+    const textContent = questionContent.replace(/<[^>]*>/g, '').trim()
+    if (!questionTitle.trim() || !textContent) {
+      alert('Please provide both a title and content for your question.')
+      return
+    }
+
+    if (!user?.id) {
+      alert('You must be logged in to ask a question.')
+      return
+    }
+
+    if (!classId) {
+      alert('Invalid class. Please refresh the page.')
+      return
+    }
+
+    console.log('handleAskQuestion called with:', {
+      title: questionTitle,
+      content: questionContent,
+      tags: questionTags,
+      classId,
+      authorId: user.id,
+      user: user
+    })
+
+    try {
+      const requestBody = {
+        title: questionTitle,
+        content: questionContent,
+        tags: questionTags.split(',').map(tag => tag.trim()).filter(tag => tag),
+        classId,
+        authorId: user.id
+      }
+
+      console.log('Sending request to /api/questions with body:', requestBody)
+
+      const response = await fetch('/api/questions', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(requestBody)
+      })
+
+      console.log('Response status:', response.status)
+      console.log('Response headers:', Object.fromEntries(response.headers.entries()))
+
+      const data = await response.json()
+      console.log('Response data:', data)
+
+      if (response.ok && data.question) {
+        console.log('Question created successfully, refreshing list')
+        await fetchQuestions() // Refresh questions list
+        setQuestionTitle('')
+        setQuestionContent('')
+        setQuestionTags('')
+        setShowAskForm(false)
+        alert('Question posted successfully!')
+      } else {
+        console.error('Failed to create question:', data)
+        alert(`Failed to create question: ${data.error || 'Unknown error'}`)
+      }
+    } catch (error) {
+      console.error('Error creating question:', error)
+      alert(`Error creating question: ${error instanceof Error ? error.message : 'Unknown error'}`)
+    }
+  }
+
+  const handleProceedToForum = async (title: string, content: string, tags: string) => {
+    if (!user?.id) {
+      console.error('No user ID found')
+      alert('You must be logged in to post a question.')
+      return
+    }
+
+    if (!classId) {
+      console.error('No class ID found')
+      alert('Invalid class. Please refresh the page.')
+      return
+    }
+    
+    console.log('Posting question to forum:', { title, content, tags, classId, authorId: user.id })
+    
+    try {
+      const requestBody = {
+        title,
+        content,
+        tags: tags.split(',').map(tag => tag.trim()).filter(tag => tag),
+        classId,
+        authorId: user.id
+      }
+
+      console.log('Sending AI-to-forum request with body:', requestBody)
+
+      const response = await fetch('/api/questions', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(requestBody)
+      })
+      
+      console.log('AI-to-forum response status:', response.status)
+      const data = await response.json()
+      console.log('AI-to-forum response data:', data)
+      
+      if (response.ok && data.question) {
+        console.log('Question created successfully from AI, refreshing list')
+        await fetchQuestions() // Refresh questions list
+        alert('Question posted to forum successfully!')
+      } else {
+        console.error('Failed to post question from AI:', data)
+        alert(`Failed to post question: ${data.error || 'Unknown error'}`)
+      }
+    } catch (error) {
+      console.error('Error posting question to forum:', error)
+      alert(`Error posting question: ${error instanceof Error ? error.message : 'Unknown error'}`)
+    }
+  }
+
+  const handleDeleteQuestion = async (questionId: string | number) => {
+    if (!confirm('Are you sure you want to delete this question?')) return
+    
+    try {
+      const response = await fetch(`/api/questions?questionId=${questionId}&userId=${user?.id}&userRole=${user?.role}`, {
+        method: 'DELETE'
+      })
+      
+      if (response.ok) {
+        await fetchQuestions() // Refresh questions list
+      }
+    } catch (error) {
+      console.error('Error deleting question:', error)
+    }
+  }
+
+  const handleAddAnswer = () => {
+    if (!answerContent.trim() || !selectedQuestion || !user) return
+    
+    const newAnswer: Answer = {
+      id: Date.now().toString(),
+      question_id: selectedQuestion.id,
+      content: answerContent,
+      username: user?.name || 'student',
+      created_at: new Date().toISOString(),
+      is_ai_generated: false,
+      votes: 0
+    }
+    
+    setAnswers(prev => [...prev, newAnswer])
+    setAnswerContent('')
+  }
+
+  const handleQuestionVote = async (questionId: string | number, voteType: 'up' | 'down') => {
+    if (!user) return
+
+    try {
+      const response = await fetch('/api/votes', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          userId: user.id,
+          questionId: String(questionId),
+          type: voteType.toUpperCase()
+        })
+      })
+
+      const data = await response.json()
+
+      if (response.ok) {
+        // Update local state based on server response
+        setQuestionVotes(prev => ({
+          ...prev,
+          [String(questionId)]: data.voteType
+        }))
+
+        // Refresh questions to get updated vote counts
+        await fetchQuestions()
+      } else {
+        console.error('Failed to vote:', data.error)
+      }
+    } catch (error) {
+      console.error('Error voting:', error)
+    }
+  }
+
+  const filteredQuestions = questions.filter(question => {
+    if (!searchQuery.trim()) return true
+    
+    const query = searchQuery.toLowerCase()
+    return (
+      question.title.toLowerCase().includes(query) ||
+      question.content.toLowerCase().includes(query) ||
+      question.tags.some(tag => tag.toLowerCase().includes(query)) ||
+      question.username.toLowerCase().includes(query)
+    )
+  })
+
+  const handleSearch = (query: string) => {
+    setSearchQuery(query)
+    setIsSearching(query.length > 0)
+  }
+
+  const clearSearch = () => {
+    setSearchQuery('')
+    setIsSearching(false)
+  }
+
+  const formatRelativeTime = (dateString: string) => {
+    const now = new Date()
+    const date = new Date(dateString)
+    const diffInMs = now.getTime() - date.getTime()
+    const diffInMinutes = Math.floor(diffInMs / (1000 * 60))
+    const diffInHours = Math.floor(diffInMs / (1000 * 60 * 60))
+    const diffInDays = Math.floor(diffInMs / (1000 * 60 * 60 * 24))
+
+    if (diffInMinutes < 1) return '< 1 min ago'
+    if (diffInMinutes < 60) return `${diffInMinutes} mins ago`
+    if (diffInHours < 24) return `${diffInHours} hours ago`
+    return `${diffInDays} days ago`
+  }
+
+  // If no user, redirect to login
+  if (!user) {
+    return null
+  }
+
+  if (classNotFound) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <h1 className="text-2xl font-bold text-gray-900 mb-4">Class Not Found</h1>
+          <p className="text-gray-600 mb-4">The class you're looking for doesn't exist.</p>
+          <button
+            onClick={() => router.push('/')}
+            className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+          >
+            Back to Dashboard
+          </button>
+        </div>
+      </div>
+    )
+  }
+
+  if (!currentClass) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading class details...</p>
+        </div>
+      </div>
+    )
+  }
+
+  return (
+    <ProtectedRoute>
+      <div className="min-h-screen bg-gray-50">
+        {/* Header */}
+        <div className="bg-white border-b border-gray-200">
+          <div className="max-w-7xl mx-auto">
+            <div className="flex items-center justify-between h-16 px-4 sm:px-6 lg:px-8">
+              <div className="flex items-center space-x-4">
+                <button
+                  onClick={() => router.push('/')}
+                  className="flex items-center space-x-2 text-gray-600 hover:text-gray-900 transition-colors"
+                >
+                  <ArrowLeft className="h-5 w-5" />
+                  <span className="font-medium">Back to Dashboard</span>
+                </button>
+              </div>
+              
+              <div className="flex items-center space-x-4">
+                <div className="flex items-center space-x-3">
+                  <div className="flex items-center space-x-2">
+                    <div className={`px-2 py-1 rounded-full text-xs font-medium ${getRoleColor(user.role)}`}>
+                      {getRoleDisplayName(user.role)}
+                    </div>
+                    <span className="text-sm text-gray-700">{user.name}</span>
+                  </div>
+                  {userProfilePicture ? (
+                    <img
+                      src={userProfilePicture}
+                      alt="Profile"
+                      className="w-8 h-8 rounded-full object-cover"
+                    />
+                  ) : (
+                    <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center">
+                      <User className="h-4 w-4 text-white" />
+                    </div>
+                  )}
+                </div>
+                <button
+                  onClick={() => {
+                    logout()
+                  }}
+                  className="text-gray-600 hover:text-gray-900 transition-colors"
+                >
+                  <LogOut className="h-5 w-5" />
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Class Header */}
+        <div className="bg-gradient-to-r from-blue-600 to-blue-800">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-4">
+                <div className="w-16 h-16 bg-white bg-opacity-20 rounded-lg flex items-center justify-center">
+                  <GraduationCap className="h-8 w-8 text-white" />
+                </div>
+                <div>
+                  <h1 className="text-3xl font-bold text-white">{currentClass.name}</h1>
+                  <p className="text-blue-100">{currentClass.code} • {currentClass.instructor}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Tab Navigation */}
+        <div className="border-b border-gray-200 bg-white">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <nav className="flex space-x-8">
+              <button
+                onClick={() => setActiveTab('questions')}
+                className={`py-4 px-1 border-b-2 font-medium text-sm ${
+                  activeTab === 'questions'
+                    ? 'border-blue-500 text-blue-600'
+                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                }`}
+              >
+                <MessageSquare className="h-4 w-4 inline mr-2" />
+                Questions & Discussion
+              </button>
+              <button
+                onClick={() => setActiveTab('documents')}
+                className={`py-4 px-1 border-b-2 font-medium text-sm ${
+                  activeTab === 'documents'
+                    ? 'border-blue-500 text-blue-600'
+                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                }`}
+              >
+                <BookOpen className="h-4 w-4 inline mr-2" />
+                Course Materials
+                {documents.length > 0 && (
+                  <span className="ml-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                    {documents.length}
+                  </span>
+                )}
+              </button>
+            </nav>
+          </div>
+        </div>
+
+        {/* Main Content */}
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          {activeTab === 'questions' && (
+            <div className="space-y-8">
+              {/* Course Overview */}
+              <div className="bg-white rounded-lg shadow-sm border border-gray-200">
+                <div className="p-6 border-b border-gray-200">
+                  <div className="flex items-center justify-between mb-4">
+                    <h3 className="text-lg font-semibold text-gray-900">Course Overview</h3>
+                    <button
+                      onClick={() => setShowAIModal(true)}
+                      className="flex items-center space-x-2 px-4 py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg hover:from-blue-700 hover:to-purple-700 transition-all"
+                    >
+                      <Bot className="h-4 w-4" />
+                      <span>Ask AI First</span>
+                    </button>
+                  </div>
+                </div>
+                
+                <div className="p-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div>
+                      <h4 className="text-sm font-semibold text-gray-900 mb-3 uppercase tracking-wide">Course Description</h4>
+                      <p className="text-gray-700 leading-relaxed mb-4">{currentClass.description}</p>
+                      
+                      <div className="space-y-3">
+                        <div className="flex items-center text-sm">
+                          <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center mr-3">
+                            <User className="h-4 w-4 text-blue-600" />
+                          </div>
+                          <div>
+                            <span className="text-gray-500">Instructor</span>
+                            <div className="font-medium text-gray-900">{currentClass.instructor}</div>
+                          </div>
+                        </div>
+                        <div className="flex items-center text-sm">
+                          <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center mr-3">
+                            <Users className="h-4 w-4 text-green-600" />
+                          </div>
+                          <div>
+                            <span className="text-gray-500">Enrolled Students</span>
+                            <div className="font-medium text-gray-900">{currentClass.studentCount || 0}</div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <div>
+                      <h4 className="text-sm font-semibold text-gray-900 mb-3 uppercase tracking-wide">Quick Stats</h4>
+                      <div className="space-y-4">
+                        <div className="bg-gray-50 rounded-lg p-3">
+                          <div className="flex items-center justify-between mb-1">
+                            <span className="text-sm font-medium text-gray-700">Recent Activity</span>
+                            <span className="text-lg font-bold text-green-600">{Math.max(questions.length - 1, 1)}</span>
+                          </div>
+                          <div className="w-full bg-gray-200 rounded-full h-1.5">
+                            <div className="bg-green-600 h-1.5 rounded-full" style={{ width: `${Math.min(((questions.length - 1) / 5) * 100, 100)}%` }}></div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Questions Section */}
+              <div className="bg-white rounded-lg shadow-sm border border-gray-200">
+                <div className="p-6 border-b border-gray-200">
+                  <div className="flex items-center justify-between mb-4">
+                    <h3 className="text-lg font-semibold text-gray-900">Discussion Questions</h3>
+                    <div className="flex items-center space-x-3">
+                      <div className="relative">
+                        <Search className="h-4 w-4 text-gray-400 absolute left-3 top-1/2 transform -translate-y-1/2" />
+                        <input
+                          type="text"
+                          placeholder="Search questions..."
+                          value={searchQuery}
+                          onChange={(e) => handleSearch(e.target.value)}
+                          className="pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                        />
+                        {isSearching && (
+                          <button
+                            onClick={clearSearch}
+                            className="absolute right-3 top-1/2 transform -translate-y-1/2"
+                          >
+                            <X className="h-4 w-4 text-gray-400 hover:text-gray-600" />
+                          </button>
+                        )}
+                      </div>
+                      <button
+                        onClick={() => setShowAskForm(true)}
+                        className="flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+                      >
+                        <Plus className="h-4 w-4" />
+                        <span>Ask Question</span>
+                      </button>
+                    </div>
+                  </div>
+                  
+                  {isSearching && (
+                    <div className="mb-4">
+                      <p className="text-sm text-gray-600">
+                        Found {filteredQuestions.length} result{filteredQuestions.length !== 1 ? 's' : ''} for "{searchQuery}"
+                      </p>
+                    </div>
+                  )}
+                </div>
+
+                {/* Ask Question Form */}
+                {showAskForm && (
+                  <div className="p-6 bg-gray-50 border-b border-gray-200">
+                    <h4 className="text-lg font-medium text-gray-900 mb-4">Ask a Question</h4>
+                    <div className="space-y-4">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          Question Title
+                        </label>
+                        <input
+                          type="text"
+                          value={questionTitle}
+                          onChange={(e) => setQuestionTitle(e.target.value)}
+                          placeholder="What would you like to ask?"
+                          className="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                        />
+                      </div>
+                      
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          Question Details
+                        </label>
+                        <RichTextEditor
+                          content={questionContent}
+                          onChange={setQuestionContent}
+                          placeholder="Describe your question in detail..."
+                          className="min-h-[150px]"
+                        />
+                      </div>
+                      
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          Tags (comma-separated)
+                        </label>
+                        <input
+                          type="text"
+                          value={questionTags}
+                          onChange={(e) => setQuestionTags(e.target.value)}
+                          placeholder="e.g., assignment, theory, programming"
+                          className="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                        />
+                      </div>
+                      
+                      <div className="flex justify-end space-x-3">
+                        <button
+                          onClick={() => setShowAskForm(false)}
+                          className="px-4 py-2 text-gray-700 bg-gray-200 rounded-md hover:bg-gray-300"
+                        >
+                          Cancel
+                        </button>
+                        <button
+                          onClick={handleAskQuestion}
+                          disabled={!questionTitle.trim() || !questionContent.replace(/<[^>]*>/g, '').trim()}
+                          className="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                          Ask Question
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Questions List */}
+                <div className="p-6">
+                  {filteredQuestions.length === 0 ? (
+                    <div className="text-center py-8">
+                      <MessageSquare className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                      <h3 className="text-lg font-medium text-gray-900 mb-2">
+                        {isSearching ? 'No questions found' : 'No questions yet'}
+                      </h3>
+                      <p className="text-gray-600 mb-4">
+                        {isSearching 
+                          ? `No questions match your search for "${searchQuery}"`
+                          : 'Be the first to ask a question in this class!'
+                        }
+                      </p>
+                      {!isSearching && (
+                        <button
+                          onClick={() => setShowAskForm(true)}
+                          className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+                        >
+                          Ask the First Question
+                        </button>
+                      )}
+                    </div>
+                  ) : (
+                    <div className="space-y-4">
+                      {filteredQuestions.map((question) => (
+                        <div
+                          key={question.id}
+                          className="bg-white p-6 rounded-lg shadow-sm border border-gray-200 hover:shadow-md transition-shadow cursor-pointer"
+                          onClick={() => handleQuestionClick(question)}
+                        >
+                          <div className="flex space-x-4">
+                            <div className="flex flex-col items-center space-y-1">
+                              <button 
+                                className={`p-1 rounded hover:bg-gray-100 transition-colors ${
+                                  questionVotes[String(question.id)] === 'up' ? 'text-blue-600' : 'text-gray-400'
+                                }`}
+                                onClick={(e) => {
+                                  e.stopPropagation()
+                                  handleQuestionVote(question.id, 'up')
+                                }}
+                              >
+                                <ArrowUp className="h-5 w-5" />
+                              </button>
+                              <span className={`text-sm font-medium ${
+                                questionVotes[String(question.id)] === 'up' ? 'text-blue-600' : 
+                                questionVotes[String(question.id)] === 'down' ? 'text-red-600' : 
+                                'text-gray-500'
+                              }`}>
+                                {question.votes || 0}
+                              </span>
+                              <button 
+                                className={`p-1 rounded hover:bg-gray-100 transition-colors ${
+                                  questionVotes[String(question.id)] === 'down' ? 'text-red-600' : 'text-gray-400'
+                                }`}
+                                onClick={(e) => {
+                                  e.stopPropagation()
+                                  handleQuestionVote(question.id, 'down')
+                                }}
+                              >
+                                <ArrowDown className="h-5 w-5" />
+                              </button>
+                            </div>
+                            
+                            <div className="flex-1">
+                              <div className="flex items-start justify-between">
+                                <h3 className="text-lg font-medium text-gray-900 mb-2">{question.title}</h3>
+                                {(permissions.canDeleteAnyQuestion(user) || user.name === question.username) && (
+                                  <button
+                                    onClick={(e) => {
+                                      e.stopPropagation()
+                                      handleDeleteQuestion(question.id)
+                                    }}
+                                    className="text-red-500 hover:text-red-700 p-1"
+                                  >
+                                    <Trash2 className="h-4 w-4" />
+                                  </button>
+                                )}
+                              </div>
+                              <div className="text-gray-600 mb-4 line-clamp-3">
+                                <RichTextDisplay content={question.content} />
+                              </div>
+                              <div className="flex items-center justify-between">
+                                <div className="flex items-center space-x-4">
+                                  <div className="flex items-center space-x-2">
+                                    <span className="text-sm text-gray-500">by</span>
+                                    <span className="text-sm font-medium text-gray-700">{question.username}</span>
+                                  </div>
+                                  <span className="text-sm text-gray-500">{formatRelativeTime(question.created_at)}</span>
+                                  <div className="flex items-center space-x-1">
+                                    <MessageSquare className="h-4 w-4 text-gray-400" />
+                                    <span className="text-sm text-gray-500">{question.answer_count} answer{question.answer_count !== 1 ? 's' : ''}</span>
+                                  </div>
+                                </div>
+                                <div className="flex items-center space-x-2">
+                                  {question.tags.map((tag, index) => (
+                                    <span
+                                      key={index}
+                                      className="px-2 py-1 bg-blue-100 text-blue-700 text-xs rounded-full"
+                                    >
+                                      {tag}
+                                    </span>
+                                  ))}
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Document Upload for Teachers */}
+              <DocumentUpload classId={classId} />
+            </div>
+          )}
+          
+          {activeTab === 'discussion' && (
+            /* Discussion View */
+            <div className="space-y-6">
+              <div className="flex items-center justify-between">
+                <button
+                  onClick={() => {
+                    setActiveTab('questions')
+                    setSelectedQuestion(null)
+                  }}
+                  className="flex items-center space-x-2 text-blue-600 hover:text-blue-700"
+                >
+                  <ArrowLeft className="h-4 w-4" />
+                  <span>Back to Questions</span>
+                </button>
+              </div>
+              
+              {selectedQuestion && (
+                <div className="space-y-6">
+                  {/* Question Detail */}
+                  <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+                    <h1 className="text-2xl font-bold text-gray-900 mb-4">{selectedQuestion.title}</h1>
+                    <div className="prose max-w-none text-gray-700 mb-6">
+                      <RichTextDisplay content={selectedQuestion.content} />
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center space-x-4">
+                        <span className="text-sm text-gray-500">Asked by</span>
+                        <span className="text-sm font-medium text-gray-700">{selectedQuestion.username}</span>
+                        <span className="text-sm text-gray-500">{formatRelativeTime(selectedQuestion.created_at)}</span>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        {selectedQuestion.tags.map((tag, index) => (
+                          <span
+                            key={index}
+                            className="px-2 py-1 bg-blue-100 text-blue-700 text-xs rounded-full"
+                          >
+                            {tag}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Answers */}
+                  <div className="bg-white rounded-lg shadow-sm border border-gray-200">
+                    <div className="p-6 border-b border-gray-200">
+                      <h2 className="text-lg font-semibold text-gray-900">
+                        {answers.length} Answer{answers.length !== 1 ? 's' : ''}
+                      </h2>
+                    </div>
+                    
+                    <div className="divide-y divide-gray-200">
+                      {answers.map((answer) => (
+                        <div key={answer.id} className="p-6">
+                          <div className="prose max-w-none text-gray-700 mb-4">
+                            <RichTextDisplay content={answer.content} />
+                          </div>
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center space-x-2">
+                              <span className="text-sm text-gray-500">by</span>
+                              <span className="text-sm font-medium text-gray-700">{answer.username}</span>
+                              <span className="text-sm text-gray-500">{formatRelativeTime(answer.created_at)}</span>
+                            </div>
+                            <div className="flex items-center space-x-2">
+                              <button className="text-gray-400 hover:text-blue-600">
+                                <ArrowUp className="h-4 w-4" />
+                              </button>
+                              <span className="text-sm text-gray-500">{answer.votes}</span>
+                              <button className="text-gray-400 hover:text-red-600">
+                                <ArrowDown className="h-4 w-4" />
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+
+                    {/* Add Answer Form */}
+                    <div className="p-6 bg-gray-50 border-t border-gray-200">
+                      <h3 className="text-lg font-medium text-gray-900 mb-4">Add Your Answer</h3>
+                      <RichTextEditor
+                        content={answerContent}
+                        onChange={setAnswerContent}
+                        placeholder="Share your knowledge and help your classmates..."
+                        className="min-h-[120px] mb-4"
+                      />
+                      <div className="flex justify-end">
+                        <button
+                          onClick={handleAddAnswer}
+                          disabled={!answerContent.replace(/<[^>]*>/g, '').trim()}
+                          className="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                          Post Answer
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+          
+          {activeTab === 'documents' && (
+            /* Documents View */
+            <div className="space-y-6">
+              {/* Header */}
+              <div className="flex items-center justify-between">
+                <div>
+                  <h2 className="text-2xl font-bold text-gray-900">Course Materials</h2>
+                  <p className="text-gray-600 mt-1">
+                    Access course documents, assignments, and lecture notes
+                  </p>
+                </div>
+                {permissions.canUploadDocuments(user) && (
+                  <DocumentUpload 
+                    classId={classId} 
+                    onUploadSuccess={handleDocumentUploadSuccess}
+                  />
+                )}
+              </div>
+
+              {/* Documents List */}
+              <div className="bg-white rounded-lg shadow-sm border border-gray-200">
+                {documentsLoading ? (
+                  <div className="p-8 text-center">
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
+                    <p className="mt-2 text-gray-600">Loading documents...</p>
+                  </div>
+                ) : documents.length === 0 ? (
+                  <div className="p-8 text-center">
+                    <BookOpen className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                    <h3 className="text-lg font-medium text-gray-900 mb-2">No Documents Yet</h3>
+                    <p className="text-gray-600 mb-4">
+                      {permissions.canUploadDocuments(user)
+                        ? 'Upload course materials to get started.'
+                        : 'Your instructor hasn\'t uploaded any course materials yet.'}
+                    </p>
+                  </div>
+                ) : (
+                  <div className="divide-y divide-gray-200">
+                    {documents.map((document) => (
+                      <div key={document.id} className="p-6 hover:bg-gray-50 transition-colors">
+                        <div className="flex items-start justify-between">
+                          <div className="flex-1">
+                            <div className="flex items-center space-x-3 mb-2">
+                              <div className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                                document.documentType === 'SYLLABUS' ? 'bg-blue-100 text-blue-800' :
+                                document.documentType === 'ASSIGNMENT' ? 'bg-green-100 text-green-800' :
+                                document.documentType === 'LECTURE' ? 'bg-purple-100 text-purple-800' :
+                                document.documentType === 'READING' ? 'bg-orange-100 text-orange-800' :
+                                'bg-gray-100 text-gray-800'
+                              }`}>
+                                {document.documentType}
+                              </div>
+                              <h3 className="text-lg font-medium text-gray-900">{document.title}</h3>
+                            </div>
+                            
+                            <div className="flex items-center space-x-4 text-sm text-gray-500 mb-3">
+                              <span>{document.filename}</span>
+                              <span>•</span>
+                              <span>{(document.size / 1024 / 1024).toFixed(1)} MB</span>
+                              <span>•</span>
+                              <span>Uploaded by {document.uploader?.name}</span>
+                              <span>•</span>
+                              <span>{new Date(document.createdAt).toLocaleDateString()}</span>
+                            </div>
+
+                            {/* Document preview/content excerpt */}
+                            <div className="bg-gray-50 rounded-md p-3 mb-3">
+                              <p className="text-sm text-gray-700 line-clamp-3">
+                                {document.content?.substring(0, 200)}...
+                              </p>
+                            </div>
+                          </div>
+
+                          <div className="flex items-center space-x-2 ml-4">
+                            <button className="inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm leading-4 font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                              <BookOpen className="h-4 w-4 mr-2" />
+                              View
+                            </button>
+                            <button className="inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm leading-4 font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                              Download
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* AI Question Modal */}
+          <AIQuestionModal
+            isOpen={showAIModal}
+            onClose={() => setShowAIModal(false)}
+            classId={classId}
+            onProceedToForum={handleProceedToForum}
+          />
+        </div>
+      </div>
+    </ProtectedRoute>
+  )
+}

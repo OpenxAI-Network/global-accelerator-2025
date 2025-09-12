@@ -1,0 +1,20 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:15
+    container_name: ai-forum-db
+    environment:
+      POSTGRES_DB: ai_forum
+      POSTGRES_USER: forum_user
+      POSTGRES_PASSWORD: forum_password
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./database/init.sql:/docker-entrypoint-initdb.d/init.sql
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+

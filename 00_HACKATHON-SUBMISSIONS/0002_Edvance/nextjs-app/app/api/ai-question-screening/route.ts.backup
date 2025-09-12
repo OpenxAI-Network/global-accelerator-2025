@@ -1,0 +1,451 @@
+import { NextRequest, NextResponse } from 'next/server'
+import { PrismaClient } from '@prisma/client'
+
+const prisma = new PrismaClient()
+
+// Simple semantic similarity function
+function calculateSimilarity(text1: string, text2: string): number {
+  const words1 = text1.toLowerCase().split(/\s+/).filter(word => word.length > 2)
+  const words2 = text2.toLowerCase().split(/\s+/).filter(word => word.length > 2)
+  
+  const intersection = words1.filter(word => words2.includes(word))
+  const union = Array.from(new Set([...words1, ...words2]))
+  
+  return intersection.length / union.length
+}
+
+// Search documents for relevant content - Lower threshold for better coverage
+async function searchDocuments(query: string, classId: string): Promise<{ document: any; similarity: number; excerpt: string }[]> {
+  try {
+    const documents = await prisma.document.findMany({
+      where: { classId },
+      include: { uploader: true }
+    })
+    
+    const results = documents.map(doc => {
+      const similarity = calculateSimilarity(query, doc.content)
+      
+      // Boost similarity for specific keywords
+      const queryLower = query.toLowerCase()
+      const contentLower = doc.content.toLowerCase()
+      let keywordBoost = 0
+      
+      // Boost for assignment/exam related queries
+      if (queryLower.includes('assignment') || queryLower.includes('due') || queryLower.includes('weight')) {
+        if (contentLower.includes('assignment') || contentLower.includes('due') || contentLower.includes('weight')) {
+          keywordBoost = 0.2
+        }
+      }
+      
+      if (queryLower.includes('exam') || queryLower.includes('final') || queryLower.includes('test')) {
+        if (contentLower.includes('exam') || contentLower.includes('final') || contentLower.includes('test')) {
+          keywordBoost = 0.2
+        }
+      }
+
+      // Boost for textbook/book related queries
+      if (queryLower.includes('textbook') || queryLower.includes('book') || queryLower.includes('reading')) {
+        if (contentLower.includes('textbook') || contentLower.includes('book') || contentLower.includes('reading')) {
+          keywordBoost = 0.3
+        }
+      }
+      
+      const boostedSimilarity = Math.min(1.0, similarity + keywordBoost)
+      
+      return {
+        document: doc,
+        similarity: boostedSimilarity,
+        excerpt: doc.content.substring(0, 300) + (doc.content.length > 300 ? '...' : '')
+      }
+    })
+    
+    // Lower threshold to include more documents for AI analysis
+    return results.filter(result => result.similarity > 0.05).sort((a, b) => b.similarity - a.similarity)
+  } catch (error) {
+    console.error('Error searching documents:', error)
+    return []
+  }
+}
+
+// Search past Q&A for similar questions - Lower threshold for better coverage
+async function searchPastQA(query: string, classId: string): Promise<{ question: any; similarity: number }[]> {
+  try {
+    const questions = await prisma.question.findMany({
+      where: { classId },
+      include: {
+        answers: { include: { author: true } },
+        author: true
+      },
+      orderBy: { createdAt: 'desc' },
+      take: 50
+    })
+    
+    const results = questions.map(q => {
+      const questionText = q.title + ' ' + q.content
+      const similarity = calculateSimilarity(query, questionText)
+      
+      return {
+        question: q,
+        similarity
+      }
+    })
+    
+    // Lower threshold to include more Q&A for AI analysis
+    return results.filter(result => result.similarity > 0.1).sort((a, b) => b.similarity - a.similarity)
+  } catch (error) {
+    console.error('Error searching past Q&A:', error)
+    return []
+  }
+}
+
+export async function POST(request: NextRequest) {
+  try {
+    console.log('AI Question Screening API called')
+    const { question, classId, userId } = await request.json()
+    console.log('Request data:', { question, classId, userId })
+
+    if (!question || !classId || !userId) {
+      return NextResponse.json({ 
+        success: false, 
+        error: 'Missing required fields: question, classId, userId' 
+      }, { status: 400 })
+    }
+
+    // Verify user and class access
+    const user = await prisma.user.findUnique({ where: { id: userId } })
+    if (!user) {
+      return NextResponse.json({ success: false, error: 'User not found' }, { status: 404 })
+    }
+
+    // Find class by ID or code (case-insensitive for SQLite)
+    const classData = await prisma.class.findFirst({
+      where: {
+        OR: [
+          { id: classId },
+          { code: classId.toUpperCase() },
+          { code: classId.toLowerCase() }
+        ]
+      }
+    })
+
+    if (!classData) {
+      return NextResponse.json({ success: false, error: 'Class not found' }, { status: 404 })
+    }
+
+    // Check if user is enrolled or is the teacher
+    const enrollment = await prisma.classEnrollment.findFirst({
+      where: {
+        userId: userId,
+        classId: classData.id
+      }
+    })
+
+    const isTeacher = classData.teacherId === userId
+    if (!enrollment && !isTeacher) {
+      return NextResponse.json({ 
+        success: false, 
+        error: 'User not enrolled in this class' 
+      }, { status: 403 })
+    }
+
+    // Clean the question
+    const cleanQuestion = question.replace(/<[^>]*>/g, '').trim()
+    
+    // Search for relevant documents and past Q&A with lower thresholds
+    const [documentResults, qaResults] = await Promise.all([
+      searchDocuments(cleanQuestion, classData.id),
+      searchPastQA(cleanQuestion, classData.id)
+    ])
+
+    console.log('Search results:', {
+      documentMatches: documentResults.length,
+      qaMatches: qaResults.length,
+      topDocumentSimilarity: documentResults[0]?.similarity || 0,
+      topQASimilarity: qaResults[0]?.similarity || 0
+    })
+
+    // Always proceed to AI analysis if we have any content, even with low similarity
+    // Let the AI decide if it can answer based on the content
+    const hasAnyContent = documentResults.length > 0 || qaResults.length > 0
+
+    if (!hasAnyContent) {
+      return NextResponse.json({
+        success: true,
+        aiResponse: '',
+        confidence: 0,
+        sources: [],
+        similarQuestions: [],
+        shouldPostToForum: true,
+        recommendation: 'No course materials or previous discussions found. Please post to the forum for human assistance.',
+        hasAnswer: false,
+        showFeedback: false
+      })
+    }
+
+    // Prepare knowledge base for AI analysis - include more content
+    const knowledgeBase = {
+      documents: documentResults.slice(0, 8).map(r => ({
+        title: r.document.title,
+        type: r.document.documentType,
+        content: r.document.content,
+        similarity: r.similarity
+      })),
+      previousQA: qaResults.slice(0, 8).map(r => ({
+        question: r.question.title + ' ' + r.question.content,
+        answers: r.question.answers.map((a: any) => a.content),
+        similarity: r.similarity
+      }))
+    }
+
+    // Call AI for detailed analysis
+    const aiResponse = await analyzeQuestionWithAI(cleanQuestion, knowledgeBase, classData.name, documentResults, qaResults)
+
+    return NextResponse.json({
+      success: true,
+      ...aiResponse
+    })
+
+  } catch (error) {
+    console.error('AI Question Screening Error:', error)
+    return NextResponse.json({ 
+      success: false, 
+      error: 'Internal server error' 
+    }, { status: 500 })
+  }
+}
+
+async function analyzeQuestionWithAI(question: string, knowledgeBase: any, className: string, documentResults: any[], qaResults: any[]) {
+  try {
+    console.log('Starting AI analysis for question:', question)
+    
+    // Prepare the prompt for AI analysis - Improved to be more intelligent
+    const prompt = `You are an intelligent AI assistant for the course "${className}". Your job is to analyze student questions and provide specific, detailed answers based on the provided course materials and previous discussions.
+
+CRITICAL INSTRUCTIONS:
+1. CAREFULLY ANALYZE all provided materials for relevant information
+2. EXTRACT AND PRESENT specific details from documents and previous Q&A
+3. Use SEMANTIC UNDERSTANDING - look for related concepts, not just exact keywords
+4. If you find relevant information, provide a comprehensive answer with SPECIFIC DETAILS
+5. Be specific with details like textbook names, assignment requirements, exam dates, etc.
+6. If you cannot find the specific information requested, say "Not found in the available course materials"
+
+KNOWLEDGE BASE:
+
+COURSE DOCUMENTS:
+${knowledgeBase.documents.map((doc: any, index: number) => 
+  `${index + 1}. ${doc.title} (${doc.type}) - Relevance: ${Math.round(doc.similarity * 100)}%\n${doc.content}`
+).join('\n\n')}
+
+PREVIOUS Q&A DISCUSSIONS:
+${knowledgeBase.previousQA.map((qa: any, index: number) => 
+  `${index + 1}. Q: ${qa.question} - Relevance: ${Math.round(qa.similarity * 100)}%\n   A: ${qa.answers.join(' | ')}`
+).join('\n\n')}
+
+STUDENT QUESTION: "${question}"
+
+ANALYSIS TASK:
+1. UNDERSTAND what the student is actually asking - interpret their intent, not just keywords
+2. Search through ALL provided materials for information that answers their specific question
+3. Look for semantic connections and related concepts, not just exact keyword matches
+4. If you find relevant information that answers their question, provide a detailed answer with SPECIFIC DETAILS
+5. Include specific details like names, dates, requirements, percentages, etc.
+6. Reference which source the information comes from
+7. If the information is not available to answer their specific question, acknowledge this clearly
+
+APPROACH:
+- Think like a helpful tutor who understands what the student really wants to know
+- Don't force questions into rigid categories - understand the intent
+- Look for any information that would help answer their question, regardless of how it's phrased
+- Be flexible and intelligent in your interpretation
+
+COMMON SENSE INTERPRETATION:
+- "Reading materials", "books", "textbooks", "required reading", "what do I need to read" = Look for textbook information
+- "Exam", "final", "test", "assessment worth", "when is the exam" = Look for exam information  
+- "Assignment", "homework", "project", "due date" = Look for assignment information
+- "Course structure", "syllabus", "overview" = Look for general course information
+
+CRITICAL: When someone asks about "reading materials", they are asking about books/textbooks, NOT exams or assignments. This is a very common and clear question type.
+
+CRITICAL: When you find information, EXTRACT AND PRESENT the specific details. Do NOT just say "I found information about textbooks" - TELL THEM WHAT THE TEXTBOOK IS CALLED, WHO IT'S BY, ETC.
+
+MOST IMPORTANT: Understand what the student is really asking and provide the most helpful answer possible. Be intelligent and flexible in your interpretation.
+
+RESPONSE FORMAT (JSON):
+{
+  "canAnswer": true,
+  "confidence": 85,
+  "answer": "Based on the course materials, [PROVIDE A HELPFUL ANSWER TO WHAT THE STUDENT IS ACTUALLY ASKING]. Extract and present specific details that directly address their question.",
+  "sources": [
+    {
+      "type": "document",
+      "title": "Course Syllabus",
+      "relevance": "Contains assignment schedule and requirements"
+    }
+  ],
+  "similarQuestions": [],
+  "shouldPostToForum": false,
+  "reasoning": "Found comprehensive information in course materials"
+}
+
+IMPORTANT: 
+- Use SEMANTIC UNDERSTANDING to find relevant information
+- Provide SPECIFIC DETAILS from the materials - extract actual names, dates, requirements
+- If you find relevant information, set canAnswer to true and PROVIDE THE SPECIFIC DETAILS
+- Only set canAnswer to false if you truly cannot find any relevant information
+- CRITICAL: You must respond with ONLY valid JSON. No additional text before or after the JSON.`
+
+    console.log('Calling Ollama API...')
+    // Call Ollama API
+    const response = await fetch('http://localhost:11434/api/generate', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'llama3.2:1b',
+        prompt: prompt,
+        stream: false
+      })
+    })
+
+    if (!response.ok) {
+      throw new Error(`Ollama API error: ${response.status}`)
+    }
+
+    const data = await response.json()
+    const aiText = data.response
+    console.log('Raw AI response:', aiText.substring(0, 500) + '...')
+
+    // Parse AI response with robust JSON extraction
+    let aiAnalysis
+    try {
+      // Method 1: Try to find complete JSON
+      const jsonMatch = aiText.match(/\{[\s\S]*\}/)
+      if (jsonMatch) {
+        try {
+          aiAnalysis = JSON.parse(jsonMatch[0])
+        } catch (e) {
+          // JSON is malformed, try to fix it
+          let jsonText = jsonMatch[0]
+          
+          // Fix common issues
+          jsonText = jsonText.replace(/,\s*}/g, '}') // Remove trailing commas
+          jsonText = jsonText.replace(/,\s*]/g, ']') // Remove trailing commas in arrays
+          
+          // Try to complete incomplete JSON
+          if (!jsonText.includes('"similarQuestions"')) {
+            jsonText = jsonText.replace(/,\s*$/, '') + ', "similarQuestions": []'
+          }
+          if (!jsonText.includes('"shouldPostToForum"')) {
+            jsonText = jsonText.replace(/,\s*$/, '') + ', "shouldPostToForum": false'
+          }
+          if (!jsonText.includes('"reasoning"')) {
+            jsonText = jsonText.replace(/,\s*$/, '') + ', "reasoning": "Analysis completed"'
+          }
+          
+          // Add closing brace if missing
+          if (!jsonText.endsWith('}')) {
+            jsonText += '}'
+          }
+          
+          aiAnalysis = JSON.parse(jsonText)
+        }
+      } else {
+        throw new Error('No JSON found in response')
+      }
+      
+    } catch (parseError) {
+      console.error('Failed to parse AI response:', parseError)
+      console.error('Raw response was:', aiText)
+      
+      // Check if the AI response contains specific information
+      const hasSpecificInfo = aiText.toLowerCase().includes('based on') || 
+                             aiText.toLowerCase().includes('according to') ||
+                             aiText.toLowerCase().includes('the course materials') ||
+                             aiText.toLowerCase().includes('textbook') ||
+                             aiText.toLowerCase().includes('assignment') ||
+                             aiText.toLowerCase().includes('exam') ||
+                             aiText.toLowerCase().includes('due') ||
+                             aiText.toLowerCase().includes('weight') ||
+                             aiText.toLowerCase().includes('is called') ||
+                             aiText.toLowerCase().includes('by') ||
+                             aiText.toLowerCase().includes('author')
+      
+      // Extract the answer from the response
+      let extractedAnswer = ''
+      const answerMatch = aiText.match(/"answer":\s*"([^"]*)"/)
+      if (answerMatch) {
+        extractedAnswer = answerMatch[1]
+      } else {
+        // Try to extract any meaningful text
+        const textMatch = aiText.match(/"answer":\s*"([^}]*)/)
+        if (textMatch) {
+          extractedAnswer = textMatch[1].replace(/"/g, '').trim()
+        }
+      }
+      
+      // Extract confidence
+      let extractedConfidence = 0
+      const confidenceMatch = aiText.match(/"confidence":\s*(\d+)/)
+      if (confidenceMatch) {
+        extractedConfidence = parseInt(confidenceMatch[1])
+      }
+      
+      // Create a fallback response based on content analysis
+      aiAnalysis = {
+        canAnswer: hasSpecificInfo && extractedAnswer.length > 0,
+        confidence: extractedConfidence || (hasSpecificInfo ? 70 : 0),
+        answer: extractedAnswer || (hasSpecificInfo ? aiText.substring(0, 500) : ''),
+        sources: [],
+        similarQuestions: [],
+        shouldPostToForum: !hasSpecificInfo || extractedAnswer.length === 0,
+        reasoning: 'Extracted information from AI response despite JSON parsing issues'
+      }
+    }
+
+    // Validate and normalize the response
+    const normalizedResponse = {
+      canAnswer: Boolean(aiAnalysis.canAnswer),
+      confidence: Math.min(100, Math.max(0, Number(aiAnalysis.confidence) || 0)),
+      answer: aiAnalysis.answer || '',
+      sources: Array.isArray(aiAnalysis.sources) ? aiAnalysis.sources : [],
+      similarQuestions: Array.isArray(aiAnalysis.similarQuestions) ? aiAnalysis.similarQuestions : [],
+      shouldPostToForum: Boolean(aiAnalysis.shouldPostToForum),
+      reasoning: aiAnalysis.reasoning || 'Analysis completed'
+    }
+
+    // Adjust confidence based on AI's ability to find and present information
+    const finalConfidence = normalizedResponse.canAnswer ? Math.max(normalizedResponse.confidence, 60) : 0
+    const shouldPostToForum = !normalizedResponse.canAnswer || finalConfidence < 40
+
+    return {
+      aiResponse: normalizedResponse.answer,
+      confidence: finalConfidence / 100, // Convert to 0-1 scale
+      sources: normalizedResponse.sources,
+      similarQuestions: qaResults.slice(0, 3).map(q => ({
+        question: q.question.title,
+        relevance: `Similarity: ${Math.round(q.similarity * 100)}%`
+      })),
+      shouldPostToForum,
+      recommendation: shouldPostToForum 
+        ? 'The AI could not find sufficient information to answer your question. Please post to the forum for human assistance.'
+        : 'The AI found relevant information in the course materials and provided a specific answer.',
+      hasAnswer: normalizedResponse.canAnswer && finalConfidence >= 40,
+      showFeedback: normalizedResponse.canAnswer
+    }
+
+  } catch (error) {
+    console.error('AI Analysis Error:', error)
+    return {
+      aiResponse: '',
+      confidence: 0,
+      sources: [],
+      similarQuestions: qaResults.slice(0, 3).map(q => ({
+        question: q.question.title,
+        relevance: `Similarity: ${Math.round(q.similarity * 100)}%`
+      })),
+      shouldPostToForum: true,
+      recommendation: 'Unable to analyze question. Please post to the forum for human assistance.',
+      hasAnswer: false,
+      showFeedback: false
+    }
+  }
+}

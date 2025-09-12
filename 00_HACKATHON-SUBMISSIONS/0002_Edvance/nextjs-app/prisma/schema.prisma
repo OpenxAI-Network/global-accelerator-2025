@@ -1,0 +1,212 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id       String @id @default(cuid())
+  email    String @unique
+  name     String
+  password String @default("Alice102!")
+  role     String @default("STUDENT")
+  isDemo   Boolean @default(false)
+  
+  // Profile fields
+  bio              String?
+  profilePicture   String?
+  graduationYear   String?
+  degree          String?
+  major           String?
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  questions Question[]
+  answers   Answer[]
+  votes     Vote[]
+  enrollments ClassEnrollment[]
+  taughtClasses Class[] @relation("TeacherClasses")
+  documents Document[]
+  aiFeedback AiFeedback[]
+
+  @@map("users")
+}
+
+model Class {
+  id          String @id @default(cuid())
+  name        String
+  code        String @unique
+  description String?
+  semester    String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  teacherId   String
+  teacher     User @relation("TeacherClasses", fields: [teacherId], references: [id], onDelete: Cascade)
+  
+  enrollments ClassEnrollment[]
+  questions   Question[]
+  documents   Document[]
+  chunks      Chunk[]
+  aiFeedback  AiFeedback[]
+  accuracy    ClassAccuracy?
+
+  @@map("classes")
+}
+
+model ClassEnrollment {
+  id        String @id @default(cuid())
+  userId    String
+  classId   String
+  enrolledAt DateTime @default(now())
+
+  // Relations
+  user      User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  class     Class @relation(fields: [classId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, classId])
+  @@map("class_enrollments")
+}
+
+model Question {
+  id        String @id @default(cuid())
+  title     String
+  content   String
+  tags      String // JSON string of tags array
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  authorId  String
+  author    User @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  
+  classId   String
+  class     Class @relation(fields: [classId], references: [id], onDelete: Cascade)
+  
+  answers   Answer[]
+  votes     Vote[]
+
+  @@map("questions")
+}
+
+model Answer {
+  id        String @id @default(cuid())
+  content   String
+  isAiGenerated Boolean @default(false)
+  sourceCode String? // Generated source code for programming questions
+  sourceCodeFilename String? // Filename for the source code download
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  authorId   String
+  author     User @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  
+  questionId String
+  question   Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  
+  votes      Vote[]
+
+  @@map("answers")
+}
+
+model Vote {
+  id        String @id @default(cuid())
+  type      String
+  createdAt DateTime @default(now())
+
+  // Relations
+  userId     String
+  user       User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  questionId String?
+  question   Question? @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  
+  answerId   String?
+  answer     Answer? @relation(fields: [answerId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, questionId])
+  @@unique([userId, answerId])
+  @@map("votes")
+}
+
+model Document {
+  id            String @id @default(cuid())
+  title         String
+  filename      String
+  documentType  String
+  content       String // Extracted text content
+  size          Int
+  createdAt     DateTime @default(now())
+
+  // Relations
+  uploaderId    String
+  uploader      User @relation(fields: [uploaderId], references: [id], onDelete: Cascade)
+  
+  classId       String
+  class         Class @relation(fields: [classId], references: [id], onDelete: Cascade)
+  
+  chunks        Chunk[]
+
+  @@map("documents")
+}
+
+model Chunk {
+  id        String @id @default(cuid())
+  docId     String
+  classId   String
+  page      Int?
+  text      String
+  embedding String // Store as JSON string for now, can be upgraded to pgvector later
+  createdAt DateTime @default(now())
+
+  // Relations
+  document  Document @relation(fields: [docId], references: [id], onDelete: Cascade)
+  class     Class @relation(fields: [classId], references: [id], onDelete: Cascade)
+
+  @@index([classId])
+  @@index([docId])
+  @@map("chunks")
+}
+
+
+
+model AiFeedback {
+  id        String @id @default(cuid())
+  question  String
+  aiResponse String
+  wasHelpful Boolean
+  createdAt DateTime @default(now())
+
+  // Relations
+  userId    String
+  user      User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  classId   String
+  class     Class @relation(fields: [classId], references: [id], onDelete: Cascade)
+
+  @@map("ai_feedback")
+}
+
+model ClassAccuracy {
+  id              String @id @default(cuid())
+  totalFeedback   Int @default(0)
+  helpfulFeedback Int @default(0)
+  accuracyRate    Float @default(0)
+  lastUpdated     DateTime @default(now())
+
+  // Relations
+  classId         String @unique
+  class           Class @relation(fields: [classId], references: [id], onDelete: Cascade)
+
+  @@map("class_accuracy")
+}

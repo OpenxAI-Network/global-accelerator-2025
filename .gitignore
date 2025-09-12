@@ -91,9 +91,13 @@ dist
 
 # Gatsby files
 **/.cache/
-**/public
+**/public/gatsby-*
 .cache/
-public
+public/gatsby-*
+
+# Allow Next.js public directories
+!**/nextjs-app/public/
+!**/nextjs-app/public/**
 
 # Storybook build outputs
 **/.out

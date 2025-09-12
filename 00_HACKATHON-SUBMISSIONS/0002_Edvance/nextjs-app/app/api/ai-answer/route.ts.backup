@@ -1,0 +1,274 @@
+import { NextRequest, NextResponse } from 'next/server'
+import { prisma } from '../../../lib/prisma'
+
+// Simple semantic similarity function
+function calculateSimilarity(text1: string, text2: string): number {
+  const words1 = text1.toLowerCase().split(/\s+/).filter(word => word.length > 2)
+  const words2 = text2.toLowerCase().split(/\s+/).filter(word => word.length > 2)
+  
+  const intersection = words1.filter(word => words2.includes(word))
+  const union = Array.from(new Set([...words1, ...words2]))
+  
+  return intersection.length / union.length
+}
+
+// Search for relevant documents and past Q&A
+async function searchKnowledgeBase(question: string, classId: string) {
+  try {
+    // First, find the class by ID or code
+    const classData = await prisma.class.findFirst({
+      where: {
+        OR: [
+          { id: classId },
+          { code: classId.toUpperCase() }
+        ]
+      }
+    })
+
+    if (!classData) {
+      console.log('Class not found for:', classId)
+      return { documents: [], qa: [] }
+    }
+
+    const actualClassId = classData.id
+    console.log(`Found class: ${classData.code} (ID: ${actualClassId})`)
+
+    // Search documents using the actual class ID
+    const documents = await prisma.document.findMany({
+      where: { classId: actualClassId },
+      select: {
+        title: true,
+        content: true,
+        documentType: true
+      }
+    })
+    
+    console.log(`Found ${documents.length} documents for class ${classData.code}`)
+    
+    const documentResults = documents.map(doc => ({
+      ...doc,
+      similarity: calculateSimilarity(question, doc.content)
+    })).filter(r => r.similarity > 0.01).sort((a, b) => b.similarity - a.similarity)
+    
+    // Search past Q&A using the actual class ID
+    const questions = await prisma.question.findMany({
+      where: { classId: actualClassId },
+      include: {
+        answers: { include: { author: true } }
+      },
+      orderBy: { createdAt: 'desc' },
+      take: 20
+    })
+    
+    console.log(`Found ${questions.length} past questions for class ${classData.code}`)
+    
+    const qaResults = questions.map(q => ({
+      question: q.title + ' ' + q.content,
+      answers: q.answers.map(a => a.content),
+      similarity: calculateSimilarity(question, q.title + ' ' + q.content)
+    })).filter(r => r.similarity > 0.05).sort((a, b) => b.similarity - a.similarity)
+    
+    return {
+      documents: documentResults.slice(0, 3),
+      qa: qaResults.slice(0, 3)
+    }
+  } catch (error) {
+    console.error('Error searching knowledge base:', error)
+    return { documents: [], qa: [] }
+  }
+}
+
+export async function POST(req: NextRequest) {
+  try {
+    const { question_id, question_title, question_content, class_id } = await req.json()
+
+    if (!question_id || !question_title || !question_content) {
+      return NextResponse.json(
+        { error: 'Question ID, title, and content are required' },
+        { status: 400 }
+      )
+    }
+
+    // Search knowledge base for relevant information
+    const knowledgeBase = await searchKnowledgeBase(question_title + ' ' + question_content, class_id)
+    
+    // Always attempt to answer if we have any course materials or past discussions
+    // Lower similarity thresholds to be more permissive
+    const hasRelevantDocuments = knowledgeBase.documents.some(d => d.similarity > 0.05)
+    const hasRelevantQA = knowledgeBase.qa.some(q => q.similarity > 0.1)
+    const hasAnyMaterials = knowledgeBase.documents.length > 0 || knowledgeBase.qa.length > 0
+
+    // Only reject if we have no materials at all
+    if (!hasAnyMaterials) {
+      return NextResponse.json({
+        error: 'No course materials or previous discussions found. Please post to the forum for human assistance.',
+        confidence: 0
+      }, { status: 400 })
+    }
+
+    // Prepare course materials context
+    let courseMaterials = ''
+    let materialCount = 0
+    
+    if (knowledgeBase.documents.length > 0) {
+      courseMaterials = '\n\n📚 **RELEVANT COURSE MATERIALS:**\n'
+      materialCount = knowledgeBase.documents.length
+      
+      knowledgeBase.documents.forEach((doc: any, index: number) => {
+        courseMaterials += `\n**${doc.documentType} - ${doc.title}** (Relevance: ${Math.round(doc.similarity * 100)}%):\n`
+        // Truncate content to avoid token limits, keep first 1500 characters
+        const truncatedContent = doc.content.length > 1500 
+          ? doc.content.substring(0, 1500) + '...' 
+          : doc.content
+        courseMaterials += truncatedContent + '\n'
+      })
+    }
+
+    // Add relevant past Q&A
+    if (knowledgeBase.qa.length > 0) {
+      courseMaterials += '\n\n💬 **RELEVANT PREVIOUS DISCUSSIONS:**\n'
+      knowledgeBase.qa.forEach((qa: any, index: number) => {
+        courseMaterials += `\n**Q${index + 1}:** ${qa.question} (Relevance: ${Math.round(qa.similarity * 100)}%)\n`
+        courseMaterials += `**A:** ${qa.answers.join(' | ')}\n`
+      })
+    }
+    
+    courseMaterials += `\n---\n`
+
+    // Create a comprehensive prompt that enforces knowledge screening
+    const prompt = `You are an expert university tutor helping students understand course material. 
+
+**STUDENT QUESTION:**
+Title: ${question_title}
+Details: ${question_content}
+
+${courseMaterials}
+
+**CRITICAL INSTRUCTIONS:**
+1. **ALWAYS attempt to provide helpful information from the available course materials**
+2. **EXTRACT AND PRESENT specific details** from the documents when possible
+3. **If you find relevant information, present it clearly and specifically**
+4. **If the specific information is not in the materials, acknowledge this but still provide any related information**
+5. **Be specific with dates, requirements, percentages, and details from the documents**
+
+**ANSWER REQUIREMENTS:**
+- Base your answer on the course materials above when available
+- Extract specific information like assignment dates, exam schedules, grading criteria
+- Reference which document the information comes from
+- If you cannot find the exact information requested, provide any related information from the materials
+- If no relevant information is found, clearly state this and suggest posting to the forum
+
+**FORMATTING:**
+- Use **bold text** for important terms and concepts
+- Use bullet points for lists
+- Keep paragraphs short and readable
+- If referencing course materials, mention the document type and title
+- Be specific and direct
+
+**IMPORTANT:** Always try to be helpful with the available information. If you cannot answer the specific question, provide any related information from the course materials and suggest posting to the forum for more specific help.
+
+Make your answer educational and based on the provided course materials.`
+
+    const response = await fetch('http://localhost:11434/api/generate', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        model: 'llama3.2:1b',
+        prompt: prompt,
+        stream: false,
+      }),
+    })
+
+    if (!response.ok) {
+      throw new Error('Failed to get response from Ollama')
+    }
+
+    const data = await response.json()
+    const aiAnswer = data.response || 'I could not generate an answer at this time. Please try again!'
+
+    // Check if the AI response indicates it couldn't find the information
+    const cannotAnswer = aiAnswer.toLowerCase().includes('not found in the available course materials') ||
+                        aiAnswer.toLowerCase().includes('cannot answer') ||
+                        aiAnswer.toLowerCase().includes('not available in the materials') ||
+                        aiAnswer.toLowerCase().includes('no relevant information')
+
+    if (cannotAnswer) {
+      return NextResponse.json({
+        error: 'The AI could not find specific information in your course materials. Consider posting to the forum where human tutors can help with your specific question.',
+        confidence: 0
+      }, { status: 400 })
+    }
+
+    // Save the AI answer to the database
+    let savedAnswer = null
+    try {
+      // Create or find an AI user
+      let aiUser = await prisma.user.findFirst({
+        where: { email: 'ai-assistant@university.edu' }
+      })
+      
+      if (!aiUser) {
+        aiUser = await prisma.user.create({
+          data: {
+            email: 'ai-assistant@university.edu',
+            name: 'AI Assistant',
+            role: 'STUDENT',
+            isDemo: true
+          }
+        })
+      }
+
+      savedAnswer = await prisma.answer.create({
+        data: {
+          content: aiAnswer,
+          isAiGenerated: true,
+          authorId: aiUser.id,
+          questionId: question_id
+        },
+        include: {
+          author: {
+            select: {
+              id: true,
+              name: true,
+              email: true
+            }
+          }
+        }
+      })
+    } catch (error) {
+      console.log('Could not save to database, returning demo response')
+      savedAnswer = {
+        id: Date.now().toString(),
+        content: aiAnswer,
+        isAiGenerated: true,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        author: {
+          id: 'ai-assistant',
+          name: 'AI Assistant',
+          email: 'ai-assistant@university.edu'
+        }
+      }
+    }
+
+    return NextResponse.json({
+      success: true,
+      answer: savedAnswer,
+      confidence: Math.min(100, Math.max(0, 
+        Math.max(
+          ...knowledgeBase.documents.map(d => d.similarity * 100),
+          ...knowledgeBase.qa.map(q => q.similarity * 100)
+        )
+      ))
+    })
+
+  } catch (error) {
+    console.error('AI Answer API error:', error)
+    return NextResponse.json(
+      { error: 'Failed to generate AI answer' },
+      { status: 500 }
+    )
+  }
+}
