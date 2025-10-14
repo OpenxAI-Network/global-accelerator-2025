@@ -110,8 +110,8 @@ const footerLinks = ["Home", "Rank", "About", "Clan", "Log In"];
 const carouselImages = [
   "https://c.animaapp.com/mgqjxiy6qqDflS/img/rectangle.png",
   "https://images.unsplash.com/photo-1452626038306-9aae5e071dd3?w=800&h=1000&fit=crop&sat=-100",
-  "https://images.unsplash.com/photo-1552674605-db6ffd4facb5?w=800&h=1000&fit=crop&sat=-100",
-  "https://images.unsplash.com/photo-1571008887538-b36bb32f4571?w=800&h=1000&fit=crop&sat=-100",
+  "https://images.unsplash.com/photo-1476480862126-209bfaa8edc8?w=800&h=1000&fit=crop&sat=-100",
+  "https://images.unsplash.com/photo-1513593771513-7b58b6c4af38?w=800&h=1000&fit=crop&sat=-100",
 ];
 
 const socialIcons = [
@@ -166,7 +166,7 @@ export const Homepage = () => {
           />
 
           {/* Navigation in Middle */}
-          <div className="absolute top-12 left-1/2 -translate-x-1/2 bg-[#f7e2c680] rounded-[30px] px-8 py-4 flex items-center gap-6">
+          <div className="absolute top-12 left-1/2 -translate-x-1/2 bg-[#f7e2c680] rounded-[30px] px-8 py-3 flex items-center gap-6">
             {navigationItems.map((item, index) => (
               <button
                 key={item.label}
@@ -180,7 +180,7 @@ export const Homepage = () => {
           {/* Login on Right */}
           <Button
             variant="outline"
-            className="absolute top-12 right-8 px-8 py-4 rounded-[30px] border-2 border-[#56504a] bg-transparent hover:bg-[#f7e2c6] transition-colors"
+            className="absolute top-12 right-8 px-8 py-3 rounded-[30px] border-2 border-[#56504a] bg-transparent hover:bg-[#f7e2c6] transition-colors"
           >
             <span className="[font-family:'Porter_Sans_Block-Block',Helvetica] font-normal text-[#56504a] text-base uppercase">
               log in
@@ -230,6 +230,17 @@ export const Homepage = () => {
               className="w-[850px] h-auto object-contain"
               alt="iPhone Mockup"
               src="https://c.animaapp.com/mgqjxiy6qqDflS/img/iphone-1.png"
+            />
+            {/* Logo centered on phone */}
+            <img
+              className="absolute w-[200px] h-auto object-contain"
+              style={{ 
+                left: '50%', 
+                top: '50%', 
+                transform: 'translate(-50%, -50%)' 
+              }}
+              alt="RunKada Logo"
+              src="https://c.animaapp.com/mgqjxiy6qqDflS/img/logofull-1.svg"
             />
           </div>
 
