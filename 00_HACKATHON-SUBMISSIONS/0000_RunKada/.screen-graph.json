@@ -1,0 +1,171 @@
+{
+  "nodes": [
+    {
+      "id": "src/screens/Homepage/Homepage.jsx",
+      "label": "Homepage",
+      "routes": [
+        "/"
+      ],
+      "dataModelId": "7:3",
+      "isRoot": true
+    },
+    {
+      "id": "src/screens/Rank/Rank.jsx",
+      "label": "Rank",
+      "routes": [
+        "/rank"
+      ]
+    },
+    {
+      "id": "src/screens/About/About.jsx",
+      "label": "About",
+      "routes": [
+        "/about"
+      ]
+    },
+    {
+      "id": "src/screens/Clan/Clan.jsx",
+      "label": "Clan",
+      "routes": [
+        "/clan"
+      ]
+    },
+    {
+      "id": "src/screens/Login/Login.jsx",
+      "label": "Login",
+      "routes": [
+        "/login"
+      ]
+    }
+  ],
+  "edges": [
+    {
+      "id": "src/screens/Rank/Rank.jsx:9:8-to-src/screens/Homepage/Homepage.jsx",
+      "source": "src/screens/Rank/Rank.jsx",
+      "target": "src/screens/Homepage/Homepage.jsx",
+      "data": {
+        "viaRoute": "/",
+        "trigger": {
+          "element": "<Link to=\"/\">\n          <img\n            className=\"h-[120px] w-auto\"\n            alt=\"Logofull\"\n            src=\"https://c.animaapp.com/mgqjxiy6qqDflS/img/logofull-1.svg\"\n          />\n        </Link>",
+          "line": 9,
+          "endLine": 15,
+          "column": 8,
+          "endColumn": 15,
+          "sourceFile": "src/screens/Rank/Rank.jsx"
+        }
+      }
+    },
+    {
+      "id": "src/screens/Rank/Rank.jsx:27:8-to-src/screens/Homepage/Homepage.jsx",
+      "source": "src/screens/Rank/Rank.jsx",
+      "target": "src/screens/Homepage/Homepage.jsx",
+      "data": {
+        "viaRoute": "/",
+        "trigger": {
+          "element": "<Link to=\"/\">\n          <Button className=\"bg-[#f7e2c6] hover:bg-[#fcd96b] text-[#56504a] rounded-[30px]\">\n            <span className=\"[font-family:'Porter_Sans_Block-Block',Helvetica] font-normal text-base\">\n              Back to Home\n            </span>\n          </Button>\n        </Link>",
+          "line": 27,
+          "endLine": 33,
+          "column": 8,
+          "endColumn": 15,
+          "sourceFile": "src/screens/Rank/Rank.jsx"
+        }
+      }
+    },
+    {
+      "id": "src/screens/About/About.jsx:9:8-to-src/screens/Homepage/Homepage.jsx",
+      "source": "src/screens/About/About.jsx",
+      "target": "src/screens/Homepage/Homepage.jsx",
+      "data": {
+        "viaRoute": "/",
+        "trigger": {
+          "element": "<Link to=\"/\">\n          <img\n            className=\"h-[120px] w-auto\"\n            alt=\"Logofull\"\n            src=\"https://c.animaapp.com/mgqjxiy6qqDflS/img/logofull-1.svg\"\n          />\n        </Link>",
+          "line": 9,
+          "endLine": 15,
+          "column": 8,
+          "endColumn": 15,
+          "sourceFile": "src/screens/About/About.jsx"
+        }
+      }
+    },
+    {
+      "id": "src/screens/About/About.jsx:27:8-to-src/screens/Homepage/Homepage.jsx",
+      "source": "src/screens/About/About.jsx",
+      "target": "src/screens/Homepage/Homepage.jsx",
+      "data": {
+        "viaRoute": "/",
+        "trigger": {
+          "element": "<Link to=\"/\">\n          <Button className=\"bg-[#f7e2c6] hover:bg-[#fcd96b] text-[#56504a] rounded-[30px]\">\n            <span className=\"[font-family:'Porter_Sans_Block-Block',Helvetica] font-normal text-base\">\n              Back to Home\n            </span>\n          </Button>\n        </Link>",
+          "line": 27,
+          "endLine": 33,
+          "column": 8,
+          "endColumn": 15,
+          "sourceFile": "src/screens/About/About.jsx"
+        }
+      }
+    },
+    {
+      "id": "src/screens/Clan/Clan.jsx:9:8-to-src/screens/Homepage/Homepage.jsx",
+      "source": "src/screens/Clan/Clan.jsx",
+      "target": "src/screens/Homepage/Homepage.jsx",
+      "data": {
+        "viaRoute": "/",
+        "trigger": {
+          "element": "<Link to=\"/\">\n          <img\n            className=\"h-[120px] w-auto\"\n            alt=\"Logofull\"\n            src=\"https://c.animaapp.com/mgqjxiy6qqDflS/img/logofull-1.svg\"\n          />\n        </Link>",
+          "line": 9,
+          "endLine": 15,
+          "column": 8,
+          "endColumn": 15,
+          "sourceFile": "src/screens/Clan/Clan.jsx"
+        }
+      }
+    },
+    {
+      "id": "src/screens/Clan/Clan.jsx:27:8-to-src/screens/Homepage/Homepage.jsx",
+      "source": "src/screens/Clan/Clan.jsx",
+      "target": "src/screens/Homepage/Homepage.jsx",
+      "data": {
+        "viaRoute": "/",
+        "trigger": {
+          "element": "<Link to=\"/\">\n          <Button className=\"bg-[#f7e2c6] hover:bg-[#fcd96b] text-[#56504a] rounded-[30px]\">\n            <span className=\"[font-family:'Porter_Sans_Block-Block',Helvetica] font-normal text-base\">\n              Back to Home\n            </span>\n          </Button>\n        </Link>",
+          "line": 27,
+          "endLine": 33,
+          "column": 8,
+          "endColumn": 15,
+          "sourceFile": "src/screens/Clan/Clan.jsx"
+        }
+      }
+    },
+    {
+      "id": "src/screens/Login/Login.jsx:9:8-to-src/screens/Homepage/Homepage.jsx",
+      "source": "src/screens/Login/Login.jsx",
+      "target": "src/screens/Homepage/Homepage.jsx",
+      "data": {
+        "viaRoute": "/",
+        "trigger": {
+          "element": "<Link to=\"/\">\n          <img\n            className=\"h-[120px] w-auto\"\n            alt=\"Logofull\"\n            src=\"https://c.animaapp.com/mgqjxiy6qqDflS/img/logofull-1.svg\"\n          />\n        </Link>",
+          "line": 9,
+          "endLine": 15,
+          "column": 8,
+          "endColumn": 15,
+          "sourceFile": "src/screens/Login/Login.jsx"
+        }
+      }
+    },
+    {
+      "id": "src/screens/Login/Login.jsx:27:8-to-src/screens/Homepage/Homepage.jsx",
+      "source": "src/screens/Login/Login.jsx",
+      "target": "src/screens/Homepage/Homepage.jsx",
+      "data": {
+        "viaRoute": "/",
+        "trigger": {
+          "element": "<Link to=\"/\">\n          <Button className=\"bg-[#f7e2c6] hover:bg-[#fcd96b] text-[#56504a] rounded-[30px]\">\n            <span className=\"[font-family:'Porter_Sans_Block-Block',Helvetica] font-normal text-base\">\n              Back to Home\n            </span>\n          </Button>\n        </Link>",
+          "line": 27,
+          "endLine": 33,
+          "column": 8,
+          "endColumn": 15,
+          "sourceFile": "src/screens/Login/Login.jsx"
+        }
+      }
+    }
+  ]
+}
