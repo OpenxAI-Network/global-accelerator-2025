@@ -167,14 +167,18 @@ export const Homepage = () => {
           />
 
           {/* Navigation in Middle */}
-          <div className="absolute top-12 left-1/2 -translate-x-1/2 bg-[#f7e2c680] rounded-[30px] px-8 py-3 flex items-center gap-6">
+          {/* Navigation Bar - Desktop */}
+          <div className="absolute top-12 left-1/2 -translate-x-1/2 bg-[#f7e2c680] rounded-[30px] px-8 py-3 flex items-center gap-6 z-10">
             {navigationItems.map((item, index) => (
-              <button
-                key={item.label}
-                className="[font-family:'Porter_Sans_Block-Block',Helvetica] font-normal text-[#56504a] text-base uppercase tracking-wide px-6 py-2 rounded-[30px] bg-transparent hover:bg-[#f7e2c6] transition-all duration-200"
-              >
-                {item.label}
-              </button>
+              <Link key={index} to={item.link}>
+                <button
+                  className={`font-porter-sans px-4 py-2 rounded-2xl text-[#56504a] font-normal text-[15px] tracking-wider transition-all duration-200 ${
+                    item.active ? "bg-[#f7e2c6]" : "bg-transparent hover:bg-[#f7e2c6]"
+                  }`}
+                >
+                  {item.label}
+                </button>
+              </Link>
             ))}
           </div>
 
@@ -210,12 +214,13 @@ export const Homepage = () => {
           {/* Navigation */}
           <nav className="flex items-center justify-center gap-4 bg-[#f7e2c680] rounded-full py-3 px-4">
             {navigationItems.map((item) => (
-              <button
-                key={item.label}
-                className="[font-family:'Porter_Sans_Block-Block',Helvetica] font-normal text-[#56504a] text-xs uppercase tracking-wide px-3 py-2 rounded-full bg-transparent hover:bg-[#f7e2c6] transition-all duration-200"
-              >
-                {item.label}
-              </button>
+              <Link key={item.label} to={item.link}>
+                <button
+                  className="[font-family:'Porter_Sans_Block-Block',Helvetica] font-normal text-[#56504a] text-xs uppercase tracking-wide px-3 py-2 rounded-full bg-transparent hover:bg-[#f7e2c6] transition-all duration-200"
+                >
+                  {item.label}
+                </button>
+              </Link>
             ))}
           </nav>
         </div>
