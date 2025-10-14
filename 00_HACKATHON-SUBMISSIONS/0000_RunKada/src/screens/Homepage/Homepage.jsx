@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
 import { Button } from "../../components/ui/button";
 
 const navigationItems = [
-  { label: "Home", active: true },
-  { label: "rank", active: false },
-  { label: "about", active: false },
-  { label: "clan", active: false },
+  { label: "Home", active: true, link: "/" },
+  { label: "rank", active: false, link: "/rank" },
+  { label: "about", active: false, link: "/about" },
+  { label: "clan", active: false, link: "/clan" },
 ];
 
 const runningManIcons = [
