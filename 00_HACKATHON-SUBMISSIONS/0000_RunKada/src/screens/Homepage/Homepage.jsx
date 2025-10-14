@@ -75,26 +75,36 @@ const teamMembers = [
     src: "https://c.animaapp.com/mgqjxiy6qqDflS/img/man-2.png",
     alt: "Man",
     left: "left-[189px]",
+    name: "Nicholas Samia",
+    role: "Lead Developer",
   },
   {
     src: "https://c.animaapp.com/mgqjxiy6qqDflS/img/man--1--1.png",
     alt: "Man",
     left: "left-[324px]",
+    name: "Erholled Duenas",
+    role: "Backend Engineer",
   },
   {
     src: "https://c.animaapp.com/mgqjxiy6qqDflS/img/woman--1--1.png",
     alt: "Woman",
     left: "left-[459px]",
+    name: "Gelsey Manalac",
+    role: "UI/UX Designer",
   },
   {
     src: "https://c.animaapp.com/mgqjxiy6qqDflS/img/woman-1.png",
     alt: "Woman",
     left: "left-[594px]",
+    name: "Jennylyn Magno",
+    role: "Frontend Developer",
   },
   {
     src: "https://c.animaapp.com/mgqjxiy6qqDflS/img/man--2--1.png",
     alt: "Man",
     left: "left-[729px]",
+    name: "Simon Reyes",
+    role: "Project Manager",
   },
 ];
 
@@ -109,10 +119,26 @@ const footerLinks = ["Home", "Rank", "About", "Clan", "Log In"];
 
 // Carousel images - black and white group running images
 const carouselImages = [
-  "https://c.animaapp.com/mgqjxiy6qqDflS/img/rectangle.png",
-  "https://images.unsplash.com/photo-1452626038306-9aae5e071dd3?w=800&h=1000&fit=crop&sat=-100",
-  "https://images.unsplash.com/photo-1476480862126-209bfaa8edc8?w=800&h=1000&fit=crop&sat=-100",
-  "https://images.unsplash.com/photo-1513593771513-7b58b6c4af38?w=800&h=1000&fit=crop&sat=-100",
+  {
+    src: "https://c.animaapp.com/mgqjxiy6qqDflS/img/rectangle.png",
+    title: "JOIN THE MOVEMENT",
+    description: "Connect with runners worldwide",
+  },
+  {
+    src: "https://images.unsplash.com/photo-1452626038306-9aae5e071dd3?w=800&h=1000&fit=crop&sat=-100",
+    title: "FIND YOUR TRIBE",
+    description: "Discover communities that match your pace",
+  },
+  {
+    src: "https://images.unsplash.com/photo-1476480862126-209bfaa8edc8?w=800&h=1000&fit=crop&sat=-100",
+    title: "TRACK YOUR PROGRESS",
+    description: "Monitor your journey and celebrate milestones",
+  },
+  {
+    src: "https://images.unsplash.com/photo-1513593771513-7b58b6c4af38?w=800&h=1000&fit=crop&sat=-100",
+    title: "RUN TOGETHER",
+    description: "Build lasting connections through running",
+  },
 ];
 
 const socialIcons = [
@@ -273,14 +299,27 @@ export const Homepage = () => {
             {/* Main image with carousel */}
             <div className="relative w-full h-[640px] rounded-[100px] overflow-hidden z-10 bg-black">
               {carouselImages.map((img, index) => (
-                <img
+                <div
                   key={index}
-                  className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-500 ${
+                  className={`absolute inset-0 w-full h-full transition-opacity duration-500 ${
                     index === currentImageIndex ? "opacity-100" : "opacity-0"
                   }`}
-                  alt={`Runner ${index + 1}`}
-                  src={img}
-                />
+                >
+                  <img
+                    className="w-full h-full object-cover"
+                    alt={`Runner ${index + 1}`}
+                    src={img.src}
+                  />
+                  {/* Text Overlay */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent flex flex-col justify-end p-8 pb-20">
+                    <h3 className="[font-family:'Porter_Sans_Block-Block',Helvetica] font-normal text-white text-3xl mb-2">
+                      {img.title}
+                    </h3>
+                    <p className="[font-family:'Poppins',Helvetica] font-medium text-white/90 text-lg">
+                      {img.description}
+                    </p>
+                  </div>
+                </div>
               ))}
               
               {/* Pagination dots */}
@@ -343,6 +382,92 @@ export const Homepage = () => {
             alt="Running man"
             src="https://c.animaapp.com/mgqjxiy6qqDflS/img/running-man-6.png"
           />
+        </section>
+
+        {/* Mobile Hero Section */}
+        <section className="lg:hidden max-w-[400px] mx-auto px-6 pt-8 pb-16 translate-y-[-1rem] animate-fade-in opacity-0 [--animation-delay:200ms]">
+          {/* Phone and Hero Text - Side by Side */}
+          <div className="flex items-center gap-4 mb-8">
+            {/* Phone with Logo on Left */}
+            <div className="relative w-[180px] flex-shrink-0">
+              <img
+                className="w-full h-auto object-contain"
+                alt="iPhone Mockup"
+                src="https://c.animaapp.com/mgqjxiy6qqDflS/img/iphone-1.png"
+              />
+              {/* Logo centered on phone */}
+              <img
+                className="absolute w-[45px] h-auto object-contain"
+                style={{ 
+                  left: '50%', 
+                  top: '35%', 
+                  transform: 'translate(-50%, -50%)' 
+                }}
+                alt="RunKada Logo"
+                src="https://c.animaapp.com/mgqjxiy6qqDflS/img/logofull-1.svg"
+              />
+            </div>
+
+            {/* Hero Text on Right */}
+            <h1 className="[font-family:'Porter_Sans_Block-Block',Helvetica] font-normal text-[32px] leading-[1.1] flex-1">
+              <span className="text-[#56504a]">FIND<br /></span>
+              <span className="text-[#56504a]">YOUR<br /></span>
+              <span className="text-[#56504a]">STRIDE,<br /></span>
+              <span className="text-[#56504a]">FIND<br /></span>
+              <span className="text-[#56504a]">YOUR<br /></span>
+              <span className="text-[#fcd96b]">TRIBE</span>
+            </h1>
+          </div>
+
+          {/* Carousel */}
+          <div className="relative w-full max-w-[320px] mx-auto">
+            {/* Shadow layers */}
+            <div className="absolute inset-0 bg-[#fcd96b] rounded-[40px] translate-x-2 translate-y-2 w-full h-[400px] z-0" />
+            <div className="absolute inset-0 bg-[#000000] rounded-[40px] translate-x-1 translate-y-1 w-full h-[400px] z-[1]" />
+            
+            {/* Main carousel */}
+            <div className="relative w-full h-[400px] rounded-[40px] overflow-hidden z-10 bg-black">
+              {carouselImages.map((img, index) => (
+                <div
+                  key={index}
+                  className={`absolute inset-0 w-full h-full transition-opacity duration-500 ${
+                    index === currentImageIndex ? "opacity-100" : "opacity-0"
+                  }`}
+                >
+                  <img
+                    className="w-full h-full object-cover"
+                    alt={`Runner ${index + 1}`}
+                    src={img.src}
+                  />
+                  {/* Text Overlay */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent flex flex-col justify-end p-6">
+                    <h3 className="[font-family:'Porter_Sans_Block-Block',Helvetica] font-normal text-white text-xl mb-1">
+                      {img.title}
+                    </h3>
+                    <p className="[font-family:'Poppins',Helvetica] font-medium text-white/90 text-sm">
+                      {img.description}
+                    </p>
+                  </div>
+                </div>
+              ))}
+              
+              {/* Carousel Indicators */}
+              <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2 z-20">
+                {carouselImages.map((_, index) => (
+                  <button
+                    key={index}
+                    onClick={() => setCurrentImageIndex(index)}
+                    className={`w-2.5 h-2.5 rounded-full transition-all duration-200 ${
+                      index === currentImageIndex 
+                        ? "bg-[#fcd96b] w-6" 
+                        : "bg-white/50"
+                    }`}
+                    aria-label={`Go to slide ${index + 1}`}
+                  />
+                ))}
+              </div>
+            </div>
+          </div>
         </section>
 
         {/* Desktop FAQ Section */}
@@ -426,7 +551,7 @@ export const Homepage = () => {
         </section>
 
         {/* About Developers Section - Responsive */}
-        <section className="relative px-6 lg:px-[120px] pt-24 translate-y-[-1rem] animate-fade-in opacity-0 [--animation-delay:600ms]">
+        <section className="relative px-6 lg:px-[120px] pt-8 lg:pt-4 translate-y-[-4rem] animate-fade-in opacity-0 [--animation-delay:600ms]">
           <h2 className="[font-family:'Porter_Sans_Block-Regular',Helvetica] font-normal text-2xl lg:text-[36px] text-center mb-8 lg:mb-12">
             <span className="text-[#56504a]">ABOUT RUNKADA </span>
             <span className="text-[#fcd96b]">DEVELOPERS</span>
@@ -440,13 +565,22 @@ export const Homepage = () => {
                 {teamMembers.map((member, index) => (
                   <div
                     key={`member-${index}`}
-                    className="w-20 h-20 border-[3px] border-black rounded-[20px] overflow-hidden flex items-center justify-center bg-white"
+                    className="relative w-20 h-20 border-[3px] border-black rounded-[20px] overflow-visible flex items-center justify-center bg-white group cursor-pointer"
                   >
                     <img
                       className="w-16 h-16 object-cover"
                       alt={member.alt}
                       src={member.src}
                     />
+                    {/* Hover Tooltip */}
+                    <div className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 bg-[#56504a] text-white px-4 py-2 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap z-10">
+                      <div className="text-center">
+                        <p className="[font-family:'Poppins',Helvetica] font-semibold text-sm">{member.name}</p>
+                        <p className="[font-family:'Poppins',Helvetica] font-normal text-xs text-[#fcd96b]">{member.role}</p>
+                      </div>
+                      {/* Arrow */}
+                      <div className="absolute top-full left-1/2 -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-l-transparent border-r-transparent border-t-[#56504a]"></div>
+                    </div>
                   </div>
                 ))}
               </div>
@@ -480,13 +614,22 @@ export const Homepage = () => {
               {teamMembers.map((member, index) => (
                 <div
                   key={`member-${index}`}
-                  className="w-16 h-16 border-[3px] border-black rounded-[20px] overflow-hidden flex items-center justify-center bg-white"
+                  className="relative w-16 h-16 border-[3px] border-black rounded-[20px] overflow-visible flex items-center justify-center bg-white group cursor-pointer"
                 >
                   <img
                     className="w-12 h-12 object-cover"
                     alt={member.alt}
                     src={member.src}
                   />
+                  {/* Hover Tooltip */}
+                  <div className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 bg-[#56504a] text-white px-3 py-2 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap z-10">
+                    <div className="text-center">
+                      <p className="[font-family:'Poppins',Helvetica] font-semibold text-xs">{member.name}</p>
+                      <p className="[font-family:'Poppins',Helvetica] font-normal text-[10px] text-[#fcd96b]">{member.role}</p>
+                    </div>
+                    {/* Arrow */}
+                    <div className="absolute top-full left-1/2 -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-l-transparent border-r-transparent border-t-[#56504a]"></div>
+                  </div>
                 </div>
               ))}
             </div>
