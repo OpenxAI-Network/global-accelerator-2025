@@ -156,7 +156,7 @@ export const Homepage = () => {
       data-model-id="7:3"
     >
       {/* Header - Responsive */}
-      <header className="translate-y-[-1rem] animate-fade-in opacity-0 [--animation-delay:0ms]">
+      <header className="translate-y-[-1rem] animate-fade-in opacity-0 [--animation-delay:0ms] relative z-50">
         {/* Desktop Header */}
         <div className="hidden lg:block">
           {/* Logo on Left */}
@@ -168,11 +168,11 @@ export const Homepage = () => {
 
           {/* Navigation in Middle */}
           {/* Navigation Bar - Desktop */}
-          <div className="absolute top-12 left-1/2 -translate-x-1/2 bg-[#f7e2c680] rounded-[30px] px-8 py-3 flex items-center gap-6 z-10">
+          <div className="absolute top-12 left-1/2 -translate-x-1/2 bg-[#f7e2c680] rounded-[30px] px-8 py-4 flex items-center gap-6 z-50">
             {navigationItems.map((item, index) => (
               <Link key={index} to={item.link}>
                 <button
-                  className={`font-porter-sans px-4 py-2 rounded-2xl text-[#56504a] font-normal text-[15px] tracking-wider transition-all duration-200 ${
+                  className={`[font-family:'Porter_Sans_Block-Block',Helvetica] font-normal text-[#56504a] text-base uppercase tracking-wide px-6 py-2 rounded-[30px] transition-all duration-200 ${
                     item.active ? "bg-[#f7e2c6]" : "bg-transparent hover:bg-[#f7e2c6]"
                   }`}
                 >
@@ -185,7 +185,7 @@ export const Homepage = () => {
           {/* Login on Right */}
           <Button
             variant="outline"
-            className="absolute top-12 right-8 px-8 py-3 rounded-[30px] border-2 border-[#56504a] bg-transparent hover:bg-[#f7e2c6] transition-colors"
+            className="absolute top-12 right-8 px-8 py-4 rounded-[30px] border-2 border-[#56504a] bg-transparent hover:bg-[#f7e2c6] transition-colors"
           >
             <span className="[font-family:'Porter_Sans_Block-Block',Helvetica] font-normal text-[#56504a] text-base uppercase">
               log in
@@ -216,7 +216,9 @@ export const Homepage = () => {
             {navigationItems.map((item) => (
               <Link key={item.label} to={item.link}>
                 <button
-                  className="[font-family:'Porter_Sans_Block-Block',Helvetica] font-normal text-[#56504a] text-xs uppercase tracking-wide px-3 py-2 rounded-full bg-transparent hover:bg-[#f7e2c6] transition-all duration-200"
+                  className={`[font-family:'Porter_Sans_Block-Block',Helvetica] font-normal text-[#56504a] text-xs uppercase tracking-wide px-3 py-2 rounded-full transition-all duration-200 ${
+                    item.active ? "bg-[#f7e2c6]" : "bg-transparent hover:bg-[#f7e2c6]"
+                  }`}
                 >
                   {item.label}
                 </button>

@@ -40,33 +40,33 @@
   ],
   "edges": [
     {
-      "id": "src/screens/Rank/Rank.jsx:9:8-to-src/screens/Homepage/Homepage.jsx",
+      "id": "src/screens/Rank/Rank.jsx:126:10-to-src/screens/Homepage/Homepage.jsx",
       "source": "src/screens/Rank/Rank.jsx",
       "target": "src/screens/Homepage/Homepage.jsx",
       "data": {
         "viaRoute": "/",
         "trigger": {
-          "element": "<Link to=\"/\">\n          <img\n            className=\"h-[120px] w-auto\"\n            alt=\"Logofull\"\n            src=\"https://c.animaapp.com/mgqjxiy6qqDflS/img/logofull-1.svg\"\n          />\n        </Link>",
-          "line": 9,
-          "endLine": 15,
-          "column": 8,
-          "endColumn": 15,
+          "element": "<Link to=\"/\">\n            <img\n              className=\"absolute left-8 top-8 h-[80px] w-auto\"\n              alt=\"RunKada Logo\"\n              src=\"https://c.animaapp.com/mgqjxiy6qqDflS/img/logofull-1.svg\"\n            />\n          </Link>",
+          "line": 126,
+          "endLine": 132,
+          "column": 10,
+          "endColumn": 17,
           "sourceFile": "src/screens/Rank/Rank.jsx"
         }
       }
     },
     {
-      "id": "src/screens/Rank/Rank.jsx:27:8-to-src/screens/Homepage/Homepage.jsx",
+      "id": "src/screens/Rank/Rank.jsx:163:12-to-src/screens/Homepage/Homepage.jsx",
       "source": "src/screens/Rank/Rank.jsx",
       "target": "src/screens/Homepage/Homepage.jsx",
       "data": {
         "viaRoute": "/",
         "trigger": {
-          "element": "<Link to=\"/\">\n          <Button className=\"bg-[#f7e2c6] hover:bg-[#fcd96b] text-[#56504a] rounded-[30px]\">\n            <span className=\"[font-family:'Porter_Sans_Block-Block',Helvetica] font-normal text-base\">\n              Back to Home\n            </span>\n          </Button>\n        </Link>",
-          "line": 27,
-          "endLine": 33,
-          "column": 8,
-          "endColumn": 15,
+          "element": "<Link to=\"/\">\n              <img\n                className=\"h-12 w-auto\"\n                alt=\"RunKada Logo\"\n                src=\"https://c.animaapp.com/mgqjxiy6qqDflS/img/logofull-1.svg\"\n              />\n            </Link>",
+          "line": 163,
+          "endLine": 169,
+          "column": 12,
+          "endColumn": 19,
           "sourceFile": "src/screens/Rank/Rank.jsx"
         }
       }
