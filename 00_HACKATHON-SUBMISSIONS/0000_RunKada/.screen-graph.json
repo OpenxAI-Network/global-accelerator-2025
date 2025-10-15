@@ -40,6 +40,38 @@
   ],
   "edges": [
     {
+      "id": "src/screens/Homepage/Homepage.jsx:323:10-to-src/screens/Login/Login.jsx",
+      "source": "src/screens/Homepage/Homepage.jsx",
+      "target": "src/screens/Login/Login.jsx",
+      "data": {
+        "viaRoute": "/login",
+        "trigger": {
+          "element": "<Link to=\"/login\">\n            <Button\n              variant=\"outline\"\n              className=\"absolute top-16 right-16 px-8 py-4 rounded-[30px] border-2 border-[#56504a] bg-transparent hover:bg-[#f7e2c6] transition-colors\"\n            >\n              <span className=\"[font-family:'Porter_Sans_Block-Block',Helvetica] font-normal text-[#56504a] text-base uppercase\">\n                log in\n              </span>\n            </Button>\n          </Link>",
+          "line": 323,
+          "endLine": 332,
+          "column": 10,
+          "endColumn": 17,
+          "sourceFile": "src/screens/Homepage/Homepage.jsx"
+        }
+      }
+    },
+    {
+      "id": "src/screens/Homepage/Homepage.jsx:343:12-to-src/screens/Login/Login.jsx",
+      "source": "src/screens/Homepage/Homepage.jsx",
+      "target": "src/screens/Login/Login.jsx",
+      "data": {
+        "viaRoute": "/login",
+        "trigger": {
+          "element": "<Link to=\"/login\">\n              <Button\n                variant=\"outline\"\n                className=\"px-6 py-2 rounded-full border-2 border-[#56504a] bg-transparent hover:bg-[#f7e2c6] transition-colors text-sm\"\n              >\n                <span className=\"[font-family:'Porter_Sans_Block-Block',Helvetica] font-normal text-[#56504a]\">\n                  LOG IN\n                </span>\n              </Button>\n            </Link>",
+          "line": 343,
+          "endLine": 352,
+          "column": 12,
+          "endColumn": 19,
+          "sourceFile": "src/screens/Homepage/Homepage.jsx"
+        }
+      }
+    },
+    {
       "id": "src/screens/Rank/Rank.jsx:126:10-to-src/screens/Homepage/Homepage.jsx",
       "source": "src/screens/Rank/Rank.jsx",
       "target": "src/screens/Homepage/Homepage.jsx",
@@ -72,33 +104,49 @@
       }
     },
     {
-      "id": "src/screens/About/About.jsx:9:8-to-src/screens/Homepage/Homepage.jsx",
+      "id": "src/screens/About/About.jsx:69:10-to-src/screens/Homepage/Homepage.jsx",
       "source": "src/screens/About/About.jsx",
       "target": "src/screens/Homepage/Homepage.jsx",
       "data": {
         "viaRoute": "/",
         "trigger": {
-          "element": "<Link to=\"/\">\n          <img\n            className=\"h-[120px] w-auto\"\n            alt=\"Logofull\"\n            src=\"https://c.animaapp.com/mgqjxiy6qqDflS/img/logofull-1.svg\"\n          />\n        </Link>",
-          "line": 9,
-          "endLine": 15,
-          "column": 8,
-          "endColumn": 15,
+          "element": "<Link to=\"/\">\n            <img\n              className=\"absolute left-8 top-10 h-[100px] w-auto cursor-pointer hover:opacity-80 transition-opacity\"\n              alt=\"RunKada Logo\"\n              src=\"https://c.animaapp.com/mgqjxiy6qqDflS/img/logofull-1.svg\"\n            />\n          </Link>",
+          "line": 69,
+          "endLine": 75,
+          "column": 10,
+          "endColumn": 17,
           "sourceFile": "src/screens/About/About.jsx"
         }
       }
     },
     {
-      "id": "src/screens/About/About.jsx:27:8-to-src/screens/Homepage/Homepage.jsx",
+      "id": "src/screens/About/About.jsx:104:12-to-src/screens/Homepage/Homepage.jsx",
       "source": "src/screens/About/About.jsx",
       "target": "src/screens/Homepage/Homepage.jsx",
       "data": {
         "viaRoute": "/",
         "trigger": {
-          "element": "<Link to=\"/\">\n          <Button className=\"bg-[#f7e2c6] hover:bg-[#fcd96b] text-[#56504a] rounded-[30px]\">\n            <span className=\"[font-family:'Porter_Sans_Block-Block',Helvetica] font-normal text-base\">\n              Back to Home\n            </span>\n          </Button>\n        </Link>",
-          "line": 27,
-          "endLine": 33,
-          "column": 8,
-          "endColumn": 15,
+          "element": "<Link to=\"/\">\n              <img\n                className=\"h-16 w-auto\"\n                alt=\"RunKada Logo\"\n                src=\"https://c.animaapp.com/mgqjxiy6qqDflS/img/logofull-1.svg\"\n              />\n            </Link>",
+          "line": 104,
+          "endLine": 110,
+          "column": 12,
+          "endColumn": 19,
+          "sourceFile": "src/screens/About/About.jsx"
+        }
+      }
+    },
+    {
+      "id": "src/screens/About/About.jsx:231:12-to-src/screens/Homepage/Homepage.jsx",
+      "source": "src/screens/About/About.jsx",
+      "target": "src/screens/Homepage/Homepage.jsx",
+      "data": {
+        "viaRoute": "/",
+        "trigger": {
+          "element": "<Link to=\"/\">\n              <Button className=\"bg-[#56504a] hover:bg-black text-white rounded-[30px] px-12 py-6 text-lg\">\n                <span className=\"[font-family:'Porter_Sans_Block-Block',Helvetica] font-normal uppercase\">\n                  Get Started\n                </span>\n              </Button>\n            </Link>",
+          "line": 231,
+          "endLine": 237,
+          "column": 12,
+          "endColumn": 19,
           "sourceFile": "src/screens/About/About.jsx"
         }
       }
@@ -136,33 +184,33 @@
       }
     },
     {
-      "id": "src/screens/Login/Login.jsx:9:8-to-src/screens/Homepage/Homepage.jsx",
+      "id": "src/screens/Login/Login.jsx:34:6-to-src/screens/Homepage/Homepage.jsx",
       "source": "src/screens/Login/Login.jsx",
       "target": "src/screens/Homepage/Homepage.jsx",
       "data": {
         "viaRoute": "/",
         "trigger": {
-          "element": "<Link to=\"/\">\n          <img\n            className=\"h-[120px] w-auto\"\n            alt=\"Logofull\"\n            src=\"https://c.animaapp.com/mgqjxiy6qqDflS/img/logofull-1.svg\"\n          />\n        </Link>",
-          "line": 9,
-          "endLine": 15,
-          "column": 8,
-          "endColumn": 15,
+          "element": "<Link to=\"/\" className=\"absolute top-8 left-8 z-50 hover:opacity-80 transition-opacity\">\n        <img\n          className=\"h-[80px] lg:h-[100px] w-auto\"\n          alt=\"RunKada Logo\"\n          src=\"https://c.animaapp.com/mgqjxiy6qqDflS/img/logofull-1.svg\"\n        />\n      </Link>",
+          "line": 34,
+          "endLine": 40,
+          "column": 6,
+          "endColumn": 13,
           "sourceFile": "src/screens/Login/Login.jsx"
         }
       }
     },
     {
-      "id": "src/screens/Login/Login.jsx:27:8-to-src/screens/Homepage/Homepage.jsx",
+      "id": "src/screens/Login/Login.jsx:130:10-to-src/screens/Homepage/Homepage.jsx",
       "source": "src/screens/Login/Login.jsx",
       "target": "src/screens/Homepage/Homepage.jsx",
       "data": {
         "viaRoute": "/",
         "trigger": {
-          "element": "<Link to=\"/\">\n          <Button className=\"bg-[#f7e2c6] hover:bg-[#fcd96b] text-[#56504a] rounded-[30px]\">\n            <span className=\"[font-family:'Porter_Sans_Block-Block',Helvetica] font-normal text-base\">\n              Back to Home\n            </span>\n          </Button>\n        </Link>",
-          "line": 27,
-          "endLine": 33,
-          "column": 8,
-          "endColumn": 15,
+          "element": "<Link to=\"/\">\n            <button className=\"[font-family:'Poppins',Helvetica] font-medium text-[#56504a] hover:text-black transition-colors text-base underline\">\n              Back to Home\n            </button>\n          </Link>",
+          "line": 130,
+          "endLine": 134,
+          "column": 10,
+          "endColumn": 17,
           "sourceFile": "src/screens/Login/Login.jsx"
         }
       }

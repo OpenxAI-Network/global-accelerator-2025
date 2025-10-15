@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "../../components/ui/button";
+import RotatingText from "../../components/RotatingText";
+import Squares from "../../components/Squares";
 
 const navigationItems = [
   { label: "Home", active: true, link: "/" },
@@ -42,7 +44,7 @@ const faqItems = [
     number: "2",
     question: "Q: How do I sign up and start using Runkada?",
     answer:
-      "A: Runkada is a web application that syncs with your Strava account to collect and total your running kilometers. We turn your miles into a friendly competition by ranking you against others in your Clan and ranking your Clan against others in your area!",
+      "A: You can sign up easily using your existing Strava account. We'll ask for permission to view your running activities, and once authorized, your kilometers will start being tracked automatically!",
     topPosition: "top-[2186px]",
     leftPosition: "left-[464px]",
     badgeTop: "top-[2138px]",
@@ -167,27 +169,136 @@ const socialIcons = [
 
 export const Homepage = () => {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [scrollProgress, setScrollProgress] = useState(0);
+  const [statsVisible, setStatsVisible] = useState(false);
+  const [stats, setStats] = useState({
+    runners: 0,
+    distance: 0,
+    clans: 0
+  });
 
   // Auto-advance carousel
   useEffect(() => {
     const interval = setInterval(() => {
       setCurrentImageIndex((prev) => (prev + 1) % carouselImages.length);
-    }, 3000);
+    }, 5000);
     return () => clearInterval(interval);
   }, []);
+
+  // Track scroll for running man animation and parallax
+  useEffect(() => {
+    const handleScroll = () => {
+      const scrollTop = window.scrollY;
+      const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+      const scrollPercent = Math.min(scrollTop / docHeight, 1);
+      setScrollProgress(scrollPercent);
+
+      // Check if stats section is visible
+      const statsSection = document.getElementById('stats-section');
+      if (statsSection && !statsVisible) {
+        const rect = statsSection.getBoundingClientRect();
+        if (rect.top < window.innerHeight * 0.8) {
+          setStatsVisible(true);
+        }
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    handleScroll(); // Check initial position
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [statsVisible]);
+
+  // Animate stats counter when visible
+  useEffect(() => {
+    if (!statsVisible) return;
+
+    const duration = 2000; // 2 seconds
+    const steps = 60;
+    const stepDuration = duration / steps;
+    
+    const targets = {
+      runners: 10000,
+      distance: 500000,
+      clans: 250
+    };
+
+    let currentStep = 0;
+
+    const timer = setInterval(() => {
+      currentStep++;
+      const progress = currentStep / steps;
+      
+      setStats({
+        runners: Math.floor(targets.runners * progress),
+        distance: Math.floor(targets.distance * progress),
+        clans: Math.floor(targets.clans * progress)
+      });
+
+      if (currentStep >= steps) {
+        clearInterval(timer);
+        setStats(targets);
+      }
+    }, stepDuration);
+
+    return () => clearInterval(timer);
+  }, [statsVisible]);
+
+  // Calculate running man positions with random stop points
+  const runnerPositions = [
+    { 
+      left: '384px', 
+      startTop: 200, 
+      endTop: 1400, // Stop before line ends
+      stopAt: 0.6 + Math.random() * 0.2 // Random stop between 60-80% of journey
+    },
+    { 
+      left: '469px', 
+      startTop: 100, 
+      endTop: 1400,
+      stopAt: 0.5 + Math.random() * 0.25
+    },
+    { 
+      left: '309px', 
+      startTop: 300, 
+      endTop: 1400,
+      stopAt: 0.55 + Math.random() * 0.3
+    },
+    { 
+      left: '549px', 
+      startTop: 30, 
+      endTop: 1400,
+      stopAt: 0.65 + Math.random() * 0.2
+    },
+  ];
+
+  const getRunnerTop = (runner) => {
+    const progress = Math.min(scrollProgress / runner.stopAt, 1);
+    return runner.startTop + (runner.endTop - runner.startTop) * progress;
+  };
 
   return (
     <div
       className="bg-[#f5f5f5] overflow-hidden w-full min-h-screen relative"
       data-model-id="7:3"
     >
+      {/* Animated Background Grid */}
+      <div className="fixed inset-0 z-0 opacity-20 pointer-events-auto">
+        <Squares 
+          speed={0.2} 
+          squareSize={40}
+          direction='diagonal'
+          borderColor='#56504a'
+          hoverFillColor='#fcd96b'
+        />
+      </div>
+
       {/* Header - Responsive */}
       <header className="translate-y-[-1rem] animate-fade-in opacity-0 [--animation-delay:0ms] relative z-50">
         {/* Desktop Header */}
         <div className="hidden lg:block">
           {/* Logo on Left */}
           <img
-            className="absolute left-8 top-8 h-[80px] w-auto"
+            className="absolute left-20 top-8 h-[100px] w-auto"
             alt="RunKada Logo"
             src="https://c.animaapp.com/mgqjxiy6qqDflS/img/logofull-1.svg"
           />
@@ -209,32 +320,36 @@ export const Homepage = () => {
           </div>
 
           {/* Login on Right */}
-          <Button
-            variant="outline"
-            className="absolute top-12 right-8 px-8 py-4 rounded-[30px] border-2 border-[#56504a] bg-transparent hover:bg-[#f7e2c6] transition-colors"
-          >
-            <span className="[font-family:'Porter_Sans_Block-Block',Helvetica] font-normal text-[#56504a] text-base uppercase">
-              log in
-            </span>
-          </Button>
+          <Link to="/login">
+            <Button
+              variant="outline"
+              className="absolute top-16 right-16 px-8 py-4 rounded-[30px] border-2 border-[#56504a] bg-transparent hover:bg-[#f7e2c6] transition-colors"
+            >
+              <span className="[font-family:'Porter_Sans_Block-Block',Helvetica] font-normal text-[#56504a] text-base uppercase">
+                log in
+              </span>
+            </Button>
+          </Link>
         </div>
 
         {/* Mobile Header */}
         <div className="lg:hidden max-w-[400px] mx-auto px-6 pt-8 pb-4">
           <div className="flex items-center justify-between mb-6">
             <img
-              className="h-12 w-auto"
+              className="h-16 w-auto"
               alt="RunKada Logo"
               src="https://c.animaapp.com/mgqjxiy6qqDflS/img/logofull-1.svg"
             />
-            <Button
-              variant="outline"
-              className="px-6 py-2 rounded-full border-2 border-[#56504a] bg-transparent hover:bg-[#f7e2c6] transition-colors text-sm"
-            >
-              <span className="[font-family:'Porter_Sans_Block-Block',Helvetica] font-normal text-[#56504a]">
-                LOG IN
-              </span>
-            </Button>
+            <Link to="/login">
+              <Button
+                variant="outline"
+                className="px-6 py-2 rounded-full border-2 border-[#56504a] bg-transparent hover:bg-[#f7e2c6] transition-colors text-sm"
+              >
+                <span className="[font-family:'Porter_Sans_Block-Block',Helvetica] font-normal text-[#56504a]">
+                  LOG IN
+                </span>
+              </Button>
+            </Link>
           </div>
 
           {/* Navigation */}
@@ -258,10 +373,21 @@ export const Homepage = () => {
       <main>
         {/* Desktop Hero Section */}
         <section className="hidden lg:block relative h-[1300px] pt-32 translate-y-[-1rem] animate-fade-in opacity-0 [--animation-delay:200ms]">
-          {/* Phone on Left - Bigger */}
-          <div className="absolute left-0 top-44">
+          {/* Phone on Left - Bigger with Parallax */}
+          <div 
+            className="absolute left-0 top-44 transition-transform duration-100"
+            style={{ transform: `translateY(${scrollProgress * 100}px)` }}
+          >
+            {/* White background for phone */}
+            <div className="absolute bg-white rounded-[40px]" style={{ 
+              zIndex: -1,
+              top: '60px',
+              bottom: '60px',
+              left: '260px',
+              right: '260px'
+            }} />
             <img
-              className="w-[850px] h-auto object-contain"
+              className="w-[850px] h-auto object-contain relative z-10"
               alt="iPhone Mockup"
               src="https://c.animaapp.com/mgqjxiy6qqDflS/img/iphone-1.png"
             />
@@ -278,20 +404,38 @@ export const Homepage = () => {
             />
           </div>
 
-          {/* Hero Text to the right of phone */}
-          <div className="absolute left-[800px] top-[240px]">
+          {/* Hero Text to the right of phone with slight parallax */}
+          <div 
+            className="absolute left-[800px] top-[240px] transition-transform duration-100"
+            style={{ transform: `translateY(${scrollProgress * -30}px)` }}
+          >
             <h1 className="[font-family:'Porter_Sans_Block-Block',Helvetica] font-normal text-[72px] leading-[1.1]">
               <span className="text-[#56504a]">FIND<br /></span>
               <span className="text-[#56504a]">YOUR<br /></span>
-              <span className="text-[#56504a]">STRIDE,<br /></span>
+              <RotatingText
+                texts={['STRIDE,', 'PACE,', 'RHYTHM,', 'BEAT,']}
+                mainClassName="text-[#56504a] inline-block overflow-hidden"
+                staggerFrom="first"
+                initial={{ y: "100%" }}
+                animate={{ y: 0 }}
+                exit={{ y: "-120%" }}
+                staggerDuration={0.025}
+                splitLevelClassName="overflow-hidden"
+                transition={{ type: "spring", damping: 30, stiffness: 400 }}
+                rotationInterval={3000}
+              />
+              <br />
               <span className="text-[#56504a]">FIND<br /></span>
               <span className="text-[#56504a]">YOUR<br /></span>
               <span className="text-[#fcd96b]">TRIBE</span>
             </h1>
           </div>
 
-          {/* Carousel/Image Card on Right below message */}
-          <div className="absolute left-[800px] top-[800px] w-[480px]">
+          {/* Carousel/Image Card on Right below message with Parallax */}
+          <div 
+            className="absolute left-[800px] top-[800px] w-[480px] transition-transform duration-100"
+            style={{ transform: `translateY(${scrollProgress * -50}px)` }}
+          >
             {/* Shadow layers - yellow outer, black middle */}
             <div className="absolute inset-0 bg-[#fcd96b] rounded-[100px] translate-x-4 translate-y-4 w-full h-[640px] z-0" />
             <div className="absolute inset-0 bg-[#000000] rounded-[100px] translate-x-2 translate-y-2 w-full h-[640px] z-[1]" />
@@ -345,16 +489,16 @@ export const Homepage = () => {
           {/* Lines start from phone bottom and extend down to FAQ badges */}
           <svg className="absolute left-0 top-[-576px]" width="1280" height="1400" style={{ overflow: 'visible', pointerEvents: 'none' }}>
             {/* Line to FAQ 1 */}
-            <line x1="380" y1="235" x2="380" y2="1700" stroke="black" strokeWidth="3" />
+            <line x1="380" y1="254" x2="380" y2="1700" stroke="black" strokeWidth="3" />
             
             {/* Line to FAQ 2 */}
-            <line x1="465" y1="235" x2="465" y2="1350" stroke="black" strokeWidth="3" />
+            <line x1="465" y1="254" x2="465" y2="1350" stroke="black" strokeWidth="3" />
             
             {/* Line to FAQ 3 */}
-            <line x1="305" y1="235" x2="305" y2="1900" stroke="black" strokeWidth="3" />
+            <line x1="305" y1="254" x2="305" y2="1900" stroke="black" strokeWidth="3" />
             
             {/* Line to FAQ 4 */}
-            <line x1="545" y1="235" x2="545" y2="1100" stroke="black" strokeWidth="3" />
+            <line x1="545" y1="254" x2="545" y2="1100" stroke="black" strokeWidth="3" />
           </svg>
 
           {/* Running man icons on the lines */}
@@ -390,8 +534,16 @@ export const Homepage = () => {
           <div className="flex items-center gap-4 mb-8">
             {/* Phone with Logo on Left */}
             <div className="relative w-[180px] flex-shrink-0">
+              {/* White background for phone */}
+              <div className="absolute bg-white rounded-[8px]" style={{ 
+                zIndex: -1,
+                top: '14px',
+                bottom: '14px',
+                left: '55px',
+                right: '55px'
+              }} />
               <img
-                className="w-full h-auto object-contain"
+                className="w-full h-auto object-contain relative z-10"
                 alt="iPhone Mockup"
                 src="https://c.animaapp.com/mgqjxiy6qqDflS/img/iphone-1.png"
               />
@@ -412,7 +564,19 @@ export const Homepage = () => {
             <h1 className="[font-family:'Porter_Sans_Block-Block',Helvetica] font-normal text-[32px] leading-[1.1] flex-1">
               <span className="text-[#56504a]">FIND<br /></span>
               <span className="text-[#56504a]">YOUR<br /></span>
-              <span className="text-[#56504a]">STRIDE,<br /></span>
+              <RotatingText
+                texts={['STRIDE,', 'PACE,', 'RHYTHM,', 'BEAT,']}
+                mainClassName="text-[#56504a] inline-block overflow-hidden"
+                staggerFrom="first"
+                initial={{ y: "100%" }}
+                animate={{ y: 0 }}
+                exit={{ y: "-120%" }}
+                staggerDuration={0.025}
+                splitLevelClassName="overflow-hidden"
+                transition={{ type: "spring", damping: 30, stiffness: 400 }}
+                rotationInterval={3000}
+              />
+              <br />
               <span className="text-[#56504a]">FIND<br /></span>
               <span className="text-[#56504a]">YOUR<br /></span>
               <span className="text-[#fcd96b]">TRIBE</span>
@@ -482,12 +646,20 @@ export const Homepage = () => {
               <div 
                 key={faq.number} 
                 className="relative"
-                style={{ marginLeft: `${(faqItems.length - 1 - index) * 80}px` }}
+                style={{ 
+                  marginLeft: `${(faqItems.length - 1 - index) * 80}px`,
+                  transform: `translateY(${scrollProgress * (index * 10 - 20)}px)`
+                }}
               >
-                {/* FAQ Card */}
-                <div className="border-[3px] border-black rounded-[20px] p-8 bg-white relative pl-24">
-                  {/* Number Badge - positioned to left */}
-                  <div className="absolute -left-16 top-4 w-28 h-28 bg-[#fcd96b] rounded-full flex items-center justify-center border-[3px] border-black">
+                {/* FAQ Card with hover effect */}
+                <div className="border-[3px] border-black rounded-[20px] p-8 bg-white relative pl-24 transition-all duration-300 hover:shadow-2xl hover:-translate-y-2 hover:bg-[#f7e2c6]">
+                  {/* Number Badge - positioned to left with parallax */}
+                  <div 
+                    className="absolute -left-16 top-4 w-28 h-28 bg-[#fcd96b] rounded-full flex items-center justify-center border-[3px] border-black transition-transform duration-300 hover:scale-110 hover:rotate-12"
+                    style={{ 
+                      transform: `translateY(${scrollProgress * (index * -5)}px)`
+                    }}
+                  >
                     <div className="w-20 h-20 bg-white rounded-full flex items-center justify-center">
                       <span className="[font-family:'Porter_Sans_Block-Block',Helvetica] font-normal text-black text-5xl">
                         {faq.number}
@@ -547,6 +719,65 @@ export const Homepage = () => {
                 </div>
               </div>
             ))}
+          </div>
+        </section>
+
+        {/* Animated Statistics Section - Both Desktop and Mobile */}
+        <section 
+          id="stats-section"
+          className="relative max-w-[1200px] mx-auto px-6 lg:px-12 py-8 lg:py-1 mb-12 lg:mb-16 translate-y-[-1rem] animate-fade-in opacity-0 [--animation-delay:500ms]"
+        >
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 lg:gap-12">
+            {/* Stat 1: Total Runners */}
+            <div className="text-center transform transition-all duration-300 hover:scale-110">
+              <div className="bg-[#fcd96b] rounded-[30px] p-8 lg:p-12 border-[3px] border-black shadow-lg">
+                <div className="mb-4">
+                  <span className="[font-family:'Porter_Sans_Block-Block',Helvetica] font-normal text-[#56504a] text-5xl lg:text-6xl">
+                    {stats.runners.toLocaleString()}+
+                  </span>
+                </div>
+                <p className="[font-family:'Poppins',Helvetica] font-bold text-[#56504a] text-lg lg:text-xl uppercase tracking-wide">
+                  Active Runners
+                </p>
+                <p className="[font-family:'Poppins',Helvetica] font-medium text-[#56504a] text-sm mt-2">
+                  Join the community
+                </p>
+              </div>
+            </div>
+
+            {/* Stat 2: Total Distance */}
+            <div className="text-center transform transition-all duration-300 hover:scale-110">
+              <div className="bg-[#f7e2c6] rounded-[30px] p-8 lg:p-12 border-[3px] border-black shadow-lg">
+                <div className="mb-4">
+                  <span className="[font-family:'Porter_Sans_Block-Block',Helvetica] font-normal text-[#56504a] text-5xl lg:text-6xl">
+                    {(stats.distance / 1000).toLocaleString()}K
+                  </span>
+                </div>
+                <p className="[font-family:'Poppins',Helvetica] font-bold text-[#56504a] text-lg lg:text-xl uppercase tracking-wide">
+                  Kilometers Tracked
+                </p>
+                <p className="[font-family:'Poppins',Helvetica] font-medium text-[#56504a] text-sm mt-2">
+                  And counting...
+                </p>
+              </div>
+            </div>
+
+            {/* Stat 3: Active Clans */}
+            <div className="text-center transform transition-all duration-300 hover:scale-110">
+              <div className="bg-[#fcd96b] rounded-[30px] p-8 lg:p-12 border-[3px] border-black shadow-lg">
+                <div className="mb-4">
+                  <span className="[font-family:'Porter_Sans_Block-Block',Helvetica] font-normal text-[#56504a] text-5xl lg:text-6xl">
+                    {stats.clans}+
+                  </span>
+                </div>
+                <p className="[font-family:'Poppins',Helvetica] font-bold text-[#56504a] text-lg lg:text-xl uppercase tracking-wide">
+                  Active Clans
+                </p>
+                <p className="[font-family:'Poppins',Helvetica] font-medium text-[#56504a] text-sm mt-2">
+                  Find your tribe
+                </p>
+              </div>
+            </div>
           </div>
         </section>
 
@@ -614,13 +845,15 @@ export const Homepage = () => {
               {teamMembers.map((member, index) => (
                 <div
                   key={`member-${index}`}
-                  className="relative w-16 h-16 border-[3px] border-black rounded-[20px] overflow-visible flex items-center justify-center bg-white group cursor-pointer"
+                  className="relative group cursor-pointer"
                 >
-                  <img
-                    className="w-12 h-12 object-cover"
-                    alt={member.alt}
-                    src={member.src}
-                  />
+                  <div className="w-16 h-16 border-[3px] border-black rounded-[20px] overflow-hidden flex items-center justify-center bg-white">
+                    <img
+                      className="w-14 h-14 object-cover rounded-[18px]"
+                      alt={member.alt}
+                      src={member.src}
+                    />
+                  </div>
                   {/* Hover Tooltip */}
                   <div className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 bg-[#56504a] text-white px-3 py-2 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap z-10">
                     <div className="text-center">
@@ -648,7 +881,7 @@ export const Homepage = () => {
               </div>
               <div className="flex-1 border-[3px] border-black rounded-[20px] p-3">
                 <p className="[font-family:'Poppins',Helvetica] font-bold text-black text-xs text-center leading-tight">
-                  This team is formed for<br />
+                  The team was formed for<br />
                   the 2025 OpenxAI Hack Node Hackathon
                 </p>
               </div>
@@ -680,29 +913,51 @@ export const Homepage = () => {
             </p>
 
             <nav className="[font-family:'Poppins',Helvetica] font-normal text-black text-sm lg:text-base space-y-2 lg:space-y-3 mb-6 lg:mb-8">
-              {footerLinks.map((link) => (
-                <div key={link}>
-                  <button className="hover:opacity-70 transition-opacity">
-                    {link}
-                  </button>
-                </div>
-              ))}
+              <div><Link to="/" className="hover:opacity-70 transition-opacity">Home</Link></div>
+              <div><Link to="/rank" className="hover:opacity-70 transition-opacity">Rank</Link></div>
+              <div><Link to="/about" className="hover:opacity-70 transition-opacity">About</Link></div>
+              <div><Link to="/clan" className="hover:opacity-70 transition-opacity">Clan</Link></div>
+              <div><Link to="/login" className="hover:opacity-70 transition-opacity">Log In</Link></div>
             </nav>
 
             {/* Social Icons */}
             <div className="flex justify-center gap-6">
-              {socialIcons.map((icon, index) => (
-                <button
-                  key={`social-${index}`}
-                  className="w-8 lg:w-10 h-8 lg:h-10 relative hover:opacity-70 transition-opacity"
-                >
-                  <img
-                    className="w-full h-full object-contain"
-                    alt="Social Icon"
-                    src={icon.src}
-                  />
-                </button>
-              ))}
+              <a
+                href="https://facebook.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-8 lg:w-10 h-8 lg:h-10 relative hover:opacity-70 transition-opacity"
+              >
+                <img
+                  className="w-full h-full object-contain"
+                  alt="Facebook"
+                  src="https://c.animaapp.com/mgqjxiy6qqDflS/img/icon-2.svg"
+                />
+              </a>
+              <a
+                href="https://twitter.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-8 lg:w-10 h-8 lg:h-10 relative hover:opacity-70 transition-opacity"
+              >
+                <img
+                  className="w-full h-full object-contain"
+                  alt="Twitter"
+                  src="https://c.animaapp.com/mgqjxiy6qqDflS/img/icon.svg"
+                />
+              </a>
+              <a
+                href="https://instagram.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-8 lg:w-10 h-8 lg:h-10 relative hover:opacity-70 transition-opacity"
+              >
+                <img
+                  className="w-full h-full object-contain"
+                  alt="Instagram"
+                  src="https://c.animaapp.com/mgqjxiy6qqDflS/img/icon-1.svg"
+                />
+              </a>
             </div>
           </div>
         </footer>

@@ -1,12 +1,27 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "../../components/ui/button";
+import Squares from "../../components/Squares";
 
 const navigationItems = [
   { label: "Home", active: false, link: "/" },
   { label: "rank", active: true, link: "/rank" },
   { label: "about", active: false, link: "/about" },
   { label: "clan", active: false, link: "/clan" },
+];
+
+const footerLinks = ["Home", "Rank", "About", "Clan", "Log In"];
+
+const socialIcons = [
+  {
+    src: "https://c.animaapp.com/mgqjxiy6qqDflS/img/icon-2.svg",
+  },
+  {
+    src: "https://c.animaapp.com/mgqjxiy6qqDflS/img/icon.svg",
+  },
+  {
+    src: "https://c.animaapp.com/mgqjxiy6qqDflS/img/icon-1.svg",
+  },
 ];
 
 // Mock data for individual runners
@@ -118,23 +133,32 @@ export const Rank = () => {
 
   return (
     <div className="bg-[#f5f5f5] overflow-hidden w-full min-h-screen relative">
+      {/* Animated Background Grid */}
+      <div className="fixed inset-0 z-0 opacity-20 pointer-events-auto">
+        <Squares 
+          speed={0.2} 
+          squareSize={40}
+          direction='diagonal'
+          borderColor='#56504a'
+          hoverFillColor='#fcd96b'
+        />
+      </div>
+
       {/* Header - Responsive */}
-      <header className="translate-y-[-1rem] animate-fade-in opacity-0 [--animation-delay:0ms]">
+      <header className="translate-y-[-1rem] animate-fade-in opacity-0 [--animation-delay:0ms] relative z-50">
         {/* Desktop Header */}
         <div className="hidden lg:block">
           {/* Logo on Left */}
-          <Link to="/">
-            <img
-              className="absolute left-8 top-8 h-[80px] w-auto"
-              alt="RunKada Logo"
-              src="https://c.animaapp.com/mgqjxiy6qqDflS/img/logofull-1.svg"
-            />
-          </Link>
+          <img
+            className="absolute left-20 top-8 h-[100px] w-auto"
+            alt="RunKada Logo"
+            src="https://c.animaapp.com/mgqjxiy6qqDflS/img/logofull-1.svg"
+          />
 
           {/* Navigation in Middle */}
-          <div className="absolute top-12 left-1/2 -translate-x-1/2 bg-[#f7e2c680] rounded-[30px] px-8 py-4 flex items-center gap-6">
-            {navigationItems.map((item) => (
-              <Link key={item.label} to={item.link}>
+          <div className="absolute top-12 left-1/2 -translate-x-1/2 bg-[#f7e2c680] rounded-[30px] px-8 py-4 flex items-center gap-6 z-50">
+            {navigationItems.map((item, index) => (
+              <Link key={index} to={item.link}>
                 <button
                   className={`[font-family:'Porter_Sans_Block-Block',Helvetica] font-normal text-[#56504a] text-base uppercase tracking-wide px-6 py-2 rounded-[30px] transition-all duration-200 ${
                     item.active ? "bg-[#f7e2c6]" : "bg-transparent hover:bg-[#f7e2c6]"
@@ -147,34 +171,36 @@ export const Rank = () => {
           </div>
 
           {/* Login on Right */}
-          <Button
-            variant="outline"
-            className="absolute top-12 right-8 px-8 py-4 rounded-[30px] border-2 border-[#56504a] bg-transparent hover:bg-[#f7e2c6] transition-colors"
-          >
-            <span className="[font-family:'Porter_Sans_Block-Block',Helvetica] font-normal text-[#56504a] text-base uppercase">
-              log in
-            </span>
-          </Button>
+          <Link to="/login">
+            <Button
+              variant="outline"
+              className="absolute top-16 right-16 px-8 py-4 rounded-[30px] border-2 border-[#56504a] bg-transparent hover:bg-[#f7e2c6] transition-colors"
+            >
+              <span className="[font-family:'Porter_Sans_Block-Block',Helvetica] font-normal text-[#56504a] text-base uppercase">
+                log in
+              </span>
+            </Button>
+          </Link>
         </div>
 
         {/* Mobile Header */}
         <div className="lg:hidden max-w-[400px] mx-auto px-6 pt-8 pb-4">
           <div className="flex items-center justify-between mb-6">
-            <Link to="/">
-              <img
-                className="h-12 w-auto"
-                alt="RunKada Logo"
-                src="https://c.animaapp.com/mgqjxiy6qqDflS/img/logofull-1.svg"
-              />
+            <img
+              className="h-16 w-auto"
+              alt="RunKada Logo"
+              src="https://c.animaapp.com/mgqjxiy6qqDflS/img/logofull-1.svg"
+            />
+            <Link to="/login">
+              <Button
+                variant="outline"
+                className="px-6 py-2 rounded-full border-2 border-[#56504a] bg-transparent hover:bg-[#f7e2c6] transition-colors text-sm"
+              >
+                <span className="[font-family:'Porter_Sans_Block-Block',Helvetica] font-normal text-[#56504a]">
+                  LOG IN
+                </span>
+              </Button>
             </Link>
-            <Button
-              variant="outline"
-              className="px-6 py-2 rounded-full border-2 border-[#56504a] bg-transparent hover:bg-[#f7e2c6] transition-colors text-sm"
-            >
-              <span className="[font-family:'Porter_Sans_Block-Block',Helvetica] font-normal text-[#56504a]">
-                LOG IN
-              </span>
-            </Button>
           </div>
 
           {/* Navigation */}
@@ -195,9 +221,9 @@ export const Rank = () => {
       </header>
 
       {/* Main Content */}
-      <main className="pt-32 px-6 lg:px-[120px] pb-16">
+      <main className="pt-48 lg:pt-40 px-6 lg:px-[120px] pb-16 relative z-10">
         {/* Hero Section */}
-        <div className="text-center mb-12 translate-y-[-1rem] animate-fade-in opacity-0 [--animation-delay:200ms]">
+        <div className="text-center mb-12 translate-y-[-1rem] animate-fade-in opacity-0 [--animation-delay:200ms] pt-8">
           <h1 className="[font-family:'Porter_Sans_Block-Block',Helvetica] font-normal text-4xl lg:text-[72px] leading-[1.1] mb-4">
             <span className="text-[#56504a]">LEADERBOARD</span>
           </h1>
@@ -371,7 +397,7 @@ export const Rank = () => {
       </main>
 
       {/* Footer */}
-      <footer className="relative pt-16 pb-16 translate-y-[-1rem] animate-fade-in opacity-0 [--animation-delay:800ms]">
+      <footer className="relative pt-16 lg:pt-24 pb-16 translate-y-[-1rem] animate-fade-in opacity-0 [--animation-delay:800ms] z-10">
         <div className="max-w-[400px] lg:max-w-[800px] mx-auto text-center px-6">
           <img
             className="h-20 lg:h-32 w-auto mx-auto mb-6 lg:mb-8"
@@ -379,9 +405,67 @@ export const Rank = () => {
             src="https://c.animaapp.com/mgqjxiy6qqDflS/img/logofull-2.svg"
           />
 
+          <p className="[font-family:'Poppins',Helvetica] text-black text-sm lg:text-base leading-relaxed mb-4 lg:mb-6 px-4 lg:px-8">
+            <span className="font-medium">At Runkada, we believe that </span>
+            <span className="font-bold">running is better together. </span>
+            <span className="font-medium">
+              We exist to transform an individual pursuit into a shared
+              challenge, using friendly Clan competition to keep everyone
+              motivated and accountable.
+            </span>
+          </p>
+
           <p className="[font-family:'Poppins',Helvetica] font-medium text-black text-sm lg:text-base mb-6 lg:mb-8">
             © Runkada 2025
           </p>
+
+          <nav className="[font-family:'Poppins',Helvetica] font-normal text-black text-sm lg:text-base space-y-2 lg:space-y-3 mb-6 lg:mb-8">
+            <div><Link to="/" className="hover:opacity-70 transition-opacity">Home</Link></div>
+            <div><Link to="/rank" className="hover:opacity-70 transition-opacity">Rank</Link></div>
+            <div><Link to="/about" className="hover:opacity-70 transition-opacity">About</Link></div>
+            <div><Link to="/clan" className="hover:opacity-70 transition-opacity">Clan</Link></div>
+            <div><Link to="/login" className="hover:opacity-70 transition-opacity">Log In</Link></div>
+          </nav>
+
+          {/* Social Icons */}
+          <div className="flex justify-center gap-6">
+            <a
+              href="https://facebook.com"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="w-8 lg:w-10 h-8 lg:h-10 relative hover:opacity-70 transition-opacity"
+            >
+              <img
+                className="w-full h-full object-contain"
+                alt="Facebook"
+                src="https://c.animaapp.com/mgqjxiy6qqDflS/img/icon-2.svg"
+              />
+            </a>
+            <a
+              href="https://twitter.com"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="w-8 lg:w-10 h-8 lg:h-10 relative hover:opacity-70 transition-opacity"
+            >
+              <img
+                className="w-full h-full object-contain"
+                alt="Twitter"
+                src="https://c.animaapp.com/mgqjxiy6qqDflS/img/icon.svg"
+              />
+            </a>
+            <a
+              href="https://instagram.com"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="w-8 lg:w-10 h-8 lg:h-10 relative hover:opacity-70 transition-opacity"
+            >
+              <img
+                className="w-full h-full object-contain"
+                alt="Instagram"
+                src="https://c.animaapp.com/mgqjxiy6qqDflS/img/icon-1.svg"
+              />
+            </a>
+          </div>
         </div>
       </footer>
     </div>
