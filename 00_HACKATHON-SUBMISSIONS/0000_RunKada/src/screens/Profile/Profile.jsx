@@ -5,12 +5,15 @@ import Squares from '../../components/Squares';
 export const Profile = () => {
   const [isEditing, setIsEditing] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [profilePhoto, setProfilePhoto] = useState(null);
+  const fileInputRef = React.useRef(null);
   const [profileData, setProfileData] = useState({
     name: 'John Runner',
     email: 'john.runner@email.com',
     age: '28',
     gender: 'Male',
-    location: 'San Francisco, CA',
+    country: 'United States',
+    province: 'California',
     goal: 'Run 100km this month',
     bio: 'Passionate runner who loves morning jogs and trail running. Member of Thunder Runners clan.',
   });
@@ -20,6 +23,47 @@ export const Profile = () => {
     { label: 'CLAN', link: '/clan-dashboard' },
     { label: 'SETTINGS', link: '/settings' },
   ];
+
+  const countries = [
+    'United States', 'Canada', 'United Kingdom', 'Australia', 'Germany', 
+    'France', 'Spain', 'Italy', 'Japan', 'South Korea', 'Brazil', 
+    'Mexico', 'India', 'China', 'Philippines', 'Singapore', 'Other'
+  ];
+
+  const provincesByCountry = {
+    'United States': ['Alabama', 'Alaska', 'Arizona', 'Arkansas', 'California', 'Colorado', 'Connecticut', 'Delaware', 'Florida', 'Georgia', 'Hawaii', 'Idaho', 'Illinois', 'Indiana', 'Iowa', 'Kansas', 'Kentucky', 'Louisiana', 'Maine', 'Maryland', 'Massachusetts', 'Michigan', 'Minnesota', 'Mississippi', 'Missouri', 'Montana', 'Nebraska', 'Nevada', 'New Hampshire', 'New Jersey', 'New Mexico', 'New York', 'North Carolina', 'North Dakota', 'Ohio', 'Oklahoma', 'Oregon', 'Pennsylvania', 'Rhode Island', 'South Carolina', 'South Dakota', 'Tennessee', 'Texas', 'Utah', 'Vermont', 'Virginia', 'Washington', 'West Virginia', 'Wisconsin', 'Wyoming'],
+    'Canada': ['Alberta', 'British Columbia', 'Manitoba', 'New Brunswick', 'Newfoundland and Labrador', 'Nova Scotia', 'Ontario', 'Prince Edward Island', 'Quebec', 'Saskatchewan'],
+    'United Kingdom': ['England', 'Scotland', 'Wales', 'Northern Ireland'],
+    'Australia': ['New South Wales', 'Victoria', 'Queensland', 'Western Australia', 'South Australia', 'Tasmania', 'Australian Capital Territory', 'Northern Territory'],
+    'Germany': ['Bavaria', 'Berlin', 'Hamburg', 'Hesse', 'North Rhine-Westphalia', 'Saxony', 'Other'],
+    'France': ['Île-de-France', 'Provence-Alpes-Côte d\'Azur', 'Auvergne-Rhône-Alpes', 'Nouvelle-Aquitaine', 'Occitanie', 'Other'],
+    'Spain': ['Madrid', 'Catalonia', 'Andalusia', 'Valencia', 'Basque Country', 'Other'],
+    'Italy': ['Lazio', 'Lombardy', 'Campania', 'Sicily', 'Veneto', 'Other'],
+    'Japan': ['Tokyo', 'Osaka', 'Kyoto', 'Hokkaido', 'Fukuoka', 'Other'],
+    'South Korea': ['Seoul', 'Busan', 'Incheon', 'Daegu', 'Daejeon', 'Other'],
+    'Brazil': ['São Paulo', 'Rio de Janeiro', 'Minas Gerais', 'Bahia', 'Paraná', 'Other'],
+    'Mexico': ['Mexico City', 'Jalisco', 'Nuevo León', 'Puebla', 'Guanajuato', 'Other'],
+    'India': ['Maharashtra', 'Delhi', 'Karnataka', 'Tamil Nadu', 'West Bengal', 'Other'],
+    'China': ['Beijing', 'Shanghai', 'Guangdong', 'Zhejiang', 'Jiangsu', 'Other'],
+    'Philippines': ['Metro Manila', 'Abra', 'Agusan del Norte', 'Agusan del Sur', 'Aklan', 'Albay', 'Antique', 'Apayao', 'Aurora', 'Basilan', 'Bataan', 'Batanes', 'Batangas', 'Benguet', 'Biliran', 'Bohol', 'Bukidnon', 'Bulacan', 'Cagayan', 'Camarines Norte', 'Camarines Sur', 'Camiguin', 'Capiz', 'Catanduanes', 'Cavite', 'Cebu', 'Cotabato', 'Davao de Oro (Compostela Valley)', 'Davao del Norte', 'Davao del Sur', 'Davao Occidental', 'Davao Oriental', 'Dinagat Islands', 'Eastern Samar', 'Guimaras', 'Ifugao', 'Ilocos Norte', 'Ilocos Sur', 'Iloilo', 'Isabela', 'Kalinga', 'La Union', 'Laguna', 'Lanao del Norte', 'Lanao del Sur', 'Leyte', 'Maguindanao del Norte', 'Maguindanao del Sur', 'Marinduque', 'Masbate', 'Misamis Occidental', 'Misamis Oriental', 'Mountain Province', 'Negros Occidental', 'Negros Oriental', 'Northern Samar', 'Nueva Ecija', 'Nueva Vizcaya', 'Occidental Mindoro', 'Oriental Mindoro', 'Palawan', 'Pampanga', 'Pangasinan', 'Quezon', 'Quirino', 'Rizal', 'Romblon', 'Samar', 'Sarangani', 'Siquijor', 'Sorsogon', 'South Cotabato', 'Southern Leyte', 'Sultan Kudarat', 'Sulu', 'Surigao del Norte', 'Surigao del Sur', 'Tarlac', 'Tawi-Tawi', 'Zambales', 'Zamboanga del Norte', 'Zamboanga del Sur', 'Zamboanga Sibugay'],
+    'Singapore': ['Singapore'],
+    'Other': ['Other']
+  };
+
+  const handlePhotoChange = (event) => {
+    const file = event.target.files[0];
+    if (file && file.type.startsWith('image/')) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setProfilePhoto(reader.result);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleChangePhotoClick = () => {
+    fileInputRef.current?.click();
+  };
 
   return (
     <div className="min-h-screen bg-white relative overflow-hidden">
@@ -86,16 +130,34 @@ export const Profile = () => {
           {/* Profile Picture & Stats */}
           <div className="lg:col-span-1">
             <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-8 border-2 border-[#56504a] shadow-lg text-center mb-6">
-              <div className="w-32 h-32 lg:w-40 lg:h-40 mx-auto mb-4 rounded-full bg-[#fcd96b] border-4 border-[#56504a] flex items-center justify-center text-6xl">
-                👤
+              <div className="w-32 h-32 lg:w-40 lg:h-40 mx-auto mb-4 rounded-full bg-[#fcd96b] border-4 border-[#56504a] flex items-center justify-center text-6xl overflow-hidden">
+                {profilePhoto ? (
+                  <img 
+                    src={profilePhoto} 
+                    alt="Profile" 
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  '👤'
+                )}
               </div>
               <h2 className="[font-family:'Porter_Sans_Block-Block',Helvetica] font-normal text-[#56504a] text-2xl mb-2">
                 {profileData.name}
               </h2>
               <p className="[font-family:'Poppins',Helvetica] font-medium text-black text-sm mb-4">
-                {profileData.location}
+                {profileData.province}, {profileData.country}
               </p>
-              <button className="w-full [font-family:'Porter_Sans_Block-Block',Helvetica] font-normal text-white text-sm uppercase bg-[#56504a] px-6 py-3 rounded-full hover:bg-[#fcd96b] hover:text-[#56504a] transition-all duration-200">
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*"
+                onChange={handlePhotoChange}
+                className="hidden"
+              />
+              <button 
+                onClick={handleChangePhotoClick}
+                className="w-full [font-family:'Porter_Sans_Block-Block',Helvetica] font-normal text-white text-sm uppercase bg-[#56504a] px-6 py-3 rounded-full hover:bg-[#fcd96b] hover:text-[#56504a] transition-all duration-200"
+              >
                 CHANGE PHOTO
               </button>
             </div>
@@ -197,15 +259,40 @@ export const Profile = () => {
 
                 <div>
                   <label className="[font-family:'Poppins',Helvetica] font-semibold text-black text-sm mb-2 block">
-                    Location
+                    Country
                   </label>
-                  <input
-                    type="text"
-                    value={profileData.location}
+                  <select
+                    value={profileData.country}
                     disabled={!isEditing}
-                    onChange={(e) => setProfileData({...profileData, location: e.target.value})}
+                    onChange={(e) => {
+                      setProfileData({...profileData, country: e.target.value, province: ''});
+                    }}
                     className="w-full [font-family:'Poppins',Helvetica] px-4 py-3 rounded-lg border-2 border-[#56504a] bg-white disabled:bg-gray-100"
-                  />
+                  >
+                    {countries.map((country) => (
+                      <option key={country} value={country}>{country}</option>
+                    ))}
+                  </select>
+                </div>
+
+                <div>
+                  <label className="[font-family:'Poppins',Helvetica] font-semibold text-black text-sm mb-2 block">
+                    Province/State
+                  </label>
+                  <select
+                    value={profileData.province}
+                    disabled={!isEditing}
+                    onChange={(e) => setProfileData({...profileData, province: e.target.value})}
+                    className="w-full [font-family:'Poppins',Helvetica] px-4 py-3 rounded-lg border-2 border-[#56504a] bg-white disabled:bg-gray-100"
+                  >
+                    {profileData.country && provincesByCountry[profileData.country] ? (
+                      provincesByCountry[profileData.country].map((province) => (
+                        <option key={province} value={province}>{province}</option>
+                      ))
+                    ) : (
+                      <option value="">Select a country first</option>
+                    )}
+                  </select>
                 </div>
 
                 <div>

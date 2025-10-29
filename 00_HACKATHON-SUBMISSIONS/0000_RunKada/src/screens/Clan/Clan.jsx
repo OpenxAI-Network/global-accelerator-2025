@@ -147,6 +147,7 @@ export const Clan = () => {
   ];
 
   // Filter clans based on search query
+  // Filter clans based on search query
   const filteredClans = clans.filter(clan => 
     clan.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
     clan.type.toLowerCase().includes(searchQuery.toLowerCase())
@@ -251,7 +252,7 @@ export const Clan = () => {
                 FIND YOUR CLAN
               </h1>
               <p className="[font-family:'Poppins',Helvetica] font-normal text-[#56504a] text-base lg:text-lg max-w-2xl mx-auto">
-                Join a running clan to compete, motivate each other, and achieve your goals together
+                Join a running clan to compete, motivate each other, and achieve your goals together. Log in to create your own clan!
               </p>
             </div>
 

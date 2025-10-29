@@ -4,6 +4,21 @@ import Squares from '../../components/Squares';
 
 export const ClanDashboard = () => {
   const [menuOpen, setMenuOpen] = React.useState(false);
+  const [hasClan, setHasClan] = React.useState(false); // Set to false to show create/join options
+  const [showOptions, setShowOptions] = React.useState(true);
+  const [creatingClan, setCreatingClan] = React.useState(false);
+  const [joiningClan, setJoiningClan] = React.useState(false);
+  const [searchQuery, setSearchQuery] = React.useState("");
+  const [newClan, setNewClan] = React.useState({
+    name: '',
+    badge: '⚡',
+    type: 'Casual',
+    description: '',
+    requirement: '',
+    maxMembers: 50
+  });
+
+  const badgeOptions = ['⚡', '🌅', '🏅', '⚔️', '🏙️', '🌲', '🔥', '💪', '🎯', '🌟', '🦅', '🐺', '🦁', '🚀', '⭐'];
 
   const navigationItems = [
     { label: 'DASHBOARD', link: '/dashboard' },
@@ -36,6 +51,67 @@ export const ClanDashboard = () => {
     progress: 67,
     current: 337,
     goal: 500,
+  };
+
+  // Available clans to join
+  const availableClans = [
+    {
+      id: 1,
+      name: 'Thunder Runners',
+      badge: '⚡',
+      members: 45,
+      maxMembers: 50,
+      totalKm: 2450,
+      level: 15,
+      description: 'Elite runners pushing limits every day. Join us for weekly challenges!',
+      requirement: 'Minimum 50km/month',
+      type: 'Competitive',
+    },
+    {
+      id: 2,
+      name: 'Morning Joggers',
+      badge: '🌅',
+      members: 38,
+      maxMembers: 50,
+      totalKm: 1890,
+      level: 12,
+      description: 'Casual morning runs for everyone. All paces welcome!',
+      requirement: 'No requirements',
+      type: 'Casual',
+    },
+    {
+      id: 3,
+      name: 'Marathon Maniacs',
+      badge: '🏅',
+      members: 42,
+      maxMembers: 50,
+      totalKm: 3200,
+      level: 18,
+      description: 'Serious marathon training group. We aim for PRs!',
+      requirement: 'Marathon experience required',
+      type: 'Competitive',
+    },
+  ];
+
+  const filteredClans = availableClans.filter(clan => 
+    clan.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    clan.type.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  const handleCreateClan = () => {
+    console.log('Creating clan:', newClan);
+    alert(`Clan "${newClan.name}" created successfully!`);
+    setHasClan(true);
+    setCreatingClan(false);
+    setShowOptions(false);
+  };
+
+  const handleJoinClan = (clan) => {
+    console.log('Joining clan:', clan.name);
+    alert(`Successfully joined ${clan.name}!`);
+    setHasClan(true);
+    setJoiningClan(false);
+    setShowOptions(false);
   };
 
   return (
@@ -95,6 +171,323 @@ export const ClanDashboard = () => {
 
       {/* Main Content */}
       <main className="relative z-10 max-w-[1400px] mx-auto px-6 lg:px-12 py-12 lg:py-16">
+        {!hasClan ? (
+          /* No Clan - Show Options */
+          <>
+            {showOptions && !creatingClan && !joiningClan ? (
+              /* Initial Options: Create or Join */
+              <div className="max-w-4xl mx-auto">
+                <div className="text-center mb-12">
+                  <h1 className="[font-family:'Porter_Sans_Block-Block',Helvetica] font-normal text-[#56504a] text-4xl lg:text-6xl uppercase mb-4">
+                    JOIN A <span className="text-[#fcd96b]">CLAN</span>
+                  </h1>
+                  <p className="[font-family:'Poppins',Helvetica] font-normal text-[#56504a] text-base lg:text-lg">
+                    Create your own clan or join an existing one
+                  </p>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                  {/* Create Clan Option */}
+                  <div
+                    onClick={() => {
+                      setShowOptions(false);
+                      setCreatingClan(true);
+                    }}
+                    className="bg-white/80 backdrop-blur-sm rounded-3xl border-3 border-[#56504a] shadow-[8px_8px_0px_0px_rgba(86,80,74,1)] p-8 hover:shadow-[10px_10px_0px_0px_rgba(86,80,74,1)] hover:-translate-y-1 transition-all duration-200 cursor-pointer text-center"
+                  >
+                    <div className="text-7xl mb-6">🏆</div>
+                    <h2 className="[font-family:'Porter_Sans_Block-Block',Helvetica] font-normal text-[#56504a] text-3xl uppercase mb-4">
+                      CREATE CLAN
+                    </h2>
+                    <p className="[font-family:'Poppins',Helvetica] text-[#56504a] text-base mb-6">
+                      Start your own running clan and build a community of motivated runners
+                    </p>
+                    <div className="inline-block px-6 py-3 rounded-full bg-[#fcd96b] border-2 border-[#56504a] [font-family:'Porter_Sans_Block-Block',Helvetica] text-[#56504a] text-sm uppercase">
+                      Get Started →
+                    </div>
+                  </div>
+
+                  {/* Join Clan Option */}
+                  <div
+                    onClick={() => {
+                      setShowOptions(false);
+                      setJoiningClan(true);
+                    }}
+                    className="bg-white/80 backdrop-blur-sm rounded-3xl border-3 border-[#56504a] shadow-[8px_8px_0px_0px_rgba(86,80,74,1)] p-8 hover:shadow-[10px_10px_0px_0px_rgba(86,80,74,1)] hover:-translate-y-1 transition-all duration-200 cursor-pointer text-center"
+                  >
+                    <div className="text-7xl mb-6">👥</div>
+                    <h2 className="[font-family:'Porter_Sans_Block-Block',Helvetica] font-normal text-[#56504a] text-3xl uppercase mb-4">
+                      JOIN CLAN
+                    </h2>
+                    <p className="[font-family:'Poppins',Helvetica] text-[#56504a] text-base mb-6">
+                      Browse and join existing clans to start running with a community
+                    </p>
+                    <div className="inline-block px-6 py-3 rounded-full bg-[#fcd96b] border-2 border-[#56504a] [font-family:'Porter_Sans_Block-Block',Helvetica] text-[#56504a] text-sm uppercase">
+                      Browse Clans →
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ) : creatingClan ? (
+              /* Create Clan Form */
+              <div className="max-w-3xl mx-auto">
+                {/* Back Button */}
+                <button
+                  onClick={() => {
+                    setCreatingClan(false);
+                    setShowOptions(true);
+                  }}
+                  className="mb-8 flex items-center gap-2 [font-family:'Poppins',Helvetica] text-[#56504a] text-base font-medium hover:text-[#fcd96b] transition-colors"
+                >
+                  <span className="text-2xl">←</span> Back to Options
+                </button>
+
+                <div className="text-center mb-8">
+                  <h1 className="[font-family:'Porter_Sans_Block-Block',Helvetica] font-normal text-[#56504a] text-4xl lg:text-5xl uppercase mb-4">
+                    CREATE YOUR <span className="text-[#fcd96b]">CLAN</span>
+                  </h1>
+                  <p className="[font-family:'Poppins',Helvetica] font-normal text-[#56504a] text-base">
+                    Fill in the details to start your running community
+                  </p>
+                </div>
+
+                <div className="bg-white/80 backdrop-blur-sm rounded-3xl border-3 border-[#56504a] shadow-[8px_8px_0px_0px_rgba(86,80,74,1)] p-8">
+                  <div className="space-y-6">
+                    {/* Clan Name */}
+                    <div>
+                      <label className="[font-family:'Poppins',Helvetica] font-semibold text-[#56504a] text-sm mb-2 block">
+                        Clan Name *
+                      </label>
+                      <input
+                        type="text"
+                        value={newClan.name}
+                        onChange={(e) => setNewClan({...newClan, name: e.target.value})}
+                        placeholder="Enter clan name"
+                        className="w-full px-4 py-3 rounded-lg border-2 border-[#56504a] [font-family:'Poppins',Helvetica] text-[#56504a] focus:outline-none focus:ring-2 focus:ring-[#fcd96b]"
+                      />
+                    </div>
+
+                    {/* Badge Selection */}
+                    <div>
+                      <label className="[font-family:'Poppins',Helvetica] font-semibold text-[#56504a] text-sm mb-2 block">
+                        Choose Badge *
+                      </label>
+                      <div className="grid grid-cols-5 gap-3">
+                        {badgeOptions.map((badge) => (
+                          <button
+                            key={badge}
+                            onClick={() => setNewClan({...newClan, badge})}
+                            className={`text-4xl p-4 rounded-lg border-2 transition-all ${
+                              newClan.badge === badge
+                                ? 'border-[#fcd96b] bg-[#fcd96b] scale-110'
+                                : 'border-[#56504a] hover:border-[#fcd96b] hover:bg-[#f7e2c6]'
+                            }`}
+                          >
+                            {badge}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Clan Type */}
+                    <div>
+                      <label className="[font-family:'Poppins',Helvetica] font-semibold text-[#56504a] text-sm mb-2 block">
+                        Clan Type *
+                      </label>
+                      <select
+                        value={newClan.type}
+                        onChange={(e) => setNewClan({...newClan, type: e.target.value})}
+                        className="w-full px-4 py-3 rounded-lg border-2 border-[#56504a] [font-family:'Poppins',Helvetica] text-[#56504a] focus:outline-none focus:ring-2 focus:ring-[#fcd96b]"
+                      >
+                        <option value="Casual">Casual</option>
+                        <option value="Competitive">Competitive</option>
+                        <option value="Social">Social</option>
+                        <option value="Adventure">Adventure</option>
+                      </select>
+                    </div>
+
+                    {/* Max Members */}
+                    <div>
+                      <label className="[font-family:'Poppins',Helvetica] font-semibold text-[#56504a] text-sm mb-2 block">
+                        Maximum Members *
+                      </label>
+                      <select
+                        value={newClan.maxMembers}
+                        onChange={(e) => setNewClan({...newClan, maxMembers: parseInt(e.target.value)})}
+                        className="w-full px-4 py-3 rounded-lg border-2 border-[#56504a] [font-family:'Poppins',Helvetica] text-[#56504a] focus:outline-none focus:ring-2 focus:ring-[#fcd96b]"
+                      >
+                        <option value="20">20 members</option>
+                        <option value="30">30 members</option>
+                        <option value="40">40 members</option>
+                        <option value="50">50 members</option>
+                        <option value="100">100 members</option>
+                      </select>
+                    </div>
+
+                    {/* Description */}
+                    <div>
+                      <label className="[font-family:'Poppins',Helvetica] font-semibold text-[#56504a] text-sm mb-2 block">
+                        Description *
+                      </label>
+                      <textarea
+                        value={newClan.description}
+                        onChange={(e) => setNewClan({...newClan, description: e.target.value})}
+                        placeholder="Describe your clan and what makes it unique"
+                        rows="4"
+                        className="w-full px-4 py-3 rounded-lg border-2 border-[#56504a] [font-family:'Poppins',Helvetica] text-[#56504a] focus:outline-none focus:ring-2 focus:ring-[#fcd96b]"
+                      />
+                    </div>
+
+                    {/* Requirements */}
+                    <div>
+                      <label className="[font-family:'Poppins',Helvetica] font-semibold text-[#56504a] text-sm mb-2 block">
+                        Membership Requirement
+                      </label>
+                      <input
+                        type="text"
+                        value={newClan.requirement}
+                        onChange={(e) => setNewClan({...newClan, requirement: e.target.value})}
+                        placeholder="e.g., Minimum 50km/month or No requirements"
+                        className="w-full px-4 py-3 rounded-lg border-2 border-[#56504a] [font-family:'Poppins',Helvetica] text-[#56504a] focus:outline-none focus:ring-2 focus:ring-[#fcd96b]"
+                      />
+                    </div>
+
+                    {/* Submit Button */}
+                    <div className="pt-4">
+                      <button
+                        onClick={handleCreateClan}
+                        disabled={!newClan.name || !newClan.description}
+                        className="w-full bg-[#fcd96b] hover:bg-[#f7e2c6] text-[#56504a] border-3 border-[#56504a] rounded-[30px] px-12 py-4 shadow-[4px_4px_0px_0px_rgba(86,80,74,1)] hover:shadow-[2px_2px_0px_0px_rgba(86,80,74,1)] hover:translate-x-[2px] hover:translate-y-[2px] transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed [font-family:'Porter_Sans_Block-Block',Helvetica] font-normal text-xl uppercase"
+                      >
+                        Create Clan
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ) : joiningClan ? (
+              /* Browse/Join Clans */
+              <div className="max-w-5xl mx-auto">
+                {/* Back Button */}
+                <button
+                  onClick={() => {
+                    setJoiningClan(false);
+                    setShowOptions(true);
+                  }}
+                  className="mb-8 flex items-center gap-2 [font-family:'Poppins',Helvetica] text-[#56504a] text-base font-medium hover:text-[#fcd96b] transition-colors"
+                >
+                  <span className="text-2xl">←</span> Back to Options
+                </button>
+
+                <div className="text-center mb-8">
+                  <h1 className="[font-family:'Porter_Sans_Block-Block',Helvetica] font-normal text-[#56504a] text-4xl lg:text-6xl uppercase mb-4">
+                    FIND YOUR <span className="text-[#fcd96b]">CLAN</span>
+                  </h1>
+                  <p className="[font-family:'Poppins',Helvetica] font-normal text-[#56504a] text-base lg:text-lg">
+                    Browse and join clans to start your journey
+                  </p>
+                </div>
+
+                {/* Search Bar */}
+                <div className="max-w-3xl mx-auto mb-12">
+                  <div className="relative">
+                    <input
+                      type="text"
+                      placeholder="Search clans by name or type..."
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      className="w-full px-6 py-4 rounded-[30px] border-3 border-[#56504a] shadow-[4px_4px_0px_0px_rgba(86,80,74,1)] [font-family:'Poppins',Helvetica] text-[#56504a] text-lg focus:outline-none focus:ring-2 focus:ring-[#fcd96b]"
+                    />
+                    <span className="absolute right-6 top-1/2 transform -translate-y-1/2 text-2xl">
+                      🔍
+                    </span>
+                  </div>
+                </div>
+
+                {/* Clans Grid */}
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {filteredClans.map((clan) => (
+                    <div
+                      key={clan.id}
+                      className="bg-white/80 backdrop-blur-sm rounded-3xl border-3 border-[#56504a] shadow-[6px_6px_0px_0px_rgba(86,80,74,1)] p-6 hover:shadow-[8px_8px_0px_0px_rgba(86,80,74,1)] hover:-translate-y-1 transition-all duration-200"
+                    >
+                      {/* Clan Header */}
+                      <div className="flex items-start gap-4 mb-4">
+                        <div className="text-5xl">{clan.badge}</div>
+                        <div className="flex-1">
+                          <h3 className="[font-family:'Porter_Sans_Block-Block',Helvetica] font-normal text-[#56504a] text-xl uppercase mb-1">
+                            {clan.name}
+                          </h3>
+                          <span className="inline-block px-3 py-1 rounded-full bg-[#fcd96b] border-2 border-[#56504a] [font-family:'Poppins',Helvetica] text-[#56504a] text-xs font-semibold">
+                            {clan.type}
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* Clan Stats */}
+                      <div className="space-y-3 mb-4">
+                        <div className="flex justify-between items-center">
+                          <span className="[font-family:'Poppins',Helvetica] text-[#56504a] text-sm font-medium">
+                            Level:
+                          </span>
+                          <span className="[font-family:'Porter_Sans_Block-Block',Helvetica] text-[#56504a] text-lg">
+                            {clan.level}
+                          </span>
+                        </div>
+                        <div className="flex justify-between items-center">
+                          <span className="[font-family:'Poppins',Helvetica] text-[#56504a] text-sm font-medium">
+                            Members:
+                          </span>
+                          <span className="[font-family:'Poppins',Helvetica] text-[#56504a] text-sm font-semibold">
+                            {clan.members}/{clan.maxMembers}
+                          </span>
+                        </div>
+                        <div className="flex justify-between items-center">
+                          <span className="[font-family:'Poppins',Helvetica] text-[#56504a] text-sm font-medium">
+                            Total KM:
+                          </span>
+                          <span className="[font-family:'Porter_Sans_Block-Block',Helvetica] text-[#fcd96b] text-lg">
+                            {clan.totalKm.toLocaleString()}
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* Description */}
+                      <p className="[font-family:'Poppins',Helvetica] text-[#56504a] text-sm mb-4 line-clamp-2">
+                        {clan.description}
+                      </p>
+
+                      {/* Requirements */}
+                      <div className="pt-3 border-t-2 border-[#f7e2c6] mb-4">
+                        <p className="[font-family:'Poppins',Helvetica] text-[#56504a] text-xs mb-3">
+                          <span className="font-semibold">Requirement:</span> {clan.requirement}
+                        </p>
+                      </div>
+
+                      {/* Join Button */}
+                      <button
+                        onClick={() => handleJoinClan(clan)}
+                        className="w-full bg-[#fcd96b] hover:bg-[#f7e2c6] text-[#56504a] border-2 border-[#56504a] rounded-full px-6 py-2 shadow-[2px_2px_0px_0px_rgba(86,80,74,1)] hover:shadow-[1px_1px_0px_0px_rgba(86,80,74,1)] hover:translate-x-[1px] hover:translate-y-[1px] transition-all duration-200 [font-family:'Porter_Sans_Block-Block',Helvetica] font-normal text-sm uppercase"
+                      >
+                        Join Clan
+                      </button>
+                    </div>
+                  ))}
+                </div>
+
+                {filteredClans.length === 0 && (
+                  <div className="text-center py-16">
+                    <p className="[font-family:'Poppins',Helvetica] text-[#56504a] text-lg">
+                      No clans found. Try a different search term.
+                    </p>
+                  </div>
+                )}
+              </div>
+            ) : null}
+          </>
+        ) : (
+          /* Has Clan - Show Clan Dashboard */
+          <>
         <h1 className="[font-family:'Porter_Sans_Block-Block',Helvetica] font-normal text-[#56504a] text-4xl lg:text-6xl mb-8">
           MY <span className="text-[#fcd96b]">CLAN</span>
         </h1>
@@ -242,6 +635,8 @@ export const ClanDashboard = () => {
             ))}
           </div>
         </div>
+        </>
+        )}
       </main>
     </div>
   );
