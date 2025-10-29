@@ -40,34 +40,34 @@
   ],
   "edges": [
     {
-      "id": "src/screens/Homepage/Homepage.jsx:323:10-to-src/screens/Login/Login.jsx",
-      "source": "src/screens/Homepage/Homepage.jsx",
-      "target": "src/screens/Login/Login.jsx",
+      "id": "src\\screens\\Homepage\\Homepage.jsx:323:10-to-src\\screens\\Login\\Login.jsx",
+      "source": "src\\screens\\Homepage\\Homepage.jsx",
+      "target": "src\\screens\\Login\\Login.jsx",
       "data": {
         "viaRoute": "/login",
         "trigger": {
-          "element": "<Link to=\"/login\">\n            <Button\n              variant=\"outline\"\n              className=\"absolute top-16 right-16 px-8 py-4 rounded-[30px] border-2 border-[#56504a] bg-transparent hover:bg-[#f7e2c6] transition-colors\"\n            >\n              <span className=\"[font-family:'Porter_Sans_Block-Block',Helvetica] font-normal text-[#56504a] text-base uppercase\">\n                log in\n              </span>\n            </Button>\n          </Link>",
+          "element": "<Link to=\"/login\">\r\n            <Button\r\n              variant=\"outline\"\r\n              className=\"absolute top-16 right-16 px-8 py-4 rounded-[30px] border-2 border-[#56504a] bg-transparent hover:bg-[#f7e2c6] transition-colors\"\r\n            >\r\n              <span className=\"[font-family:'Porter_Sans_Block-Block',Helvetica] font-normal text-[#56504a] text-base uppercase\">\r\n                log in\r\n              </span>\r\n            </Button>\r\n          </Link>",
           "line": 323,
           "endLine": 332,
           "column": 10,
           "endColumn": 17,
-          "sourceFile": "src/screens/Homepage/Homepage.jsx"
+          "sourceFile": "src\\screens\\Homepage\\Homepage.jsx"
         }
       }
     },
     {
-      "id": "src/screens/Homepage/Homepage.jsx:343:12-to-src/screens/Login/Login.jsx",
-      "source": "src/screens/Homepage/Homepage.jsx",
-      "target": "src/screens/Login/Login.jsx",
+      "id": "src\\screens\\Homepage\\Homepage.jsx:343:12-to-src\\screens\\Login\\Login.jsx",
+      "source": "src\\screens\\Homepage\\Homepage.jsx",
+      "target": "src\\screens\\Login\\Login.jsx",
       "data": {
         "viaRoute": "/login",
         "trigger": {
-          "element": "<Link to=\"/login\">\n              <Button\n                variant=\"outline\"\n                className=\"px-6 py-2 rounded-full border-2 border-[#56504a] bg-transparent hover:bg-[#f7e2c6] transition-colors text-sm\"\n              >\n                <span className=\"[font-family:'Porter_Sans_Block-Block',Helvetica] font-normal text-[#56504a]\">\n                  LOG IN\n                </span>\n              </Button>\n            </Link>",
+          "element": "<Link to=\"/login\">\r\n              <Button\r\n                variant=\"outline\"\r\n                className=\"px-6 py-2 rounded-full border-2 border-[#56504a] bg-transparent hover:bg-[#f7e2c6] transition-colors text-sm\"\r\n              >\r\n                <span className=\"[font-family:'Porter_Sans_Block-Block',Helvetica] font-normal text-[#56504a]\">\r\n                  LOG IN\r\n                </span>\r\n              </Button>\r\n            </Link>",
           "line": 343,
           "endLine": 352,
           "column": 12,
           "endColumn": 19,
-          "sourceFile": "src/screens/Homepage/Homepage.jsx"
+          "sourceFile": "src\\screens\\Homepage\\Homepage.jsx"
         }
       }
     },
@@ -163,7 +163,7 @@
           "endLine": 183,
           "column": 10,
           "endColumn": 17,
-          "sourceFile": "src/screens/Rank/Rank.jsx"
+          "sourceFile": "src\\screens\\Rank\\Rank.jsx"
         }
       }
     },
@@ -179,7 +179,7 @@
           "endLine": 203,
           "column": 12,
           "endColumn": 19,
-          "sourceFile": "src/screens/Rank/Rank.jsx"
+          "sourceFile": "src\\screens\\Rank\\Rank.jsx"
         }
       }
     },
@@ -275,7 +275,23 @@
           "endLine": 115,
           "column": 10,
           "endColumn": 17,
-          "sourceFile": "src/screens/About/About.jsx"
+          "sourceFile": "src\\screens\\About\\About.jsx"
+        }
+      }
+    },
+    {
+      "id": "src\\screens\\About\\About.jsx:126:12-to-src\\screens\\Login\\Login.jsx",
+      "source": "src\\screens\\About\\About.jsx",
+      "target": "src\\screens\\Login\\Login.jsx",
+      "data": {
+        "viaRoute": "/login",
+        "trigger": {
+          "element": "<Link to=\"/login\">\r\n              <Button\r\n                variant=\"outline\"\r\n                className=\"px-6 py-2 rounded-full border-2 border-[#56504a] bg-transparent hover:bg-[#f7e2c6] transition-colors text-sm\"\r\n              >\r\n                <span className=\"[font-family:'Porter_Sans_Block-Block',Helvetica] font-normal text-[#56504a]\">\r\n                  LOG IN\r\n                </span>\r\n              </Button>\r\n            </Link>",
+          "line": 126,
+          "endLine": 135,
+          "column": 12,
+          "endColumn": 19,
+          "sourceFile": "src\\screens\\About\\About.jsx"
         }
       }
     },
@@ -291,7 +307,7 @@
           "endLine": 135,
           "column": 12,
           "endColumn": 19,
-          "sourceFile": "src/screens/About/About.jsx"
+          "sourceFile": "src\\screens\\About\\About.jsx"
         }
       }
     },
@@ -307,7 +323,87 @@
           "endLine": 255,
           "column": 12,
           "endColumn": 19,
-          "sourceFile": "src/screens/About/About.jsx"
+          "sourceFile": "src\\screens\\Clan\\Clan.jsx"
+        }
+      }
+    },
+    {
+      "id": "src\\screens\\Clan\\Clan.jsx:473:17-to-src\\screens\\Homepage\\Homepage.jsx",
+      "source": "src\\screens\\Clan\\Clan.jsx",
+      "target": "src\\screens\\Homepage\\Homepage.jsx",
+      "data": {
+        "viaRoute": "/",
+        "trigger": {
+          "element": "<Link to=\"/\" className=\"hover:opacity-70 transition-opacity\">Home</Link>",
+          "line": 473,
+          "endLine": 473,
+          "column": 17,
+          "endColumn": 89,
+          "sourceFile": "src\\screens\\Clan\\Clan.jsx"
+        }
+      }
+    },
+    {
+      "id": "src\\screens\\Clan\\Clan.jsx:474:17-to-src\\screens\\Rank\\Rank.jsx",
+      "source": "src\\screens\\Clan\\Clan.jsx",
+      "target": "src\\screens\\Rank\\Rank.jsx",
+      "data": {
+        "viaRoute": "/rank",
+        "trigger": {
+          "element": "<Link to=\"/rank\" className=\"hover:opacity-70 transition-opacity\">Rank</Link>",
+          "line": 474,
+          "endLine": 474,
+          "column": 17,
+          "endColumn": 93,
+          "sourceFile": "src\\screens\\Clan\\Clan.jsx"
+        }
+      }
+    },
+    {
+      "id": "src\\screens\\Clan\\Clan.jsx:475:17-to-src\\screens\\About\\About.jsx",
+      "source": "src\\screens\\Clan\\Clan.jsx",
+      "target": "src\\screens\\About\\About.jsx",
+      "data": {
+        "viaRoute": "/about",
+        "trigger": {
+          "element": "<Link to=\"/about\" className=\"hover:opacity-70 transition-opacity\">About</Link>",
+          "line": 475,
+          "endLine": 475,
+          "column": 17,
+          "endColumn": 95,
+          "sourceFile": "src\\screens\\Clan\\Clan.jsx"
+        }
+      }
+    },
+    {
+      "id": "src\\screens\\Clan\\Clan.jsx:476:17-to-src\\screens\\Clan\\Clan.jsx",
+      "source": "src\\screens\\Clan\\Clan.jsx",
+      "target": "src\\screens\\Clan\\Clan.jsx",
+      "data": {
+        "viaRoute": "/clan",
+        "trigger": {
+          "element": "<Link to=\"/clan\" className=\"hover:opacity-70 transition-opacity\">Clan</Link>",
+          "line": 476,
+          "endLine": 476,
+          "column": 17,
+          "endColumn": 93,
+          "sourceFile": "src\\screens\\Clan\\Clan.jsx"
+        }
+      }
+    },
+    {
+      "id": "src\\screens\\Clan\\Clan.jsx:477:17-to-src\\screens\\Login\\Login.jsx",
+      "source": "src\\screens\\Clan\\Clan.jsx",
+      "target": "src\\screens\\Login\\Login.jsx",
+      "data": {
+        "viaRoute": "/login",
+        "trigger": {
+          "element": "<Link to=\"/login\" className=\"hover:opacity-70 transition-opacity\">Log In</Link>",
+          "line": 477,
+          "endLine": 477,
+          "column": 17,
+          "endColumn": 96,
+          "sourceFile": "src\\screens\\Clan\\Clan.jsx"
         }
       }
     },
@@ -504,9 +600,9 @@
       }
     },
     {
-      "id": "src/screens/Login/Login.jsx:34:6-to-src/screens/Homepage/Homepage.jsx",
-      "source": "src/screens/Login/Login.jsx",
-      "target": "src/screens/Homepage/Homepage.jsx",
+      "id": "src\\screens\\Login\\Login.jsx:57:6-to-src\\screens\\Homepage\\Homepage.jsx",
+      "source": "src\\screens\\Login\\Login.jsx",
+      "target": "src\\screens\\Homepage\\Homepage.jsx",
       "data": {
         "viaRoute": "/",
         "trigger": {
@@ -515,23 +611,23 @@
           "endLine": 40,
           "column": 6,
           "endColumn": 13,
-          "sourceFile": "src/screens/Login/Login.jsx"
+          "sourceFile": "src\\screens\\Login\\Login.jsx"
         }
       }
     },
     {
-      "id": "src/screens/Login/Login.jsx:130:10-to-src/screens/Homepage/Homepage.jsx",
-      "source": "src/screens/Login/Login.jsx",
-      "target": "src/screens/Homepage/Homepage.jsx",
+      "id": "src\\screens\\Login\\Login.jsx:153:10-to-src\\screens\\Homepage\\Homepage.jsx",
+      "source": "src\\screens\\Login\\Login.jsx",
+      "target": "src\\screens\\Homepage\\Homepage.jsx",
       "data": {
         "viaRoute": "/",
         "trigger": {
-          "element": "<Link to=\"/\">\n            <button className=\"[font-family:'Poppins',Helvetica] font-medium text-[#56504a] hover:text-black transition-colors text-base underline\">\n              Back to Home\n            </button>\n          </Link>",
-          "line": 130,
-          "endLine": 134,
+          "element": "<Link to=\"/\">\r\n            <button className=\"[font-family:'Poppins',Helvetica] font-medium text-[#56504a] hover:text-black transition-colors text-base underline\">\r\n              Back to Home\r\n            </button>\r\n          </Link>",
+          "line": 153,
+          "endLine": 157,
           "column": 10,
           "endColumn": 17,
-          "sourceFile": "src/screens/Login/Login.jsx"
+          "sourceFile": "src\\screens\\Login\\Login.jsx"
         }
       }
     }

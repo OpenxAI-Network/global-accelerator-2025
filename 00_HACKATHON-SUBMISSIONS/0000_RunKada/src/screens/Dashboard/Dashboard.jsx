@@ -1,11 +1,20 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useAuth } from '../../contexts/AuthContext';
+import { apiClient } from '../../lib/api.js';
 import { Link } from 'react-router-dom';
 import Squares from '../../components/Squares';
 import { ThemeToggle } from '../../components/ThemeToggle';
 
 export const Dashboard = () => {
+  const { user, logout, isAuthenticated } = useAuth();
   const [activeTab, setActiveTab] = useState('overview');
   const [menuOpen, setMenuOpen] = useState(false);
+  
+  useEffect(() => {
+    if (isAuthenticated) {
+      loadDashboardData();
+    }
+  }, [isAuthenticated]);
 
   const navigationItems = [
     { label: 'PROFILE', value: 'profile', link: '/profile' },
@@ -74,6 +83,7 @@ export const Dashboard = () => {
           {menuOpen && (
             <div className="absolute top-full right-6 lg:right-12 mt-2 bg-white dark:bg-[#2a2a2a] rounded-2xl border-2 border-[#56504a] dark:border-[#fcd96b] shadow-lg overflow-hidden z-50">
               {navigationItems.map((item) => (
+
                 <Link key={item.value} to={item.link}>
                   <button
                     className="w-full text-left [font-family:'Porter_Sans_Block-Block',Helvetica] font-normal text-[#56504a] dark:text-[#fcd96b] text-sm uppercase tracking-wide px-8 py-4 hover:bg-[#fcd96b] dark:hover:bg-[#56504a] transition-all duration-200 border-b border-[#56504a]/10 dark:border-[#fcd96b]/10 last:border-b-0"

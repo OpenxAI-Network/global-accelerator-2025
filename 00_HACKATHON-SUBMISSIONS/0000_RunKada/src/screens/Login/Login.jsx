@@ -1,30 +1,43 @@
-import React from "react";
-import { Link, useNavigate } from "react-router-dom";
+import React, { useEffect } from "react";
+import { Link, useNavigate, useSearchParams, useNavigate } from "react-router-dom";
 import { Button } from "../../components/ui/button";
 import Squares from "../../components/Squares";
+import { useAuth } from "../../contexts/AuthContext";
 
 export const Login = () => {
+  const { loginWithStrava, handleStravaCallback, loading, isAuthenticated } = useAuth();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
 
-  const handleStravaLogin = () => {
-    // Strava OAuth configuration
-    const clientId = "YOUR_STRAVA_CLIENT_ID"; // Replace with actual Strava Client ID
-    
-    // For demo purposes, if no client ID is configured, redirect to dashboard
-    if (clientId === "YOUR_STRAVA_CLIENT_ID") {
-      alert("Strava Client ID not configured. Redirecting to dashboard for demo...");
-      navigate('/dashboard');
-      return;
+  // Handle Strava callback if code is present in URL
+  useEffect(() => {
+    const code = searchParams.get('code');
+    if (code) {
+      handleStravaCallback(code)
+        .then(() => {
+          navigate('/');
+        })
+        .catch((error) => {
+          console.error('Authentication failed:', error);
+          // You might want to show an error message to the user
+        });
     }
-    
-    const redirectUri = encodeURIComponent(window.location.origin + "/auth/callback");
-    const scope = "read,activity:read_all";
-    const responseType = "code";
-    
-    // Redirect to Strava OAuth authorization
-    const stravaAuthUrl = `https://www.strava.com/oauth/authorize?client_id=${clientId}&redirect_uri=${redirectUri}&response_type=${responseType}&scope=${scope}`;
-    
-    window.location.href = stravaAuthUrl;
+  }, [searchParams, handleStravaCallback, navigate]);
+
+  // Redirect if already authenticated
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate('/dashboard');
+    }
+  }, [isAuthenticated, navigate]);
+
+  const handleStravaLogin = async () => {
+    try {
+      await loginWithStrava();
+    } catch (error) {
+      console.error('Login error:', error);
+      // You might want to show an error message to the user
+    }
   };
 
   return (
