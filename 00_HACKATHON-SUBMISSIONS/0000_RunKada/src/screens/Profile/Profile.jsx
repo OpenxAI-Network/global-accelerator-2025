@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import Squares from '../../components/Squares';
+import { ThemeToggle } from '../../components/ThemeToggle';
 
 export const Profile = () => {
   const [isEditing, setIsEditing] = useState(false);
@@ -66,7 +67,7 @@ export const Profile = () => {
   };
 
   return (
-    <div className="min-h-screen bg-white relative overflow-hidden">
+    <div className="min-h-screen bg-white dark:bg-[#1a1a1a] relative overflow-hidden transition-colors duration-300">
       {/* Animated Background Grid */}
       <div className="fixed inset-0 z-0 opacity-20 pointer-events-auto">
         <Squares 
@@ -79,7 +80,7 @@ export const Profile = () => {
       </div>
 
       {/* Header */}
-      <header className="relative z-50 bg-transparent border-b border-[#56504a]/10">
+      <header className="relative z-50 bg-transparent border-b border-[#56504a]/10 dark:border-[#fcd96b]/10">
         <div className="max-w-[1400px] mx-auto px-6 lg:px-12 py-6">
           <div className="flex items-center justify-between">
             <Link to="/dashboard">
@@ -90,25 +91,30 @@ export const Profile = () => {
               />
             </Link>
 
-            {/* Menu Button */}
-            <button
-              onClick={() => setMenuOpen(!menuOpen)}
-              className="relative z-50 flex flex-col gap-1.5 p-2 hover:opacity-70 transition-opacity"
-              aria-label="Menu"
-            >
-              <span className={`block w-8 h-0.5 bg-[#56504a] transition-all duration-300 ${menuOpen ? 'rotate-45 translate-y-2' : ''}`}></span>
-              <span className={`block w-8 h-0.5 bg-[#56504a] transition-all duration-300 ${menuOpen ? 'opacity-0' : ''}`}></span>
-              <span className={`block w-8 h-0.5 bg-[#56504a] transition-all duration-300 ${menuOpen ? '-rotate-45 -translate-y-2' : ''}`}></span>
-            </button>
+            <div className="flex items-center gap-4">
+              {/* Theme Toggle */}
+              <ThemeToggle />
+
+              {/* Menu Button */}
+              <button
+                onClick={() => setMenuOpen(!menuOpen)}
+                className="relative z-50 flex flex-col gap-1.5 p-2 hover:opacity-70 transition-opacity"
+                aria-label="Menu"
+              >
+                <span className={`block w-8 h-0.5 bg-[#56504a] dark:bg-[#fcd96b] transition-all duration-300 ${menuOpen ? 'rotate-45 translate-y-2' : ''}`}></span>
+                <span className={`block w-8 h-0.5 bg-[#56504a] dark:bg-[#fcd96b] transition-all duration-300 ${menuOpen ? 'opacity-0' : ''}`}></span>
+                <span className={`block w-8 h-0.5 bg-[#56504a] dark:bg-[#fcd96b] transition-all duration-300 ${menuOpen ? '-rotate-45 -translate-y-2' : ''}`}></span>
+              </button>
+            </div>
           </div>
 
           {/* Dropdown Menu */}
           {menuOpen && (
-            <div className="absolute top-full right-6 lg:right-12 mt-2 bg-white rounded-2xl border-2 border-[#56504a] shadow-lg overflow-hidden z-50">
+            <div className="absolute top-full right-6 lg:right-12 mt-2 bg-white dark:bg-[#2a2a2a] rounded-2xl border-2 border-[#56504a] dark:border-[#fcd96b] shadow-lg overflow-hidden z-50">
               {navigationItems.map((item) => (
                 <Link key={item.label} to={item.link}>
                   <button
-                    className="w-full text-left [font-family:'Porter_Sans_Block-Block',Helvetica] font-normal text-[#56504a] text-sm uppercase tracking-wide px-8 py-4 hover:bg-[#fcd96b] transition-all duration-200 border-b border-[#56504a]/10 last:border-b-0"
+                    className="w-full text-left [font-family:'Porter_Sans_Block-Block',Helvetica] font-normal text-[#56504a] dark:text-[#fcd96b] text-sm uppercase tracking-wide px-8 py-4 hover:bg-[#fcd96b] dark:hover:bg-[#56504a] transition-all duration-200 border-b border-[#56504a]/10 dark:border-[#fcd96b]/10 last:border-b-0"
                     onClick={() => setMenuOpen(false)}
                   >
                     {item.label}
@@ -122,15 +128,15 @@ export const Profile = () => {
 
       {/* Main Content */}
       <main className="relative z-10 max-w-[1200px] mx-auto px-6 lg:px-12 py-12 lg:py-16">
-        <h1 className="[font-family:'Porter_Sans_Block-Block',Helvetica] font-normal text-[#56504a] text-4xl lg:text-6xl mb-8">
-          MY <span className="text-[#fcd96b]">PROFILE</span>
+        <h1 className="[font-family:'Porter_Sans_Block-Block',Helvetica] font-normal text-[#56504a] dark:text-[#fcd96b] text-4xl lg:text-6xl mb-8">
+          MY <span className="text-[#fcd96b] dark:text-white">PROFILE</span>
         </h1>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Profile Picture & Stats */}
           <div className="lg:col-span-1">
-            <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-8 border-2 border-[#56504a] shadow-lg text-center mb-6">
-              <div className="w-32 h-32 lg:w-40 lg:h-40 mx-auto mb-4 rounded-full bg-[#fcd96b] border-4 border-[#56504a] flex items-center justify-center text-6xl overflow-hidden">
+            <div className="bg-white/80 dark:bg-[#2a2a2a]/80 backdrop-blur-sm rounded-2xl p-8 border-2 border-[#56504a] dark:border-[#fcd96b] shadow-lg text-center mb-6">
+              <div className="w-32 h-32 lg:w-40 lg:h-40 mx-auto mb-4 rounded-full bg-[#fcd96b] dark:bg-[#4a4a4a] border-4 border-[#56504a] dark:border-[#fcd96b] flex items-center justify-center text-6xl overflow-hidden">
                 {profilePhoto ? (
                   <img 
                     src={profilePhoto} 
@@ -141,10 +147,10 @@ export const Profile = () => {
                   '👤'
                 )}
               </div>
-              <h2 className="[font-family:'Porter_Sans_Block-Block',Helvetica] font-normal text-[#56504a] text-2xl mb-2">
+              <h2 className="[font-family:'Porter_Sans_Block-Block',Helvetica] font-normal text-[#56504a] dark:text-[#fcd96b] text-2xl mb-2">
                 {profileData.name}
               </h2>
-              <p className="[font-family:'Poppins',Helvetica] font-medium text-black text-sm mb-4">
+              <p className="[font-family:'Poppins',Helvetica] font-medium text-black dark:text-gray-300 text-sm mb-4">
                 {profileData.province}, {profileData.country}
               </p>
               <input
@@ -156,33 +162,33 @@ export const Profile = () => {
               />
               <button 
                 onClick={handleChangePhotoClick}
-                className="w-full [font-family:'Porter_Sans_Block-Block',Helvetica] font-normal text-white text-sm uppercase bg-[#56504a] px-6 py-3 rounded-full hover:bg-[#fcd96b] hover:text-[#56504a] transition-all duration-200"
+                className="w-full [font-family:'Porter_Sans_Block-Block',Helvetica] font-normal text-white dark:text-[#56504a] text-sm uppercase bg-[#56504a] dark:bg-[#fcd96b] px-6 py-3 rounded-full hover:bg-[#fcd96b] hover:text-[#56504a] dark:hover:bg-white transition-all duration-200"
               >
                 CHANGE PHOTO
               </button>
             </div>
 
             {/* Quick Stats */}
-            <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-6 border-2 border-[#56504a] shadow-lg">
-              <h3 className="[font-family:'Porter_Sans_Block-Block',Helvetica] font-normal text-[#56504a] text-xl mb-4">
+            <div className="bg-white/80 dark:bg-[#2a2a2a]/80 backdrop-blur-sm rounded-2xl p-6 border-2 border-[#56504a] dark:border-[#fcd96b] shadow-lg">
+              <h3 className="[font-family:'Porter_Sans_Block-Block',Helvetica] font-normal text-[#56504a] dark:text-[#fcd96b] text-xl mb-4">
                 STATISTICS
               </h3>
               <div className="space-y-3">
                 <div className="flex justify-between">
-                  <span className="[font-family:'Poppins',Helvetica] font-medium text-black">Total Runs</span>
-                  <span className="[font-family:'Porter_Sans_Block-Block',Helvetica] text-[#56504a]">48</span>
+                  <span className="[font-family:'Poppins',Helvetica] font-medium text-black dark:text-gray-300">Total Runs</span>
+                  <span className="[font-family:'Porter_Sans_Block-Block',Helvetica] text-[#56504a] dark:text-[#fcd96b]">48</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="[font-family:'Poppins',Helvetica] font-medium text-black">Total Distance</span>
-                  <span className="[font-family:'Porter_Sans_Block-Block',Helvetica] text-[#56504a]">245.8 km</span>
+                  <span className="[font-family:'Poppins',Helvetica] font-medium text-black dark:text-gray-300">Total Distance</span>
+                  <span className="[font-family:'Porter_Sans_Block-Block',Helvetica] text-[#56504a] dark:text-[#fcd96b]">245.8 km</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="[font-family:'Poppins',Helvetica] font-medium text-black">Avg Pace</span>
-                  <span className="[font-family:'Porter_Sans_Block-Block',Helvetica] text-[#56504a]">5:45/km</span>
+                  <span className="[font-family:'Poppins',Helvetica] font-medium text-black dark:text-gray-300">Avg Pace</span>
+                  <span className="[font-family:'Porter_Sans_Block-Block',Helvetica] text-[#56504a] dark:text-[#fcd96b]">5:45/km</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="[font-family:'Poppins',Helvetica] font-medium text-black">Clan Rank</span>
-                  <span className="[font-family:'Porter_Sans_Block-Block',Helvetica] text-[#56504a]">#3</span>
+                  <span className="[font-family:'Poppins',Helvetica] font-medium text-black dark:text-gray-300">Clan Rank</span>
+                  <span className="[font-family:'Porter_Sans_Block-Block',Helvetica] text-[#56504a] dark:text-[#fcd96b]">#3</span>
                 </div>
               </div>
             </div>
@@ -190,14 +196,14 @@ export const Profile = () => {
 
           {/* Profile Information */}
           <div className="lg:col-span-2">
-            <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-8 border-2 border-[#56504a] shadow-lg">
+            <div className="bg-white/80 dark:bg-[#2a2a2a]/80 backdrop-blur-sm rounded-2xl p-8 border-2 border-[#56504a] dark:border-[#fcd96b] shadow-lg">
               <div className="flex justify-between items-center mb-6">
-                <h3 className="[font-family:'Porter_Sans_Block-Block',Helvetica] font-normal text-[#56504a] text-2xl">
+                <h3 className="[font-family:'Porter_Sans_Block-Block',Helvetica] font-normal text-[#56504a] dark:text-[#fcd96b] text-2xl">
                   PERSONAL INFO
                 </h3>
                 <button
                   onClick={() => setIsEditing(!isEditing)}
-                  className="[font-family:'Porter_Sans_Block-Block',Helvetica] font-normal text-white text-sm uppercase bg-[#56504a] px-6 py-2 rounded-full hover:bg-[#fcd96b] hover:text-[#56504a] transition-all duration-200"
+                  className="[font-family:'Porter_Sans_Block-Block',Helvetica] font-normal text-white dark:text-[#56504a] text-sm uppercase bg-[#56504a] dark:bg-[#fcd96b] px-6 py-2 rounded-full hover:bg-[#fcd96b] hover:text-[#56504a] dark:hover:bg-white transition-all duration-200"
                 >
                   {isEditing ? 'SAVE' : 'EDIT'}
                 </button>
@@ -205,7 +211,7 @@ export const Profile = () => {
 
               <div className="space-y-6">
                 <div>
-                  <label className="[font-family:'Poppins',Helvetica] font-semibold text-black text-sm mb-2 block">
+                  <label className="[font-family:'Poppins',Helvetica] font-semibold text-black dark:text-gray-300 text-sm mb-2 block">
                     Full Name
                   </label>
                   <input
@@ -213,12 +219,12 @@ export const Profile = () => {
                     value={profileData.name}
                     disabled={!isEditing}
                     onChange={(e) => setProfileData({...profileData, name: e.target.value})}
-                    className="w-full [font-family:'Poppins',Helvetica] px-4 py-3 rounded-lg border-2 border-[#56504a] bg-white disabled:bg-gray-100"
+                    className="w-full [font-family:'Poppins',Helvetica] px-4 py-3 rounded-lg border-2 border-[#56504a] dark:border-[#fcd96b] bg-white dark:bg-[#1a1a1a] dark:text-white disabled:bg-gray-100 dark:disabled:bg-[#3a3a3a]"
                   />
                 </div>
 
                 <div>
-                  <label className="[font-family:'Poppins',Helvetica] font-semibold text-black text-sm mb-2 block">
+                  <label className="[font-family:'Poppins',Helvetica] font-semibold text-black dark:text-gray-300 text-sm mb-2 block">
                     Email
                   </label>
                   <input
@@ -226,13 +232,13 @@ export const Profile = () => {
                     value={profileData.email}
                     disabled={!isEditing}
                     onChange={(e) => setProfileData({...profileData, email: e.target.value})}
-                    className="w-full [font-family:'Poppins',Helvetica] px-4 py-3 rounded-lg border-2 border-[#56504a] bg-white disabled:bg-gray-100"
+                    className="w-full [font-family:'Poppins',Helvetica] px-4 py-3 rounded-lg border-2 border-[#56504a] dark:border-[#fcd96b] bg-white dark:bg-[#1a1a1a] dark:text-white disabled:bg-gray-100 dark:disabled:bg-[#3a3a3a]"
                   />
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <label className="[font-family:'Poppins',Helvetica] font-semibold text-black text-sm mb-2 block">
+                    <label className="[font-family:'Poppins',Helvetica] font-semibold text-black dark:text-gray-300 text-sm mb-2 block">
                       Age
                     </label>
                     <input
@@ -240,11 +246,11 @@ export const Profile = () => {
                       value={profileData.age}
                       disabled={!isEditing}
                       onChange={(e) => setProfileData({...profileData, age: e.target.value})}
-                      className="w-full [font-family:'Poppins',Helvetica] px-4 py-3 rounded-lg border-2 border-[#56504a] bg-white disabled:bg-gray-100"
+                      className="w-full [font-family:'Poppins',Helvetica] px-4 py-3 rounded-lg border-2 border-[#56504a] dark:border-[#fcd96b] bg-white dark:bg-[#1a1a1a] dark:text-white disabled:bg-gray-100 dark:disabled:bg-[#3a3a3a]"
                     />
                   </div>
                   <div>
-                    <label className="[font-family:'Poppins',Helvetica] font-semibold text-black text-sm mb-2 block">
+                    <label className="[font-family:'Poppins',Helvetica] font-semibold text-black dark:text-gray-300 text-sm mb-2 block">
                       Gender
                     </label>
                     <input
@@ -252,13 +258,13 @@ export const Profile = () => {
                       value={profileData.gender}
                       disabled={!isEditing}
                       onChange={(e) => setProfileData({...profileData, gender: e.target.value})}
-                      className="w-full [font-family:'Poppins',Helvetica] px-4 py-3 rounded-lg border-2 border-[#56504a] bg-white disabled:bg-gray-100"
+                      className="w-full [font-family:'Poppins',Helvetica] px-4 py-3 rounded-lg border-2 border-[#56504a] dark:border-[#fcd96b] bg-white dark:bg-[#1a1a1a] dark:text-white disabled:bg-gray-100 dark:disabled:bg-[#3a3a3a]"
                     />
                   </div>
                 </div>
 
                 <div>
-                  <label className="[font-family:'Poppins',Helvetica] font-semibold text-black text-sm mb-2 block">
+                  <label className="[font-family:'Poppins',Helvetica] font-semibold text-black dark:text-gray-300 text-sm mb-2 block">
                     Country
                   </label>
                   <select
@@ -267,7 +273,7 @@ export const Profile = () => {
                     onChange={(e) => {
                       setProfileData({...profileData, country: e.target.value, province: ''});
                     }}
-                    className="w-full [font-family:'Poppins',Helvetica] px-4 py-3 rounded-lg border-2 border-[#56504a] bg-white disabled:bg-gray-100"
+                    className="w-full [font-family:'Poppins',Helvetica] px-4 py-3 rounded-lg border-2 border-[#56504a] dark:border-[#fcd96b] bg-white dark:bg-[#1a1a1a] dark:text-white disabled:bg-gray-100 dark:disabled:bg-[#3a3a3a]"
                   >
                     {countries.map((country) => (
                       <option key={country} value={country}>{country}</option>
@@ -276,14 +282,14 @@ export const Profile = () => {
                 </div>
 
                 <div>
-                  <label className="[font-family:'Poppins',Helvetica] font-semibold text-black text-sm mb-2 block">
+                  <label className="[font-family:'Poppins',Helvetica] font-semibold text-black dark:text-gray-300 text-sm mb-2 block">
                     Province/State
                   </label>
                   <select
                     value={profileData.province}
                     disabled={!isEditing}
                     onChange={(e) => setProfileData({...profileData, province: e.target.value})}
-                    className="w-full [font-family:'Poppins',Helvetica] px-4 py-3 rounded-lg border-2 border-[#56504a] bg-white disabled:bg-gray-100"
+                    className="w-full [font-family:'Poppins',Helvetica] px-4 py-3 rounded-lg border-2 border-[#56504a] dark:border-[#fcd96b] bg-white dark:bg-[#1a1a1a] dark:text-white disabled:bg-gray-100 dark:disabled:bg-[#3a3a3a]"
                   >
                     {profileData.country && provincesByCountry[profileData.country] ? (
                       provincesByCountry[profileData.country].map((province) => (
@@ -296,7 +302,7 @@ export const Profile = () => {
                 </div>
 
                 <div>
-                  <label className="[font-family:'Poppins',Helvetica] font-semibold text-black text-sm mb-2 block">
+                  <label className="[font-family:'Poppins',Helvetica] font-semibold text-black dark:text-gray-300 text-sm mb-2 block">
                     Running Goal
                   </label>
                   <input
@@ -304,12 +310,12 @@ export const Profile = () => {
                     value={profileData.goal}
                     disabled={!isEditing}
                     onChange={(e) => setProfileData({...profileData, goal: e.target.value})}
-                    className="w-full [font-family:'Poppins',Helvetica] px-4 py-3 rounded-lg border-2 border-[#56504a] bg-white disabled:bg-gray-100"
+                    className="w-full [font-family:'Poppins',Helvetica] px-4 py-3 rounded-lg border-2 border-[#56504a] dark:border-[#fcd96b] bg-white dark:bg-[#1a1a1a] dark:text-white disabled:bg-gray-100 dark:disabled:bg-[#3a3a3a]"
                   />
                 </div>
 
                 <div>
-                  <label className="[font-family:'Poppins',Helvetica] font-semibold text-black text-sm mb-2 block">
+                  <label className="[font-family:'Poppins',Helvetica] font-semibold text-black dark:text-gray-300 text-sm mb-2 block">
                     Bio
                   </label>
                   <textarea
@@ -317,7 +323,7 @@ export const Profile = () => {
                     disabled={!isEditing}
                     onChange={(e) => setProfileData({...profileData, bio: e.target.value})}
                     rows="4"
-                    className="w-full [font-family:'Poppins',Helvetica] px-4 py-3 rounded-lg border-2 border-[#56504a] bg-white disabled:bg-gray-100"
+                    className="w-full [font-family:'Poppins',Helvetica] px-4 py-3 rounded-lg border-2 border-[#56504a] dark:border-[#fcd96b] bg-white dark:bg-[#1a1a1a] dark:text-white disabled:bg-gray-100 dark:disabled:bg-[#3a3a3a]"
                   />
                 </div>
               </div>

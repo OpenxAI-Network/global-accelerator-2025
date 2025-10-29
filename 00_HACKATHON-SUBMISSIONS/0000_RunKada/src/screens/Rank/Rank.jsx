@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "../../components/ui/button";
 import Squares from "../../components/Squares";
+import { ThemeToggle } from "../../components/ThemeToggle";
 
 const navigationItems = [
   { label: "Home", active: false, link: "/" },
@@ -132,7 +133,7 @@ export const Rank = () => {
   const [activeTab, setActiveTab] = useState("individual");
 
   return (
-    <div className="bg-[#f5f5f5] overflow-hidden w-full min-h-screen relative">
+    <div className="bg-[#f5f5f5] dark:bg-[#1a1a1a] overflow-hidden w-full min-h-screen relative transition-colors duration-300">
       {/* Animated Background Grid */}
       <div className="fixed inset-0 z-0 opacity-20 pointer-events-auto">
         <Squares 
@@ -156,12 +157,12 @@ export const Rank = () => {
           />
 
           {/* Navigation in Middle */}
-          <div className="absolute top-12 left-1/2 -translate-x-1/2 bg-[#f7e2c680] rounded-[30px] px-8 py-4 flex items-center gap-6 z-50">
+          <div className="absolute top-12 left-1/2 -translate-x-1/2 bg-[#f7e2c680] dark:bg-[#2a2a2a]/80 rounded-[30px] px-8 py-4 flex items-center gap-6 z-50 transition-colors duration-300">
             {navigationItems.map((item, index) => (
               <Link key={index} to={item.link}>
                 <button
-                  className={`[font-family:'Porter_Sans_Block-Block',Helvetica] font-normal text-[#56504a] text-base uppercase tracking-wide px-6 py-2 rounded-[30px] transition-all duration-200 ${
-                    item.active ? "bg-[#f7e2c6]" : "bg-transparent hover:bg-[#f7e2c6]"
+                  className={`[font-family:'Porter_Sans_Block-Block',Helvetica] font-normal text-[#56504a] dark:text-[#fcd96b] text-base uppercase tracking-wide px-6 py-2 rounded-[30px] transition-all duration-200 ${
+                    item.active ? "bg-[#f7e2c6] dark:bg-[#fcd96b] dark:text-[#56504a]" : "bg-transparent hover:bg-[#f7e2c6] dark:hover:bg-[#56504a]"
                   }`}
                 >
                   {item.label}
@@ -171,16 +172,19 @@ export const Rank = () => {
           </div>
 
           {/* Login on Right */}
-          <Link to="/login">
-            <Button
-              variant="outline"
-              className="absolute top-16 right-16 px-8 py-4 rounded-[30px] border-2 border-[#56504a] bg-transparent hover:bg-[#f7e2c6] transition-colors"
-            >
-              <span className="[font-family:'Porter_Sans_Block-Block',Helvetica] font-normal text-[#56504a] text-base uppercase">
-                log in
-              </span>
-            </Button>
-          </Link>
+          <div className="absolute top-16 right-16 flex items-center gap-4">
+            <ThemeToggle />
+            <Link to="/login">
+              <Button
+                variant="outline"
+                className="px-8 py-4 rounded-[30px] border-2 border-[#56504a] dark:border-[#fcd96b] bg-transparent hover:bg-[#f7e2c6] dark:hover:bg-[#56504a] transition-colors"
+              >
+                <span className="[font-family:'Porter_Sans_Block-Block',Helvetica] font-normal text-[#56504a] dark:text-[#fcd96b] text-base uppercase">
+                  log in
+                </span>
+              </Button>
+            </Link>
+          </div>
         </div>
 
         {/* Mobile Header */}
@@ -191,25 +195,28 @@ export const Rank = () => {
               alt="RunKada Logo"
               src="https://c.animaapp.com/mgqjxiy6qqDflS/img/logofull-1.svg"
             />
-            <Link to="/login">
-              <Button
-                variant="outline"
-                className="px-6 py-2 rounded-full border-2 border-[#56504a] bg-transparent hover:bg-[#f7e2c6] transition-colors text-sm"
-              >
-                <span className="[font-family:'Porter_Sans_Block-Block',Helvetica] font-normal text-[#56504a]">
-                  LOG IN
-                </span>
-              </Button>
-            </Link>
+            <div className="flex items-center gap-3">
+              <ThemeToggle />
+              <Link to="/login">
+                <Button
+                  variant="outline"
+                  className="px-6 py-2 rounded-full border-2 border-[#56504a] dark:border-[#fcd96b] bg-transparent hover:bg-[#f7e2c6] dark:hover:bg-[#56504a] transition-colors text-sm"
+                >
+                  <span className="[font-family:'Porter_Sans_Block-Block',Helvetica] font-normal text-[#56504a] dark:text-[#fcd96b]">
+                    LOG IN
+                  </span>
+                </Button>
+              </Link>
+            </div>
           </div>
 
           {/* Navigation */}
-          <nav className="flex items-center justify-center gap-4 bg-[#f7e2c680] rounded-full py-3 px-4">
+          <nav className="flex items-center justify-center gap-4 bg-[#f7e2c680] dark:bg-[#2a2a2a]/80 rounded-full py-3 px-4 transition-colors duration-300">
             {navigationItems.map((item) => (
               <Link key={item.label} to={item.link}>
                 <button
-                  className={`[font-family:'Porter_Sans_Block-Block',Helvetica] font-normal text-[#56504a] text-xs uppercase tracking-wide px-3 py-2 rounded-full transition-all duration-200 ${
-                    item.active ? "bg-[#f7e2c6]" : "bg-transparent hover:bg-[#f7e2c6]"
+                  className={`[font-family:'Porter_Sans_Block-Block',Helvetica] font-normal text-[#56504a] dark:text-[#fcd96b] text-xs uppercase tracking-wide px-3 py-2 rounded-full transition-all duration-200 ${
+                    item.active ? "bg-[#f7e2c6] dark:bg-[#fcd96b] dark:text-[#56504a]" : "bg-transparent hover:bg-[#f7e2c6] dark:hover:bg-[#56504a]"
                   }`}
                 >
                   {item.label}
@@ -405,7 +412,7 @@ export const Rank = () => {
             src="https://c.animaapp.com/mgqjxiy6qqDflS/img/logofull-2.svg"
           />
 
-          <p className="[font-family:'Poppins',Helvetica] text-black text-sm lg:text-base leading-relaxed mb-4 lg:mb-6 px-4 lg:px-8">
+          <p className="[font-family:'Poppins',Helvetica] text-white text-sm lg:text-base leading-relaxed mb-4 lg:mb-6 px-4 lg:px-8">
             <span className="font-medium">At Runkada, we believe that </span>
             <span className="font-bold">running is better together. </span>
             <span className="font-medium">
@@ -415,11 +422,11 @@ export const Rank = () => {
             </span>
           </p>
 
-          <p className="[font-family:'Poppins',Helvetica] font-medium text-black text-sm lg:text-base mb-6 lg:mb-8">
+          <p className="[font-family:'Poppins',Helvetica] font-medium text-white text-sm lg:text-base mb-6 lg:mb-8">
             © Runkada 2025
           </p>
 
-          <nav className="[font-family:'Poppins',Helvetica] font-normal text-black text-sm lg:text-base space-y-2 lg:space-y-3 mb-6 lg:mb-8">
+          <nav className="[font-family:'Poppins',Helvetica] font-normal text-white text-sm lg:text-base space-y-2 lg:space-y-3 mb-6 lg:mb-8">
             <div><Link to="/" className="hover:opacity-70 transition-opacity">Home</Link></div>
             <div><Link to="/rank" className="hover:opacity-70 transition-opacity">Rank</Link></div>
             <div><Link to="/about" className="hover:opacity-70 transition-opacity">About</Link></div>
