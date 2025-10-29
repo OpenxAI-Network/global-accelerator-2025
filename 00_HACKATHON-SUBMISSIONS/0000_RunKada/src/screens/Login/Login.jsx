@@ -1,12 +1,22 @@
 import React from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Button } from "../../components/ui/button";
 import Squares from "../../components/Squares";
 
 export const Login = () => {
+  const navigate = useNavigate();
+
   const handleStravaLogin = () => {
     // Strava OAuth configuration
     const clientId = "YOUR_STRAVA_CLIENT_ID"; // Replace with actual Strava Client ID
+    
+    // For demo purposes, if no client ID is configured, redirect to dashboard
+    if (clientId === "YOUR_STRAVA_CLIENT_ID") {
+      alert("Strava Client ID not configured. Redirecting to dashboard for demo...");
+      navigate('/dashboard');
+      return;
+    }
+    
     const redirectUri = encodeURIComponent(window.location.origin + "/auth/callback");
     const scope = "read,activity:read_all";
     const responseType = "code";
