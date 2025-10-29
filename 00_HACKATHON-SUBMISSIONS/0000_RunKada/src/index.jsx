@@ -9,7 +9,6 @@ import { About } from "./screens/About";
 import { Clan } from "./screens/Clan";
 import { Login } from "./screens/Login";
 import { Dashboard } from "./screens/Dashboard";
-import { Dashboard } from "./screens/Dashboard";
 import { Profile } from "./screens/Profile";
 import { Settings } from "./screens/Settings";
 import { ClanDashboard } from "./screens/ClanDashboard";

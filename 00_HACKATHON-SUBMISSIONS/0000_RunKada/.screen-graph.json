@@ -10,6 +10,13 @@
       "isRoot": true
     },
     {
+      "id": "src/screens/Dashboard/Dashboard.jsx",
+      "label": "Dashboard",
+      "routes": [
+        "/dashboard"
+      ]
+    },
+    {
       "id": "src/screens/Rank/Rank.jsx",
       "label": "Rank",
       "routes": [
@@ -35,6 +42,27 @@
       "label": "Login",
       "routes": [
         "/login"
+      ]
+    },
+    {
+      "id": "src/screens/Profile/Profile.jsx",
+      "label": "Profile",
+      "routes": [
+        "/profile"
+      ]
+    },
+    {
+      "id": "src/screens/Settings/Settings.jsx",
+      "label": "Settings",
+      "routes": [
+        "/settings"
+      ]
+    },
+    {
+      "id": "src/screens/ClanDashboard/ClanDashboard.jsx",
+      "label": "ClanDashboard",
+      "routes": [
+        "/clan-dashboard"
       ]
     }
   ],
@@ -72,9 +100,9 @@
       }
     },
     {
-      "id": "src/screens/Homepage/Homepage.jsx:916:19-to-src/screens/Homepage/Homepage.jsx",
-      "source": "src/screens/Homepage/Homepage.jsx",
-      "target": "src/screens/Homepage/Homepage.jsx",
+      "id": "src\\screens\\Homepage\\Homepage.jsx:916:19-to-src\\screens\\Homepage\\Homepage.jsx",
+      "source": "src\\screens\\Homepage\\Homepage.jsx",
+      "target": "src\\screens\\Homepage\\Homepage.jsx",
       "data": {
         "viaRoute": "/",
         "trigger": {
@@ -83,14 +111,14 @@
           "endLine": 916,
           "column": 19,
           "endColumn": 91,
-          "sourceFile": "src/screens/Homepage/Homepage.jsx"
+          "sourceFile": "src\\screens\\Homepage\\Homepage.jsx"
         }
       }
     },
     {
-      "id": "src/screens/Homepage/Homepage.jsx:917:19-to-src/screens/Rank/Rank.jsx",
-      "source": "src/screens/Homepage/Homepage.jsx",
-      "target": "src/screens/Rank/Rank.jsx",
+      "id": "src\\screens\\Homepage\\Homepage.jsx:917:19-to-src\\screens\\Rank\\Rank.jsx",
+      "source": "src\\screens\\Homepage\\Homepage.jsx",
+      "target": "src\\screens\\Rank\\Rank.jsx",
       "data": {
         "viaRoute": "/rank",
         "trigger": {
@@ -99,14 +127,14 @@
           "endLine": 917,
           "column": 19,
           "endColumn": 95,
-          "sourceFile": "src/screens/Homepage/Homepage.jsx"
+          "sourceFile": "src\\screens\\Homepage\\Homepage.jsx"
         }
       }
     },
     {
-      "id": "src/screens/Homepage/Homepage.jsx:918:19-to-src/screens/About/About.jsx",
-      "source": "src/screens/Homepage/Homepage.jsx",
-      "target": "src/screens/About/About.jsx",
+      "id": "src\\screens\\Homepage\\Homepage.jsx:918:19-to-src\\screens\\About\\About.jsx",
+      "source": "src\\screens\\Homepage\\Homepage.jsx",
+      "target": "src\\screens\\About\\About.jsx",
       "data": {
         "viaRoute": "/about",
         "trigger": {
@@ -115,14 +143,14 @@
           "endLine": 918,
           "column": 19,
           "endColumn": 97,
-          "sourceFile": "src/screens/Homepage/Homepage.jsx"
+          "sourceFile": "src\\screens\\Homepage\\Homepage.jsx"
         }
       }
     },
     {
-      "id": "src/screens/Homepage/Homepage.jsx:919:19-to-src/screens/Clan/Clan.jsx",
-      "source": "src/screens/Homepage/Homepage.jsx",
-      "target": "src/screens/Clan/Clan.jsx",
+      "id": "src\\screens\\Homepage\\Homepage.jsx:919:19-to-src\\screens\\Clan\\Clan.jsx",
+      "source": "src\\screens\\Homepage\\Homepage.jsx",
+      "target": "src\\screens\\Clan\\Clan.jsx",
       "data": {
         "viaRoute": "/clan",
         "trigger": {
@@ -131,14 +159,14 @@
           "endLine": 919,
           "column": 19,
           "endColumn": 95,
-          "sourceFile": "src/screens/Homepage/Homepage.jsx"
+          "sourceFile": "src\\screens\\Homepage\\Homepage.jsx"
         }
       }
     },
     {
-      "id": "src/screens/Homepage/Homepage.jsx:920:19-to-src/screens/Login/Login.jsx",
-      "source": "src/screens/Homepage/Homepage.jsx",
-      "target": "src/screens/Login/Login.jsx",
+      "id": "src\\screens\\Homepage\\Homepage.jsx:920:19-to-src\\screens\\Login\\Login.jsx",
+      "source": "src\\screens\\Homepage\\Homepage.jsx",
+      "target": "src\\screens\\Login\\Login.jsx",
       "data": {
         "viaRoute": "/login",
         "trigger": {
@@ -147,18 +175,82 @@
           "endLine": 920,
           "column": 19,
           "endColumn": 98,
-          "sourceFile": "src/screens/Homepage/Homepage.jsx"
+          "sourceFile": "src\\screens\\Homepage\\Homepage.jsx"
         }
       }
     },
     {
-      "id": "src/screens/Rank/Rank.jsx:174:10-to-src/screens/Login/Login.jsx",
-      "source": "src/screens/Rank/Rank.jsx",
-      "target": "src/screens/Login/Login.jsx",
+      "id": "src\\screens\\Dashboard\\Dashboard.jsx:56:12-to-src\\screens\\Homepage\\Homepage.jsx",
+      "source": "src\\screens\\Dashboard\\Dashboard.jsx",
+      "target": "src\\screens\\Homepage\\Homepage.jsx",
+      "data": {
+        "viaRoute": "/",
+        "trigger": {
+          "element": "<Link to=\"/\">\r\n              <img\r\n                className=\"h-16 lg:h-20 w-auto\"\r\n                alt=\"RunKada Logo\"\r\n                src=\"https://c.animaapp.com/mgqjxiy6qqDflS/img/logofull-2.svg\"\r\n              />\r\n            </Link>",
+          "line": 56,
+          "endLine": 62,
+          "column": 12,
+          "endColumn": 19,
+          "sourceFile": "src\\screens\\Dashboard\\Dashboard.jsx"
+        }
+      }
+    },
+    {
+      "id": "src\\screens\\Dashboard\\Dashboard.jsx:168:10-to-src\\screens\\Profile\\Profile.jsx",
+      "source": "src\\screens\\Dashboard\\Dashboard.jsx",
+      "target": "src\\screens\\Profile\\Profile.jsx",
+      "data": {
+        "viaRoute": "/profile",
+        "trigger": {
+          "element": "<Link to=\"/profile\" className=\"bg-white/80 backdrop-blur-sm rounded-2xl p-6 border-2 border-[#56504a] shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 text-center\">\r\n            <div className=\"text-4xl mb-3\">👤</div>\r\n            <div className=\"[font-family:'Porter_Sans_Block-Block',Helvetica] font-normal text-[#56504a] text-xl mb-2\">\r\n              VIEW PROFILE\r\n            </div>\r\n            <div className=\"[font-family:'Poppins',Helvetica] font-medium text-black text-sm\">\r\n              Update your information\r\n            </div>\r\n          </Link>",
+          "line": 168,
+          "endLine": 176,
+          "column": 10,
+          "endColumn": 17,
+          "sourceFile": "src\\screens\\Dashboard\\Dashboard.jsx"
+        }
+      }
+    },
+    {
+      "id": "src\\screens\\Dashboard\\Dashboard.jsx:178:10-to-src\\screens\\ClanDashboard\\ClanDashboard.jsx",
+      "source": "src\\screens\\Dashboard\\Dashboard.jsx",
+      "target": "src\\screens\\ClanDashboard\\ClanDashboard.jsx",
+      "data": {
+        "viaRoute": "/clan-dashboard",
+        "trigger": {
+          "element": "<Link to=\"/clan-dashboard\" className=\"bg-white/80 backdrop-blur-sm rounded-2xl p-6 border-2 border-[#56504a] shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 text-center\">\r\n            <div className=\"text-4xl mb-3\">⚔️</div>\r\n            <div className=\"[font-family:'Porter_Sans_Block-Block',Helvetica] font-normal text-[#56504a] text-xl mb-2\">\r\n              MY CLAN\r\n            </div>\r\n            <div className=\"[font-family:'Poppins',Helvetica] font-medium text-black text-sm\">\r\n              See your clan progress\r\n            </div>\r\n          </Link>",
+          "line": 178,
+          "endLine": 186,
+          "column": 10,
+          "endColumn": 17,
+          "sourceFile": "src\\screens\\Dashboard\\Dashboard.jsx"
+        }
+      }
+    },
+    {
+      "id": "src\\screens\\Dashboard\\Dashboard.jsx:188:10-to-src\\screens\\Settings\\Settings.jsx",
+      "source": "src\\screens\\Dashboard\\Dashboard.jsx",
+      "target": "src\\screens\\Settings\\Settings.jsx",
+      "data": {
+        "viaRoute": "/settings",
+        "trigger": {
+          "element": "<Link to=\"/settings\" className=\"bg-white/80 backdrop-blur-sm rounded-2xl p-6 border-2 border-[#56504a] shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 text-center\">\r\n            <div className=\"text-4xl mb-3\">⚙️</div>\r\n            <div className=\"[font-family:'Porter_Sans_Block-Block',Helvetica] font-normal text-[#56504a] text-xl mb-2\">\r\n              SETTINGS\r\n            </div>\r\n            <div className=\"[font-family:'Poppins',Helvetica] font-medium text-black text-sm\">\r\n              Manage preferences\r\n            </div>\r\n          </Link>",
+          "line": 188,
+          "endLine": 196,
+          "column": 10,
+          "endColumn": 17,
+          "sourceFile": "src\\screens\\Dashboard\\Dashboard.jsx"
+        }
+      }
+    },
+    {
+      "id": "src\\screens\\Rank\\Rank.jsx:174:10-to-src\\screens\\Login\\Login.jsx",
+      "source": "src\\screens\\Rank\\Rank.jsx",
+      "target": "src\\screens\\Login\\Login.jsx",
       "data": {
         "viaRoute": "/login",
         "trigger": {
-          "element": "<Link to=\"/login\">\n            <Button\n              variant=\"outline\"\n              className=\"absolute top-16 right-16 px-8 py-4 rounded-[30px] border-2 border-[#56504a] bg-transparent hover:bg-[#f7e2c6] transition-colors\"\n            >\n              <span className=\"[font-family:'Porter_Sans_Block-Block',Helvetica] font-normal text-[#56504a] text-base uppercase\">\n                log in\n              </span>\n            </Button>\n          </Link>",
+          "element": "<Link to=\"/login\">\r\n            <Button\r\n              variant=\"outline\"\r\n              className=\"absolute top-16 right-16 px-8 py-4 rounded-[30px] border-2 border-[#56504a] bg-transparent hover:bg-[#f7e2c6] transition-colors\"\r\n            >\r\n              <span className=\"[font-family:'Porter_Sans_Block-Block',Helvetica] font-normal text-[#56504a] text-base uppercase\">\r\n                log in\r\n              </span>\r\n            </Button>\r\n          </Link>",
           "line": 174,
           "endLine": 183,
           "column": 10,
@@ -168,13 +260,13 @@
       }
     },
     {
-      "id": "src/screens/Rank/Rank.jsx:194:12-to-src/screens/Login/Login.jsx",
-      "source": "src/screens/Rank/Rank.jsx",
-      "target": "src/screens/Login/Login.jsx",
+      "id": "src\\screens\\Rank\\Rank.jsx:194:12-to-src\\screens\\Login\\Login.jsx",
+      "source": "src\\screens\\Rank\\Rank.jsx",
+      "target": "src\\screens\\Login\\Login.jsx",
       "data": {
         "viaRoute": "/login",
         "trigger": {
-          "element": "<Link to=\"/login\">\n              <Button\n                variant=\"outline\"\n                className=\"px-6 py-2 rounded-full border-2 border-[#56504a] bg-transparent hover:bg-[#f7e2c6] transition-colors text-sm\"\n              >\n                <span className=\"[font-family:'Porter_Sans_Block-Block',Helvetica] font-normal text-[#56504a]\">\n                  LOG IN\n                </span>\n              </Button>\n            </Link>",
+          "element": "<Link to=\"/login\">\r\n              <Button\r\n                variant=\"outline\"\r\n                className=\"px-6 py-2 rounded-full border-2 border-[#56504a] bg-transparent hover:bg-[#f7e2c6] transition-colors text-sm\"\r\n              >\r\n                <span className=\"[font-family:'Porter_Sans_Block-Block',Helvetica] font-normal text-[#56504a]\">\r\n                  LOG IN\r\n                </span>\r\n              </Button>\r\n            </Link>",
           "line": 194,
           "endLine": 203,
           "column": 12,
@@ -184,9 +276,9 @@
       }
     },
     {
-      "id": "src/screens/Rank/Rank.jsx:423:17-to-src/screens/Homepage/Homepage.jsx",
-      "source": "src/screens/Rank/Rank.jsx",
-      "target": "src/screens/Homepage/Homepage.jsx",
+      "id": "src\\screens\\Rank\\Rank.jsx:423:17-to-src\\screens\\Homepage\\Homepage.jsx",
+      "source": "src\\screens\\Rank\\Rank.jsx",
+      "target": "src\\screens\\Homepage\\Homepage.jsx",
       "data": {
         "viaRoute": "/",
         "trigger": {
@@ -195,14 +287,14 @@
           "endLine": 423,
           "column": 17,
           "endColumn": 89,
-          "sourceFile": "src/screens/Rank/Rank.jsx"
+          "sourceFile": "src\\screens\\Rank\\Rank.jsx"
         }
       }
     },
     {
-      "id": "src/screens/Rank/Rank.jsx:424:17-to-src/screens/Rank/Rank.jsx",
-      "source": "src/screens/Rank/Rank.jsx",
-      "target": "src/screens/Rank/Rank.jsx",
+      "id": "src\\screens\\Rank\\Rank.jsx:424:17-to-src\\screens\\Rank\\Rank.jsx",
+      "source": "src\\screens\\Rank\\Rank.jsx",
+      "target": "src\\screens\\Rank\\Rank.jsx",
       "data": {
         "viaRoute": "/rank",
         "trigger": {
@@ -211,14 +303,14 @@
           "endLine": 424,
           "column": 17,
           "endColumn": 93,
-          "sourceFile": "src/screens/Rank/Rank.jsx"
+          "sourceFile": "src\\screens\\Rank\\Rank.jsx"
         }
       }
     },
     {
-      "id": "src/screens/Rank/Rank.jsx:425:17-to-src/screens/About/About.jsx",
-      "source": "src/screens/Rank/Rank.jsx",
-      "target": "src/screens/About/About.jsx",
+      "id": "src\\screens\\Rank\\Rank.jsx:425:17-to-src\\screens\\About\\About.jsx",
+      "source": "src\\screens\\Rank\\Rank.jsx",
+      "target": "src\\screens\\About\\About.jsx",
       "data": {
         "viaRoute": "/about",
         "trigger": {
@@ -227,14 +319,14 @@
           "endLine": 425,
           "column": 17,
           "endColumn": 95,
-          "sourceFile": "src/screens/Rank/Rank.jsx"
+          "sourceFile": "src\\screens\\Rank\\Rank.jsx"
         }
       }
     },
     {
-      "id": "src/screens/Rank/Rank.jsx:426:17-to-src/screens/Clan/Clan.jsx",
-      "source": "src/screens/Rank/Rank.jsx",
-      "target": "src/screens/Clan/Clan.jsx",
+      "id": "src\\screens\\Rank\\Rank.jsx:426:17-to-src\\screens\\Clan\\Clan.jsx",
+      "source": "src\\screens\\Rank\\Rank.jsx",
+      "target": "src\\screens\\Clan\\Clan.jsx",
       "data": {
         "viaRoute": "/clan",
         "trigger": {
@@ -243,14 +335,14 @@
           "endLine": 426,
           "column": 17,
           "endColumn": 93,
-          "sourceFile": "src/screens/Rank/Rank.jsx"
+          "sourceFile": "src\\screens\\Rank\\Rank.jsx"
         }
       }
     },
     {
-      "id": "src/screens/Rank/Rank.jsx:427:17-to-src/screens/Login/Login.jsx",
-      "source": "src/screens/Rank/Rank.jsx",
-      "target": "src/screens/Login/Login.jsx",
+      "id": "src\\screens\\Rank\\Rank.jsx:427:17-to-src\\screens\\Login\\Login.jsx",
+      "source": "src\\screens\\Rank\\Rank.jsx",
+      "target": "src\\screens\\Login\\Login.jsx",
       "data": {
         "viaRoute": "/login",
         "trigger": {
@@ -259,18 +351,18 @@
           "endLine": 427,
           "column": 17,
           "endColumn": 96,
-          "sourceFile": "src/screens/Rank/Rank.jsx"
+          "sourceFile": "src\\screens\\Rank\\Rank.jsx"
         }
       }
     },
     {
-      "id": "src/screens/About/About.jsx:106:10-to-src/screens/Login/Login.jsx",
-      "source": "src/screens/About/About.jsx",
-      "target": "src/screens/Login/Login.jsx",
+      "id": "src\\screens\\About\\About.jsx:106:10-to-src\\screens\\Login\\Login.jsx",
+      "source": "src\\screens\\About\\About.jsx",
+      "target": "src\\screens\\Login\\Login.jsx",
       "data": {
         "viaRoute": "/login",
         "trigger": {
-          "element": "<Link to=\"/login\">\n            <Button\n              variant=\"outline\"\n              className=\"absolute top-16 right-16 px-8 py-4 rounded-[30px] border-2 border-[#56504a] bg-transparent hover:bg-[#f7e2c6] transition-colors\"\n            >\n              <span className=\"[font-family:'Porter_Sans_Block-Block',Helvetica] font-normal text-[#56504a] text-base uppercase\">\n                log in\n              </span>\n            </Button>\n          </Link>",
+          "element": "<Link to=\"/login\">\r\n            <Button\r\n              variant=\"outline\"\r\n              className=\"absolute top-16 right-16 px-8 py-4 rounded-[30px] border-2 border-[#56504a] bg-transparent hover:bg-[#f7e2c6] transition-colors\"\r\n            >\r\n              <span className=\"[font-family:'Porter_Sans_Block-Block',Helvetica] font-normal text-[#56504a] text-base uppercase\">\r\n                log in\r\n              </span>\r\n            </Button>\r\n          </Link>",
           "line": 106,
           "endLine": 115,
           "column": 10,
@@ -296,15 +388,15 @@
       }
     },
     {
-      "id": "src/screens/About/About.jsx:126:12-to-src/screens/Login/Login.jsx",
-      "source": "src/screens/About/About.jsx",
-      "target": "src/screens/Login/Login.jsx",
+      "id": "src\\screens\\About\\About.jsx:249:12-to-src\\screens\\Homepage\\Homepage.jsx",
+      "source": "src\\screens\\About\\About.jsx",
+      "target": "src\\screens\\Homepage\\Homepage.jsx",
       "data": {
-        "viaRoute": "/login",
+        "viaRoute": "/",
         "trigger": {
-          "element": "<Link to=\"/login\">\n              <Button\n                variant=\"outline\"\n                className=\"px-6 py-2 rounded-full border-2 border-[#56504a] bg-transparent hover:bg-[#f7e2c6] transition-colors text-sm\"\n              >\n                <span className=\"[font-family:'Porter_Sans_Block-Block',Helvetica] font-normal text-[#56504a]\">\n                  LOG IN\n                </span>\n              </Button>\n            </Link>",
-          "line": 126,
-          "endLine": 135,
+          "element": "<Link to=\"/\">\r\n              <Button className=\"bg-[#56504a] hover:bg-black text-white rounded-[30px] px-12 py-6 text-lg\">\r\n                <span className=\"[font-family:'Porter_Sans_Block-Block',Helvetica] font-normal uppercase\">\r\n                  Get Started\r\n                </span>\r\n              </Button>\r\n            </Link>",
+          "line": 249,
+          "endLine": 255,
           "column": 12,
           "endColumn": 19,
           "sourceFile": "src\\screens\\About\\About.jsx"
@@ -312,105 +404,9 @@
       }
     },
     {
-      "id": "src/screens/About/About.jsx:249:12-to-src/screens/Homepage/Homepage.jsx",
-      "source": "src/screens/About/About.jsx",
-      "target": "src/screens/Homepage/Homepage.jsx",
-      "data": {
-        "viaRoute": "/",
-        "trigger": {
-          "element": "<Link to=\"/\">\n              <Button className=\"bg-[#56504a] hover:bg-black text-white rounded-[30px] px-12 py-6 text-lg\">\n                <span className=\"[font-family:'Porter_Sans_Block-Block',Helvetica] font-normal uppercase\">\n                  Get Started\n                </span>\n              </Button>\n            </Link>",
-          "line": 249,
-          "endLine": 255,
-          "column": 12,
-          "endColumn": 19,
-          "sourceFile": "src\\screens\\Clan\\Clan.jsx"
-        }
-      }
-    },
-    {
-      "id": "src\\screens\\Clan\\Clan.jsx:473:17-to-src\\screens\\Homepage\\Homepage.jsx",
-      "source": "src\\screens\\Clan\\Clan.jsx",
+      "id": "src\\screens\\About\\About.jsx:284:17-to-src\\screens\\Homepage\\Homepage.jsx",
+      "source": "src\\screens\\About\\About.jsx",
       "target": "src\\screens\\Homepage\\Homepage.jsx",
-      "data": {
-        "viaRoute": "/",
-        "trigger": {
-          "element": "<Link to=\"/\" className=\"hover:opacity-70 transition-opacity\">Home</Link>",
-          "line": 473,
-          "endLine": 473,
-          "column": 17,
-          "endColumn": 89,
-          "sourceFile": "src\\screens\\Clan\\Clan.jsx"
-        }
-      }
-    },
-    {
-      "id": "src\\screens\\Clan\\Clan.jsx:474:17-to-src\\screens\\Rank\\Rank.jsx",
-      "source": "src\\screens\\Clan\\Clan.jsx",
-      "target": "src\\screens\\Rank\\Rank.jsx",
-      "data": {
-        "viaRoute": "/rank",
-        "trigger": {
-          "element": "<Link to=\"/rank\" className=\"hover:opacity-70 transition-opacity\">Rank</Link>",
-          "line": 474,
-          "endLine": 474,
-          "column": 17,
-          "endColumn": 93,
-          "sourceFile": "src\\screens\\Clan\\Clan.jsx"
-        }
-      }
-    },
-    {
-      "id": "src\\screens\\Clan\\Clan.jsx:475:17-to-src\\screens\\About\\About.jsx",
-      "source": "src\\screens\\Clan\\Clan.jsx",
-      "target": "src\\screens\\About\\About.jsx",
-      "data": {
-        "viaRoute": "/about",
-        "trigger": {
-          "element": "<Link to=\"/about\" className=\"hover:opacity-70 transition-opacity\">About</Link>",
-          "line": 475,
-          "endLine": 475,
-          "column": 17,
-          "endColumn": 95,
-          "sourceFile": "src\\screens\\Clan\\Clan.jsx"
-        }
-      }
-    },
-    {
-      "id": "src\\screens\\Clan\\Clan.jsx:476:17-to-src\\screens\\Clan\\Clan.jsx",
-      "source": "src\\screens\\Clan\\Clan.jsx",
-      "target": "src\\screens\\Clan\\Clan.jsx",
-      "data": {
-        "viaRoute": "/clan",
-        "trigger": {
-          "element": "<Link to=\"/clan\" className=\"hover:opacity-70 transition-opacity\">Clan</Link>",
-          "line": 476,
-          "endLine": 476,
-          "column": 17,
-          "endColumn": 93,
-          "sourceFile": "src\\screens\\Clan\\Clan.jsx"
-        }
-      }
-    },
-    {
-      "id": "src\\screens\\Clan\\Clan.jsx:477:17-to-src\\screens\\Login\\Login.jsx",
-      "source": "src\\screens\\Clan\\Clan.jsx",
-      "target": "src\\screens\\Login\\Login.jsx",
-      "data": {
-        "viaRoute": "/login",
-        "trigger": {
-          "element": "<Link to=\"/login\" className=\"hover:opacity-70 transition-opacity\">Log In</Link>",
-          "line": 477,
-          "endLine": 477,
-          "column": 17,
-          "endColumn": 96,
-          "sourceFile": "src\\screens\\Clan\\Clan.jsx"
-        }
-      }
-    },
-    {
-      "id": "src/screens/About/About.jsx:284:17-to-src/screens/Homepage/Homepage.jsx",
-      "source": "src/screens/About/About.jsx",
-      "target": "src/screens/Homepage/Homepage.jsx",
       "data": {
         "viaRoute": "/",
         "trigger": {
@@ -419,14 +415,14 @@
           "endLine": 284,
           "column": 17,
           "endColumn": 89,
-          "sourceFile": "src/screens/About/About.jsx"
+          "sourceFile": "src\\screens\\About\\About.jsx"
         }
       }
     },
     {
-      "id": "src/screens/About/About.jsx:285:17-to-src/screens/Rank/Rank.jsx",
-      "source": "src/screens/About/About.jsx",
-      "target": "src/screens/Rank/Rank.jsx",
+      "id": "src\\screens\\About\\About.jsx:285:17-to-src\\screens\\Rank\\Rank.jsx",
+      "source": "src\\screens\\About\\About.jsx",
+      "target": "src\\screens\\Rank\\Rank.jsx",
       "data": {
         "viaRoute": "/rank",
         "trigger": {
@@ -435,14 +431,14 @@
           "endLine": 285,
           "column": 17,
           "endColumn": 93,
-          "sourceFile": "src/screens/About/About.jsx"
+          "sourceFile": "src\\screens\\About\\About.jsx"
         }
       }
     },
     {
-      "id": "src/screens/About/About.jsx:286:17-to-src/screens/About/About.jsx",
-      "source": "src/screens/About/About.jsx",
-      "target": "src/screens/About/About.jsx",
+      "id": "src\\screens\\About\\About.jsx:286:17-to-src\\screens\\About\\About.jsx",
+      "source": "src\\screens\\About\\About.jsx",
+      "target": "src\\screens\\About\\About.jsx",
       "data": {
         "viaRoute": "/about",
         "trigger": {
@@ -451,14 +447,14 @@
           "endLine": 286,
           "column": 17,
           "endColumn": 95,
-          "sourceFile": "src/screens/About/About.jsx"
+          "sourceFile": "src\\screens\\About\\About.jsx"
         }
       }
     },
     {
-      "id": "src/screens/About/About.jsx:287:17-to-src/screens/Clan/Clan.jsx",
-      "source": "src/screens/About/About.jsx",
-      "target": "src/screens/Clan/Clan.jsx",
+      "id": "src\\screens\\About\\About.jsx:287:17-to-src\\screens\\Clan\\Clan.jsx",
+      "source": "src\\screens\\About\\About.jsx",
+      "target": "src\\screens\\Clan\\Clan.jsx",
       "data": {
         "viaRoute": "/clan",
         "trigger": {
@@ -467,14 +463,14 @@
           "endLine": 287,
           "column": 17,
           "endColumn": 93,
-          "sourceFile": "src/screens/About/About.jsx"
+          "sourceFile": "src\\screens\\About\\About.jsx"
         }
       }
     },
     {
-      "id": "src/screens/About/About.jsx:288:17-to-src/screens/Login/Login.jsx",
-      "source": "src/screens/About/About.jsx",
-      "target": "src/screens/Login/Login.jsx",
+      "id": "src\\screens\\About\\About.jsx:288:17-to-src\\screens\\Login\\Login.jsx",
+      "source": "src\\screens\\About\\About.jsx",
+      "target": "src\\screens\\Login\\Login.jsx",
       "data": {
         "viaRoute": "/login",
         "trigger": {
@@ -483,119 +479,151 @@
           "endLine": 288,
           "column": 17,
           "endColumn": 96,
-          "sourceFile": "src/screens/About/About.jsx"
+          "sourceFile": "src\\screens\\About\\About.jsx"
         }
       }
     },
     {
-      "id": "src/screens/Clan/Clan.jsx:195:10-to-src/screens/Login/Login.jsx",
-      "source": "src/screens/Clan/Clan.jsx",
-      "target": "src/screens/Login/Login.jsx",
+      "id": "src\\screens\\Clan\\Clan.jsx:196:10-to-src\\screens\\Login\\Login.jsx",
+      "source": "src\\screens\\Clan\\Clan.jsx",
+      "target": "src\\screens\\Login\\Login.jsx",
       "data": {
         "viaRoute": "/login",
         "trigger": {
-          "element": "<Link to=\"/login\">\n            <Button\n              variant=\"outline\"\n              className=\"absolute top-16 right-16 px-8 py-4 rounded-[30px] border-2 border-[#56504a] bg-transparent hover:bg-[#f7e2c6] transition-colors\"\n            >\n              <span className=\"[font-family:'Porter_Sans_Block-Block',Helvetica] font-normal text-[#56504a] text-base uppercase\">\n                log in\n              </span>\n            </Button>\n          </Link>",
-          "line": 195,
-          "endLine": 204,
+          "element": "<Link to=\"/login\">\r\n            <Button\r\n              variant=\"outline\"\r\n              className=\"absolute top-16 right-16 px-8 py-4 rounded-[30px] border-2 border-[#56504a] bg-transparent hover:bg-[#f7e2c6] transition-colors\"\r\n            >\r\n              <span className=\"[font-family:'Porter_Sans_Block-Block',Helvetica] font-normal text-[#56504a] text-base uppercase\">\r\n                log in\r\n              </span>\r\n            </Button>\r\n          </Link>",
+          "line": 196,
+          "endLine": 205,
           "column": 10,
           "endColumn": 17,
-          "sourceFile": "src/screens/Clan/Clan.jsx"
+          "sourceFile": "src\\screens\\Clan\\Clan.jsx"
         }
       }
     },
     {
-      "id": "src/screens/Clan/Clan.jsx:215:12-to-src/screens/Login/Login.jsx",
-      "source": "src/screens/Clan/Clan.jsx",
-      "target": "src/screens/Login/Login.jsx",
+      "id": "src\\screens\\Clan\\Clan.jsx:216:12-to-src\\screens\\Login\\Login.jsx",
+      "source": "src\\screens\\Clan\\Clan.jsx",
+      "target": "src\\screens\\Login\\Login.jsx",
       "data": {
         "viaRoute": "/login",
         "trigger": {
-          "element": "<Link to=\"/login\">\n              <Button\n                variant=\"outline\"\n                className=\"px-6 py-2 rounded-full border-2 border-[#56504a] bg-transparent hover:bg-[#f7e2c6] transition-colors text-sm\"\n              >\n                <span className=\"[font-family:'Porter_Sans_Block-Block',Helvetica] font-normal text-[#56504a]\">\n                  LOG IN\n                </span>\n              </Button>\n            </Link>",
-          "line": 215,
-          "endLine": 224,
+          "element": "<Link to=\"/login\">\r\n              <Button\r\n                variant=\"outline\"\r\n                className=\"px-6 py-2 rounded-full border-2 border-[#56504a] bg-transparent hover:bg-[#f7e2c6] transition-colors text-sm\"\r\n              >\r\n                <span className=\"[font-family:'Porter_Sans_Block-Block',Helvetica] font-normal text-[#56504a]\">\r\n                  LOG IN\r\n                </span>\r\n              </Button>\r\n            </Link>",
+          "line": 216,
+          "endLine": 225,
           "column": 12,
           "endColumn": 19,
-          "sourceFile": "src/screens/Clan/Clan.jsx"
+          "sourceFile": "src\\screens\\Clan\\Clan.jsx"
         }
       }
     },
     {
-      "id": "src/screens/Clan/Clan.jsx:473:17-to-src/screens/Homepage/Homepage.jsx",
-      "source": "src/screens/Clan/Clan.jsx",
-      "target": "src/screens/Homepage/Homepage.jsx",
+      "id": "src\\screens\\Clan\\Clan.jsx:474:17-to-src\\screens\\Homepage\\Homepage.jsx",
+      "source": "src\\screens\\Clan\\Clan.jsx",
+      "target": "src\\screens\\Homepage\\Homepage.jsx",
       "data": {
         "viaRoute": "/",
         "trigger": {
           "element": "<Link to=\"/\" className=\"hover:opacity-70 transition-opacity\">Home</Link>",
-          "line": 473,
-          "endLine": 473,
+          "line": 474,
+          "endLine": 474,
           "column": 17,
           "endColumn": 89,
-          "sourceFile": "src/screens/Clan/Clan.jsx"
+          "sourceFile": "src\\screens\\Clan\\Clan.jsx"
         }
       }
     },
     {
-      "id": "src/screens/Clan/Clan.jsx:474:17-to-src/screens/Rank/Rank.jsx",
-      "source": "src/screens/Clan/Clan.jsx",
-      "target": "src/screens/Rank/Rank.jsx",
+      "id": "src\\screens\\Clan\\Clan.jsx:475:17-to-src\\screens\\Rank\\Rank.jsx",
+      "source": "src\\screens\\Clan\\Clan.jsx",
+      "target": "src\\screens\\Rank\\Rank.jsx",
       "data": {
         "viaRoute": "/rank",
         "trigger": {
           "element": "<Link to=\"/rank\" className=\"hover:opacity-70 transition-opacity\">Rank</Link>",
-          "line": 474,
-          "endLine": 474,
+          "line": 475,
+          "endLine": 475,
           "column": 17,
           "endColumn": 93,
-          "sourceFile": "src/screens/Clan/Clan.jsx"
+          "sourceFile": "src\\screens\\Clan\\Clan.jsx"
         }
       }
     },
     {
-      "id": "src/screens/Clan/Clan.jsx:475:17-to-src/screens/About/About.jsx",
-      "source": "src/screens/Clan/Clan.jsx",
-      "target": "src/screens/About/About.jsx",
+      "id": "src\\screens\\Clan\\Clan.jsx:476:17-to-src\\screens\\About\\About.jsx",
+      "source": "src\\screens\\Clan\\Clan.jsx",
+      "target": "src\\screens\\About\\About.jsx",
       "data": {
         "viaRoute": "/about",
         "trigger": {
           "element": "<Link to=\"/about\" className=\"hover:opacity-70 transition-opacity\">About</Link>",
-          "line": 475,
-          "endLine": 475,
+          "line": 476,
+          "endLine": 476,
           "column": 17,
           "endColumn": 95,
-          "sourceFile": "src/screens/Clan/Clan.jsx"
+          "sourceFile": "src\\screens\\Clan\\Clan.jsx"
         }
       }
     },
     {
-      "id": "src/screens/Clan/Clan.jsx:476:17-to-src/screens/Clan/Clan.jsx",
-      "source": "src/screens/Clan/Clan.jsx",
-      "target": "src/screens/Clan/Clan.jsx",
+      "id": "src\\screens\\Clan\\Clan.jsx:477:17-to-src\\screens\\Clan\\Clan.jsx",
+      "source": "src\\screens\\Clan\\Clan.jsx",
+      "target": "src\\screens\\Clan\\Clan.jsx",
       "data": {
         "viaRoute": "/clan",
         "trigger": {
           "element": "<Link to=\"/clan\" className=\"hover:opacity-70 transition-opacity\">Clan</Link>",
-          "line": 476,
-          "endLine": 476,
+          "line": 477,
+          "endLine": 477,
           "column": 17,
           "endColumn": 93,
-          "sourceFile": "src/screens/Clan/Clan.jsx"
+          "sourceFile": "src\\screens\\Clan\\Clan.jsx"
         }
       }
     },
     {
-      "id": "src/screens/Clan/Clan.jsx:477:17-to-src/screens/Login/Login.jsx",
-      "source": "src/screens/Clan/Clan.jsx",
-      "target": "src/screens/Login/Login.jsx",
+      "id": "src\\screens\\Clan\\Clan.jsx:478:17-to-src\\screens\\Login\\Login.jsx",
+      "source": "src\\screens\\Clan\\Clan.jsx",
+      "target": "src\\screens\\Login\\Login.jsx",
       "data": {
         "viaRoute": "/login",
         "trigger": {
           "element": "<Link to=\"/login\" className=\"hover:opacity-70 transition-opacity\">Log In</Link>",
-          "line": 477,
-          "endLine": 477,
+          "line": 478,
+          "endLine": 478,
           "column": 17,
           "endColumn": 96,
-          "sourceFile": "src/screens/Clan/Clan.jsx"
+          "sourceFile": "src\\screens\\Clan\\Clan.jsx"
+        }
+      }
+    },
+    {
+      "id": "src\\screens\\Login\\Login.jsx:18:10-to-src\\screens\\Homepage\\Homepage.jsx",
+      "source": "src\\screens\\Login\\Login.jsx",
+      "target": "src\\screens\\Homepage\\Homepage.jsx",
+      "data": {
+        "viaRoute": "/",
+        "trigger": {
+          "element": "navigate('/')",
+          "line": 18,
+          "endLine": 18,
+          "column": 10,
+          "endColumn": 23,
+          "sourceFile": "src\\screens\\Login\\Login.jsx"
+        }
+      }
+    },
+    {
+      "id": "src\\screens\\Login\\Login.jsx:30:6-to-src\\screens\\Dashboard\\Dashboard.jsx",
+      "source": "src\\screens\\Login\\Login.jsx",
+      "target": "src\\screens\\Dashboard\\Dashboard.jsx",
+      "data": {
+        "viaRoute": "/dashboard",
+        "trigger": {
+          "element": "navigate('/dashboard')",
+          "line": 30,
+          "endLine": 30,
+          "column": 6,
+          "endColumn": 28,
+          "sourceFile": "src\\screens\\Login\\Login.jsx"
         }
       }
     },
@@ -606,9 +634,9 @@
       "data": {
         "viaRoute": "/",
         "trigger": {
-          "element": "<Link to=\"/\" className=\"absolute top-2 left-50 z-50 hover:opacity-80 transition-opacity\">\n        <img\n          className=\"h-[80px] lg:h-[100px] w-auto\"\n          alt=\"RunKada Logo\"\n          src=\"https://c.animaapp.com/mgqjxiy6qqDflS/img/logofull-1.svg\"\n        />\n      </Link>",
-          "line": 34,
-          "endLine": 40,
+          "element": "<Link to=\"/\" className=\"absolute top-2 left-50 z-50 hover:opacity-80 transition-opacity\">\r\n        <img\r\n          className=\"h-[80px] lg:h-[100px] w-auto\"\r\n          alt=\"RunKada Logo\"\r\n          src=\"https://c.animaapp.com/mgqjxiy6qqDflS/img/logofull-1.svg\"\r\n        />\r\n      </Link>",
+          "line": 57,
+          "endLine": 63,
           "column": 6,
           "endColumn": 13,
           "sourceFile": "src\\screens\\Login\\Login.jsx"
@@ -628,6 +656,70 @@
           "column": 10,
           "endColumn": 17,
           "sourceFile": "src\\screens\\Login\\Login.jsx"
+        }
+      }
+    },
+    {
+      "id": "src\\screens\\Profile\\Profile.jsx:85:12-to-src\\screens\\Dashboard\\Dashboard.jsx",
+      "source": "src\\screens\\Profile\\Profile.jsx",
+      "target": "src\\screens\\Dashboard\\Dashboard.jsx",
+      "data": {
+        "viaRoute": "/dashboard",
+        "trigger": {
+          "element": "<Link to=\"/dashboard\">\r\n              <img\r\n                className=\"h-16 lg:h-20 w-auto\"\r\n                alt=\"RunKada Logo\"\r\n                src=\"https://c.animaapp.com/mgqjxiy6qqDflS/img/logofull-2.svg\"\r\n              />\r\n            </Link>",
+          "line": 85,
+          "endLine": 91,
+          "column": 12,
+          "endColumn": 19,
+          "sourceFile": "src\\screens\\Profile\\Profile.jsx"
+        }
+      }
+    },
+    {
+      "id": "src\\screens\\Settings\\Settings.jsx:26:4-to-src\\screens\\Homepage\\Homepage.jsx",
+      "source": "src\\screens\\Settings\\Settings.jsx",
+      "target": "src\\screens\\Homepage\\Homepage.jsx",
+      "data": {
+        "viaRoute": "/",
+        "trigger": {
+          "element": "navigate('/')",
+          "line": 26,
+          "endLine": 26,
+          "column": 4,
+          "endColumn": 17,
+          "sourceFile": "src\\screens\\Settings\\Settings.jsx"
+        }
+      }
+    },
+    {
+      "id": "src\\screens\\Settings\\Settings.jsx:46:12-to-src\\screens\\Dashboard\\Dashboard.jsx",
+      "source": "src\\screens\\Settings\\Settings.jsx",
+      "target": "src\\screens\\Dashboard\\Dashboard.jsx",
+      "data": {
+        "viaRoute": "/dashboard",
+        "trigger": {
+          "element": "<Link to=\"/dashboard\">\r\n              <img\r\n                className=\"h-16 lg:h-20 w-auto\"\r\n                alt=\"RunKada Logo\"\r\n                src=\"https://c.animaapp.com/mgqjxiy6qqDflS/img/logofull-2.svg\"\r\n              />\r\n            </Link>",
+          "line": 46,
+          "endLine": 52,
+          "column": 12,
+          "endColumn": 19,
+          "sourceFile": "src\\screens\\Settings\\Settings.jsx"
+        }
+      }
+    },
+    {
+      "id": "src\\screens\\ClanDashboard\\ClanDashboard.jsx:134:12-to-src\\screens\\Dashboard\\Dashboard.jsx",
+      "source": "src\\screens\\ClanDashboard\\ClanDashboard.jsx",
+      "target": "src\\screens\\Dashboard\\Dashboard.jsx",
+      "data": {
+        "viaRoute": "/dashboard",
+        "trigger": {
+          "element": "<Link to=\"/dashboard\">\r\n              <img\r\n                className=\"h-16 lg:h-20 w-auto\"\r\n                alt=\"RunKada Logo\"\r\n                src=\"https://c.animaapp.com/mgqjxiy6qqDflS/img/logofull-2.svg\"\r\n              />\r\n            </Link>",
+          "line": 134,
+          "endLine": 140,
+          "column": 12,
+          "endColumn": 19,
+          "sourceFile": "src\\screens\\ClanDashboard\\ClanDashboard.jsx"
         }
       }
     }

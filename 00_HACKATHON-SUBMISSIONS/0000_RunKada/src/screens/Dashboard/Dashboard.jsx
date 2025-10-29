@@ -9,12 +9,20 @@ export const Dashboard = () => {
   const { user, logout, isAuthenticated } = useAuth();
   const [activeTab, setActiveTab] = useState('overview');
   const [menuOpen, setMenuOpen] = useState(false);
-  
-  useEffect(() => {
-    if (isAuthenticated) {
-      loadDashboardData();
-    }
-  }, [isAuthenticated]);
+
+  // Redirect if not authenticated
+  if (!isAuthenticated) {
+    return (
+      <div className="min-h-screen bg-gray-100 flex items-center justify-center">
+        <div className="text-center">
+          <h2 className="text-2xl font-bold mb-4">Please log in to access the dashboard</h2>
+          <Link to="/login" className="bg-blue-500 text-white px-6 py-2 rounded hover:bg-blue-600">
+            Go to Login
+          </Link>
+        </div>
+      </div>
+    );
+  }
 
   const navigationItems = [
     { label: 'PROFILE', value: 'profile', link: '/profile' },
