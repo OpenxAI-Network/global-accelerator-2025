@@ -905,7 +905,7 @@ export const Homepage = () => {
               src="https://c.animaapp.com/mgqjxiy6qqDflS/img/logofull-2.svg"
             />
 
-            <p className="[font-family:'Poppins',Helvetica] text-white text-sm lg:text-base leading-relaxed mb-4 lg:mb-6 px-4 lg:px-8">
+            <p className="[font-family:'Poppins',Helvetica] text-black text-sm lg:text-base leading-relaxed mb-4 lg:mb-6 px-4 lg:px-8">
               <span className="font-medium">At Runkada, we believe that </span>
               <span className="font-bold">running is better together. </span>
               <span className="font-medium">
@@ -915,11 +915,11 @@ export const Homepage = () => {
               </span>
             </p>
 
-            <p className="[font-family:'Poppins',Helvetica] font-medium text-white text-sm lg:text-base mb-6 lg:mb-8">
+            <p className="[font-family:'Poppins',Helvetica] font-medium text-black text-sm lg:text-base mb-6 lg:mb-8">
               © Runkada 2025
             </p>
 
-            <nav className="[font-family:'Poppins',Helvetica] font-normal text-white text-sm lg:text-base space-y-2 lg:space-y-3 mb-6 lg:mb-8">
+            <nav className="[font-family:'Poppins',Helvetica] font-normal text-black text-sm lg:text-base space-y-2 lg:space-y-3 mb-6 lg:mb-8">
               <div><Link to="/" className="hover:opacity-70 transition-opacity">Home</Link></div>
               <div><Link to="/rank" className="hover:opacity-70 transition-opacity">Rank</Link></div>
               <div><Link to="/about" className="hover:opacity-70 transition-opacity">About</Link></div>
