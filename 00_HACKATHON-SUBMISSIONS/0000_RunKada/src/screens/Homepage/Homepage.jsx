@@ -4,6 +4,7 @@ import { Button } from "../../components/ui/button";
 import RotatingText from "../../components/RotatingText";
 import Squares from "../../components/Squares";
 import { ThemeToggle } from "../../components/ThemeToggle";
+import { useAuth } from "../../contexts/AuthContext";
 
 const navigationItems = [
   { label: "Home", active: true, link: "/" },
@@ -177,6 +178,7 @@ export const Homepage = () => {
     distance: 0,
     clans: 0
   });
+  const { isAuthenticated, logout } = useAuth();
 
   // Auto-advance carousel
   useEffect(() => {
@@ -320,19 +322,31 @@ export const Homepage = () => {
             ))}
           </div>
 
-          {/* Login on Right */}
+          {/* Login/Logout on Right */}
           <div className="absolute top-16 right-16 flex items-center gap-4">
             <ThemeToggle />
-            <Link to="/login">
+            {isAuthenticated ? (
               <Button
                 variant="outline"
                 className="px-8 py-4 rounded-[30px] border-2 border-[#56504a] dark:border-[#fcd96b] bg-transparent hover:bg-[#f7e2c6] dark:hover:bg-[#56504a] transition-colors"
+                onClick={logout}
               >
                 <span className="[font-family:'Porter_Sans_Block-Block',Helvetica] font-normal text-[#56504a] dark:text-[#fcd96b] text-base uppercase">
-                  log in
+                  log out
                 </span>
               </Button>
-            </Link>
+            ) : (
+              <Link to="/login">
+                <Button
+                  variant="outline"
+                  className="px-8 py-4 rounded-[30px] border-2 border-[#56504a] dark:border-[#fcd96b] bg-transparent hover:bg-[#f7e2c6] dark:hover:bg-[#56504a] transition-colors"
+                >
+                  <span className="[font-family:'Porter_Sans_Block-Block',Helvetica] font-normal text-[#56504a] dark:text-[#fcd96b] text-base uppercase">
+                    log in
+                  </span>
+                </Button>
+              </Link>
+            )}
           </div>
         </div>
 
@@ -346,16 +360,28 @@ export const Homepage = () => {
             />
             <div className="flex items-center gap-3">
               <ThemeToggle />
-              <Link to="/login">
+              {isAuthenticated ? (
                 <Button
                   variant="outline"
                   className="px-6 py-2 rounded-full border-2 border-[#56504a] dark:border-[#fcd96b] bg-transparent hover:bg-[#f7e2c6] dark:hover:bg-[#56504a] transition-colors text-sm"
+                  onClick={logout}
                 >
                   <span className="[font-family:'Porter_Sans_Block-Block',Helvetica] font-normal text-[#56504a] dark:text-[#fcd96b]">
-                    LOG IN
+                    LOG OUT
                   </span>
                 </Button>
-              </Link>
+              ) : (
+                <Link to="/login">
+                  <Button
+                    variant="outline"
+                    className="px-6 py-2 rounded-full border-2 border-[#56504a] dark:border-[#fcd96b] bg-transparent hover:bg-[#f7e2c6] dark:hover:bg-[#56504a] transition-colors text-sm"
+                  >
+                    <span className="[font-family:'Porter_Sans_Block-Block',Helvetica] font-normal text-[#56504a] dark:text-[#fcd96b]">
+                      LOG IN
+                    </span>
+                  </Button>
+                </Link>
+              )}
             </div>
           </div>
 
@@ -924,7 +950,13 @@ export const Homepage = () => {
               <div><Link to="/rank" className="hover:opacity-70 transition-opacity">Rank</Link></div>
               <div><Link to="/about" className="hover:opacity-70 transition-opacity">About</Link></div>
               <div><Link to="/clan" className="hover:opacity-70 transition-opacity">Clan</Link></div>
-              <div><Link to="/login" className="hover:opacity-70 transition-opacity">Log In</Link></div>
+              <div>
+                {isAuthenticated ? (
+                  <button onClick={logout} className="hover:opacity-70 transition-opacity">Log Out</button>
+                ) : (
+                  <Link to="/login" className="hover:opacity-70 transition-opacity">Log In</Link>
+                )}
+              </div>
             </nav>
 
             {/* Social Icons */}

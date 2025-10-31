@@ -40,9 +40,8 @@ export const AuthProvider = ({ children }) => {
             apiClient.setToken(token);
             setUser(userData);
             setIsAuthenticated(true);
-            // Clean up URL and redirect to dashboard
-            window.history.replaceState({}, document.title, '/dashboard');
-            window.location.href = '/dashboard';
+            // Clean up URL and navigate to home without full reload
+            window.history.replaceState({}, document.title, '/');
             return;
           } catch (parseError) {
             console.error('Error parsing user data:', parseError);
@@ -76,6 +75,9 @@ export const AuthProvider = ({ children }) => {
   // Login with Strava
   const loginWithStrava = async () => {
     try {
+      if (isAuthenticated) {
+        return; // Prevent re-authorizing when already authenticated
+      }
       const response = await apiClient.getStravaAuthUrl();
       window.location.href = response.authUrl;
     } catch (error) {

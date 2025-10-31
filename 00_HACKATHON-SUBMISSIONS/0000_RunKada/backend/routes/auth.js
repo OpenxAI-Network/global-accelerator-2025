@@ -6,8 +6,32 @@ import { generateToken } from '../middleware/auth.js';
 const router = express.Router();
 
 // Get Strava authorization URL
-router.get('/strava/url', (req, res) => {
+router.get('/strava/url', async (req, res) => {
   try {
+    // If already authenticated and connected to Strava, prevent re-authorizing
+    const authHeader = req.headers['authorization'];
+    const token = authHeader && authHeader.split(' ')[1];
+
+    if (token) {
+      try {
+        const jwtPayload = JSON.parse(Buffer.from(token.split('.')[1], 'base64').toString());
+        const userId = jwtPayload.userId;
+        if (userId) {
+          const { data: existing, error } = await supabaseAdmin
+            .from(TABLES.STRAVA_TOKENS)
+            .select('user_id')
+            .eq('user_id', userId)
+            .maybeSingle();
+
+          if (!error && existing) {
+            return res.json({ alreadyAuthorized: true });
+          }
+        }
+      } catch (_e) {
+        // ignore JWT parse errors and proceed to provide authUrl
+      }
+    }
+
     const authUrl = getStravaAuthUrl();
     res.json({ authUrl });
   } catch (error) {
@@ -102,7 +126,7 @@ router.get('/strava/callback', async (req, res) => {
         expires_at: new Date(expires_at * 1000).toISOString(),
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString()
-      });
+      }, { onConflict: 'user_id' });
 
     if (tokenError) {
       console.error('Error storing Strava tokens:', tokenError);
@@ -211,7 +235,7 @@ router.post('/strava/callback', async (req, res) => {
         expires_at: new Date(expires_at * 1000).toISOString(),
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString()
-      });
+      }, { onConflict: 'user_id' });
 
     if (tokenError) {
       console.error('Error storing Strava tokens:', tokenError);
