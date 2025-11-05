@@ -1,0 +1,130 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* Color Palette: Dark, Muted, Futuristic (Default) */
+    --color-background: #0D0D0F; /* Near-black */
+    --color-surface: #1A1A1C;    /* Dark gray for panels */
+    --color-primary-accent: #4A90E2; /* Desaturated, calming blue */
+    --color-text-primary: #EAEAEA;   /* Off-white for primary text */
+    --color-text-secondary: #888888; /* Gray for secondary text */
+    --color-border: #2A2A2C;      /* Subtle border color */
+    --color-error: #E24A4A;
+    --gradient-start: #382d63;
+    --gradient-end: transparent;
+
+    /* Typography */
+    --font-sans: 'GeistSans', sans-serif;
+    --font-size-body: 16px;
+    --font-size-h1: 4rem;
+    --font-size-h2: 2.5rem;
+    --font-size-h3: 1.75rem;
+    --font-weight-bold: 700;
+    --font-weight-normal: 400;
+
+    /* Spacing */
+    --space-1: 0.25rem; /* 4px */
+    --space-2: 0.5rem;  /* 8px */
+    --space-4: 1rem;    /* 16px */
+    --space-6: 1.5rem;  /* 24px */
+    --space-8: 2rem;    /* 32px */
+
+    /* Other Tokens */
+    --border-radius: 0.75rem; /* 12px */
+    --transition-duration: 300ms;
+  }
+
+  .light {
+    /* Light Theme Overrides */
+    --color-background: #F5F5F7; /* Light gray */
+    --color-surface: #FFFFFF;    /* White for panels */
+    --color-primary-accent: #007AFF; /* Vibrant blue */
+    --color-text-primary: #1D1D1F;   /* Near-black for text */
+    --color-text-secondary: #6E6E73; /* Gray for secondary text */
+    --color-border: #D1D1D6;      /* Light border color */
+    --gradient-start: #d5c5ff;
+    --gradient-end: transparent;
+  }
+
+  html {
+    @apply scroll-smooth;
+  }
+  
+  body {
+    background-color: var(--color-background);
+    color: var(--color-text-primary);
+    font-family: var(--font-sans);
+    font-size: var(--font-size-body);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    transition: background-color var(--transition-duration), color var(--transition-duration);
+  }
+
+  /* Custom focus-visible ring style using new tokens */
+  *:focus-visible {
+    @apply outline-none ring-2 ring-offset-2;
+    ring-color: var(--color-primary-accent);
+    ring-offset-color: var(--color-background);
+  }
+}
+
+@layer components {
+  /* Futuristic Minimalist Button */
+  .btn-primary {
+    @apply inline-flex items-center justify-center px-6 py-3 font-semibold rounded-lg transition-all;
+    background-color: transparent;
+    color: var(--color-primary-accent);
+    border: 1px solid var(--color-primary-accent);
+    box-shadow: 0 0 15px -5px var(--color-primary-accent);
+    transition-property: color, background-color, box-shadow;
+    transition-duration: var(--transition-duration);
+  }
+  .btn-primary:hover {
+    background-color: var(--color-primary-accent);
+    color: var(--color-background);
+    box-shadow: 0 0 25px -5px var(--color-primary-accent);
+  }
+  .btn-primary:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+    box-shadow: none;
+  }
+
+  /* Minimalist Card: Semi-transparent, no hard borders */
+  .card {
+    background-color: color-mix(in srgb, var(--color-surface) 70%, transparent);
+    @apply backdrop-blur-md rounded-xl p-6;
+    border: 1px solid var(--color-border);
+  }
+  
+  /* Minimalist Input Field */
+  .input-field {
+    @apply w-full px-4 py-3 rounded-lg focus:outline-none focus:ring-2;
+    background-color: var(--color-surface);
+    border: 1px solid var(--color-border);
+    color: var(--color-text-primary);
+    transition: border-color var(--transition-duration), box-shadow var(--transition-duration);
+  }
+  .input-field:focus {
+     border-color: var(--color-primary-accent);
+     box-shadow: 0 0 10px -5px var(--color-primary-accent);
+  }
+  .input-field::placeholder {
+    color: var(--color-text-secondary);
+  }
+}
+
+@layer utilities {
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+}
