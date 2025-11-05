@@ -6,7 +6,7 @@ A student-focused buy-and-sell marketplace with AI-powered content moderation, b
 
 ## 🚀 Demo & Walkthrough
 
-*   **Demo Video:** [Watch the 90-second walkthrough](https://your-video-link.com) (coming soon)
+*   **Demo Video:** [Watch the 90-second walkthrough](https://youtu.be/hVszWvd1E-U) (coming soon)
 
 ---
 
