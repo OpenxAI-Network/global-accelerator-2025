@@ -1,8 +1,10 @@
-import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { Button } from "../../components/ui/button";
 import Squares from "../../components/Squares";
 import { ThemeToggle } from "../../components/ThemeToggle";
+import { useAuth } from "../../contexts/AuthContext";
+import { apiClient } from "../../lib/api.js";
 
 const navigationItems = [
   { label: "Home", active: false, link: "/" },
@@ -28,9 +30,90 @@ const socialIcons = [
 export const Clan = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedClan, setSelectedClan] = useState(null);
+  const { isAuthenticated, logout } = useAuth();
+  const [clans, setClans] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
 
-  // Mock data for clans
-  const clans = [
+  useEffect(() => {
+    loadClans();
+  }, []);
+
+  const loadClans = async () => {
+    try {
+      setLoading(true);
+      const response = await apiClient.getClans(50, 0);
+      if (response.success) {
+        // Format clans with Strava data
+        const formatted = response.clans.map(clan => ({
+          id: clan.id,
+          name: clan.name,
+          badge: "🏃", // Default badge, can be customized
+          members: clan.member_count || 0,
+          maxMembers: 50, // Default max
+          totalKm: Math.round((clan.total_distance || 0) / 1000),
+          level: Math.floor((clan.total_distance || 0) / 100000) + 1, // Level based on total distance
+          description: clan.description || "A running clan powered by Strava data",
+          requirement: "Connect with Strava",
+          type: clan.is_private ? "Private" : "Public",
+          total_distance: clan.total_distance || 0,
+          avg_distance: clan.avg_distance || 0
+        }));
+        setClans(formatted);
+      }
+    } catch (error) {
+      console.error('Error loading clans:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleClanClick = async (clan) => {
+    try {
+      // Fetch detailed clan information
+      const response = await apiClient.getClan(clan.id);
+      if (response.success) {
+        const detailedClan = {
+          ...clan,
+          members_list: response.clan.members.map((member, index) => ({
+            name: `${member.firstname} ${member.lastname}`,
+            role: member.role === 'admin' ? 'Leader' : member.role === 'co_leader' ? 'Co-Leader' : member.role === 'elder' ? 'Elder' : 'Member',
+            km: Math.round((member.total_distance || 0) / 1000),
+            avatar: member.profile_picture || `https://i.pravatar.cc/150?img=${index + 1}`
+          }))
+        };
+        setSelectedClan(detailedClan);
+      }
+    } catch (error) {
+      console.error('Error loading clan details:', error);
+    }
+  };
+
+  const handleJoinClan = async (clanId) => {
+    if (!isAuthenticated) {
+      navigate('/login');
+      return;
+    }
+    
+    try {
+      const response = await apiClient.joinClan(clanId);
+      if (response.success) {
+        alert('Successfully joined clan!');
+        // Reload clans to update member counts
+        loadClans();
+        // Reload selected clan
+        if (selectedClan && selectedClan.id === clanId) {
+          handleClanClick(selectedClan);
+        }
+      }
+    } catch (error) {
+      console.error('Error joining clan:', error);
+      alert(error.message || 'Failed to join clan');
+    }
+  };
+
+  // Mock data for clans (fallback)
+  const mockClans = [
     {
       id: 1,
       name: "Thunder Runners",
@@ -148,10 +231,9 @@ export const Clan = () => {
   ];
 
   // Filter clans based on search query
-  // Filter clans based on search query
   const filteredClans = clans.filter(clan => 
     clan.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    clan.type.toLowerCase().includes(searchQuery.toLowerCase())
+    (clan.type && clan.type.toLowerCase().includes(searchQuery.toLowerCase()))
   );
 
   return (
@@ -193,19 +275,31 @@ export const Clan = () => {
             ))}
           </div>
 
-          {/* Login on Right */}
+          {/* Login/Logout on Right */}
           <div className="absolute top-16 right-16 flex items-center gap-4">
             <ThemeToggle />
-            <Link to="/login">
+            {isAuthenticated ? (
               <Button
                 variant="outline"
                 className="px-8 py-4 rounded-[30px] border-2 border-[#56504a] dark:border-[#fcd96b] bg-transparent hover:bg-[#f7e2c6] dark:hover:bg-[#56504a] transition-colors"
+                onClick={logout}
               >
                 <span className="[font-family:'Porter_Sans_Block-Block',Helvetica] font-normal text-[#56504a] dark:text-[#fcd96b] text-base uppercase">
-                  log in
+                  log out
                 </span>
               </Button>
-            </Link>
+            ) : (
+              <Link to="/login">
+                <Button
+                  variant="outline"
+                  className="px-8 py-4 rounded-[30px] border-2 border-[#56504a] dark:border-[#fcd96b] bg-transparent hover:bg-[#f7e2c6] dark:hover:bg-[#56504a] transition-colors"
+                >
+                  <span className="[font-family:'Porter_Sans_Block-Block',Helvetica] font-normal text-[#56504a] dark:text-[#fcd96b] text-base uppercase">
+                    log in
+                  </span>
+                </Button>
+              </Link>
+            )}
           </div>
         </div>
 
@@ -219,16 +313,28 @@ export const Clan = () => {
             />
             <div className="flex items-center gap-3">
               <ThemeToggle />
-              <Link to="/login">
+              {isAuthenticated ? (
                 <Button
                   variant="outline"
                   className="px-6 py-2 rounded-full border-2 border-[#56504a] dark:border-[#fcd96b] bg-transparent hover:bg-[#f7e2c6] dark:hover:bg-[#56504a] transition-colors text-sm"
+                  onClick={logout}
                 >
                   <span className="[font-family:'Porter_Sans_Block-Block',Helvetica] font-normal text-[#56504a] dark:text-[#fcd96b]">
-                    LOG IN
+                    LOG OUT
                   </span>
                 </Button>
-              </Link>
+              ) : (
+                <Link to="/login">
+                  <Button
+                    variant="outline"
+                    className="px-6 py-2 rounded-full border-2 border-[#56504a] dark:border-[#fcd96b] bg-transparent hover:bg-[#f7e2c6] dark:hover:bg-[#56504a] transition-colors text-sm"
+                  >
+                    <span className="[font-family:'Porter_Sans_Block-Block',Helvetica] font-normal text-[#56504a] dark:text-[#fcd96b]">
+                      LOG IN
+                    </span>
+                  </Button>
+                </Link>
+              )}
             </div>
           </div>
 
@@ -258,9 +364,17 @@ export const Clan = () => {
               <h1 className="[font-family:'Porter_Sans_Block-Block',Helvetica] font-normal text-[#56504a] text-4xl lg:text-6xl uppercase mb-4">
                 FIND YOUR CLAN
               </h1>
-              <p className="[font-family:'Poppins',Helvetica] font-normal text-[#56504a] text-base lg:text-lg max-w-2xl mx-auto">
-                Join a running clan to compete, motivate each other, and achieve your goals together. Log in to create your own clan!
+              <p className="[font-family:'Poppins',Helvetica] font-normal text-[#56504a] text-base lg:text-lg max-w-2xl mx-auto mb-6">
+                Join a running clan to compete, motivate each other, and achieve your goals together. {!isAuthenticated && 'Log in to create your own clan!'}
               </p>
+              {isAuthenticated && (
+                <Link to="/clan-dashboard">
+                  <button className="inline-flex items-center gap-3 bg-[#fcd96b] hover:bg-[#f7e2c6] text-[#56504a] border-3 border-[#56504a] rounded-[30px] px-8 py-4 shadow-[4px_4px_0px_0px_rgba(86,80,74,1)] hover:shadow-[2px_2px_0px_0px_rgba(86,80,74,1)] hover:translate-x-[2px] hover:translate-y-[2px] transition-all duration-200 [font-family:'Porter_Sans_Block-Block',Helvetica] font-normal text-lg uppercase">
+                    <span className="text-2xl">🏆</span>
+                    Create Your Clan
+                  </button>
+                </Link>
+              )}
             </div>
 
             {/* Search Bar */}
@@ -281,13 +395,19 @@ export const Clan = () => {
 
             {/* Clans Grid */}
             <div className="max-w-7xl mx-auto">
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {filteredClans.map((clan) => (
-                  <div
-                    key={clan.id}
-                    onClick={() => setSelectedClan(clan)}
-                    className="bg-white rounded-3xl border-3 border-[#56504a] shadow-[6px_6px_0px_0px_rgba(86,80,74,1)] p-6 hover:shadow-[8px_8px_0px_0px_rgba(86,80,74,1)] hover:-translate-y-1 transition-all duration-200 cursor-pointer"
-                  >
+              {loading ? (
+                <div className="text-center py-16">
+                  <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#56504a] mx-auto"></div>
+                  <p className="mt-4 [font-family:'Poppins',Helvetica] text-[#56504a]">Loading clans...</p>
+                </div>
+              ) : filteredClans.length > 0 ? (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {filteredClans.map((clan) => (
+                    <div
+                      key={clan.id}
+                      onClick={() => handleClanClick(clan)}
+                      className="bg-white rounded-3xl border-3 border-[#56504a] shadow-[6px_6px_0px_0px_rgba(86,80,74,1)] p-6 hover:shadow-[8px_8px_0px_0px_rgba(86,80,74,1)] hover:-translate-y-1 transition-all duration-200 cursor-pointer"
+                    >
                     {/* Clan Header */}
                     <div className="flex items-start gap-4 mb-4">
                       <div className="text-5xl">{clan.badge}</div>
@@ -341,13 +461,12 @@ export const Clan = () => {
                       </p>
                     </div>
                   </div>
-                ))}
-              </div>
-
-              {filteredClans.length === 0 && (
+                  ))}
+                </div>
+              ) : (
                 <div className="text-center py-16">
                   <p className="[font-family:'Poppins',Helvetica] text-[#56504a] text-lg">
-                    No clans found. Try a different search term.
+                    {searchQuery ? 'No clans found. Try a different search term.' : 'No clans available yet. Be the first to create one!'}
                   </p>
                 </div>
               )}
@@ -381,23 +500,23 @@ export const Clan = () => {
                     {selectedClan.description}
                   </p>
                   
-                  {/* Stats Row */}
+                    {/* Stats Row */}
                   <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
                     <div className="bg-[#f7e2c6] rounded-2xl border-2 border-[#56504a] p-4 text-center">
                       <p className="[font-family:'Poppins',Helvetica] text-[#56504a] text-xs mb-1">Level</p>
-                      <p className="[font-family:'Porter_Sans_Block-Block',Helvetica] text-[#56504a] text-2xl">{selectedClan.level}</p>
+                      <p className="[font-family:'Porter_Sans_Block-Block',Helvetica] text-[#56504a] text-2xl">{selectedClan.level || 1}</p>
                     </div>
                     <div className="bg-[#f7e2c6] rounded-2xl border-2 border-[#56504a] p-4 text-center">
                       <p className="[font-family:'Poppins',Helvetica] text-[#56504a] text-xs mb-1">Members</p>
-                      <p className="[font-family:'Porter_Sans_Block-Block',Helvetica] text-[#56504a] text-2xl">{selectedClan.members}/{selectedClan.maxMembers}</p>
+                      <p className="[font-family:'Porter_Sans_Block-Block',Helvetica] text-[#56504a] text-2xl">{selectedClan.members}/{selectedClan.maxMembers || 50}</p>
                     </div>
                     <div className="bg-[#f7e2c6] rounded-2xl border-2 border-[#56504a] p-4 text-center">
                       <p className="[font-family:'Poppins',Helvetica] text-[#56504a] text-xs mb-1">Total KM</p>
-                      <p className="[font-family:'Porter_Sans_Block-Block',Helvetica] text-[#fcd96b] text-2xl">{selectedClan.totalKm.toLocaleString()}</p>
+                      <p className="[font-family:'Porter_Sans_Block-Block',Helvetica] text-[#fcd96b] text-2xl">{selectedClan.totalKm?.toLocaleString() || Math.round((selectedClan.total_distance || 0) / 1000).toLocaleString()}</p>
                     </div>
                     <div className="bg-[#f7e2c6] rounded-2xl border-2 border-[#56504a] p-4 text-center">
-                      <p className="[font-family:'Poppins',Helvetica] text-[#56504a] text-xs mb-1">Requirement</p>
-                      <p className="[font-family:'Poppins',Helvetica] text-[#56504a] text-xs font-semibold mt-2">{selectedClan.requirement}</p>
+                      <p className="[font-family:'Poppins',Helvetica] text-[#56504a] text-xs mb-1">Avg/Member</p>
+                      <p className="[font-family:'Poppins',Helvetica] text-[#56504a] text-xs font-semibold mt-2">{selectedClan.members > 0 ? Math.round((selectedClan.totalKm || (selectedClan.total_distance || 0) / 1000) / selectedClan.members) : 0} km</p>
                     </div>
                   </div>
                 </div>
@@ -406,6 +525,7 @@ export const Clan = () => {
               {/* Join Button */}
               <div className="mt-6 pt-6 border-t-2 border-[#f7e2c6]">
                 <Button
+                  onClick={() => handleJoinClan(selectedClan.id)}
                   className="w-full lg:w-auto bg-[#fcd96b] hover:bg-[#f7e2c6] text-[#56504a] border-3 border-[#56504a] rounded-[30px] px-12 py-4 shadow-[4px_4px_0px_0px_rgba(86,80,74,1)] hover:shadow-[2px_2px_0px_0px_rgba(86,80,74,1)] hover:translate-x-[2px] hover:translate-y-[2px] transition-all duration-200"
                 >
                   <span className="[font-family:'Porter_Sans_Block-Block',Helvetica] font-normal text-xl uppercase">
@@ -418,37 +538,47 @@ export const Clan = () => {
             {/* Members List */}
             <div className="bg-white rounded-3xl border-3 border-[#56504a] shadow-[8px_8px_0px_0px_rgba(86,80,74,1)] p-8">
               <h3 className="[font-family:'Porter_Sans_Block-Block',Helvetica] font-normal text-[#56504a] text-2xl uppercase mb-6">
-                MEMBERS ({selectedClan.members_list.length})
+                MEMBERS ({selectedClan.members_list?.length || selectedClan.members || 0})
               </h3>
 
-              <div className="space-y-3">
-                {selectedClan.members_list.map((member, index) => (
-                  <div
-                    key={index}
-                    className="flex items-center justify-between p-4 rounded-2xl border-2 border-[#56504a] bg-[#f7e2c6] hover:bg-[#fcd96b] transition-colors"
-                  >
-                    <div className="flex items-center gap-4">
-                      <div className="text-3xl">{member.avatar}</div>
-                      <div>
-                        <p className="[font-family:'Poppins',Helvetica] text-[#56504a] text-base font-semibold">
-                          {member.name}
+              {selectedClan.members_list && selectedClan.members_list.length > 0 ? (
+                <div className="space-y-3">
+                  {selectedClan.members_list.map((member, index) => (
+                    <div
+                      key={index}
+                      className="flex items-center justify-between p-4 rounded-2xl border-2 border-[#56504a] bg-[#f7e2c6] hover:bg-[#fcd96b] transition-colors"
+                    >
+                      <div className="flex items-center gap-4">
+                        {member.avatar && member.avatar.startsWith('http') ? (
+                          <img src={member.avatar} alt={member.name} className="w-12 h-12 rounded-full border-2 border-[#56504a]" />
+                        ) : (
+                          <div className="text-3xl">{member.avatar || '🏃'}</div>
+                        )}
+                        <div>
+                          <p className="[font-family:'Poppins',Helvetica] text-[#56504a] text-base font-semibold">
+                            {member.name}
+                          </p>
+                          <p className="[font-family:'Poppins',Helvetica] text-[#56504a] text-sm">
+                            {member.role}
+                          </p>
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        <p className="[font-family:'Porter_Sans_Block-Block',Helvetica] text-[#56504a] text-xl">
+                          {member.km || 0} KM
                         </p>
-                        <p className="[font-family:'Poppins',Helvetica] text-[#56504a] text-sm">
-                          {member.role}
+                        <p className="[font-family:'Poppins',Helvetica] text-[#56504a] text-xs">
+                          total distance
                         </p>
                       </div>
                     </div>
-                    <div className="text-right">
-                      <p className="[font-family:'Porter_Sans_Block-Block',Helvetica] text-[#56504a] text-xl">
-                        {member.km} KM
-                      </p>
-                      <p className="[font-family:'Poppins',Helvetica] text-[#56504a] text-xs">
-                        this month
-                      </p>
-                    </div>
-                  </div>
-                ))}
-              </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="text-center py-8">
+                  <p className="[font-family:'Poppins',Helvetica] text-[#56504a]">No members found</p>
+                </div>
+              )}
             </div>
           </div>
         )}

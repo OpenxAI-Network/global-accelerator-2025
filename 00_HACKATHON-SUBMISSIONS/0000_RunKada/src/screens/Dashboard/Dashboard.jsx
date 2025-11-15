@@ -9,6 +9,93 @@ export const Dashboard = () => {
   const { user, logout, isAuthenticated } = useAuth();
   const [activeTab, setActiveTab] = useState('overview');
   const [menuOpen, setMenuOpen] = useState(false);
+  const [stats, setStats] = useState(null);
+  const [recentActivities, setRecentActivities] = useState([]);
+  const [clanRank, setClanRank] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  // Fetch real data from Strava
+  useEffect(() => {
+    if (isAuthenticated) {
+      loadDashboardData();
+    }
+  }, [isAuthenticated]);
+
+  const loadDashboardData = async () => {
+    try {
+      setLoading(true);
+      
+      // Fetch activity stats
+      const statsResponse = await apiClient.getActivityStats();
+      if (statsResponse.success) {
+        const activityStats = statsResponse.stats;
+        // Fetch clan rank first
+        let userClanRank = 'N/A';
+        try {
+          const userClanResponse = await apiClient.getUserClan();
+          if (userClanResponse.success && userClanResponse.clan) {
+            const leaderboardResponse = await apiClient.getClanLeaderboard('all', 100);
+            if (leaderboardResponse.success) {
+              const clanIndex = leaderboardResponse.leaderboard.findIndex(
+                c => c.id === userClanResponse.clan.id
+              );
+              if (clanIndex !== -1) {
+                userClanRank = `#${clanIndex + 1}`;
+                setClanRank(userClanRank);
+              }
+            }
+          }
+        } catch (error) {
+          console.error('Error fetching clan rank:', error);
+        }
+
+        setStats({
+          totalDistance: (activityStats.total_distance / 1000).toFixed(1) + ' km',
+          totalRuns: activityStats.total_activities || 0,
+          weeklyGoal: '75%', // Can be calculated based on user goals
+          clanRank: userClanRank
+        });
+      }
+
+      // Fetch recent activities
+      const activitiesResponse = await apiClient.getRecentActivities(5);
+      if (activitiesResponse.success) {
+        const formattedActivities = activitiesResponse.activities.map(activity => {
+          const distanceKm = (activity.distance / 1000).toFixed(1);
+          const timeMinutes = Math.floor(activity.moving_time / 60);
+          const timeHours = Math.floor(timeMinutes / 60);
+          const timeMins = timeMinutes % 60;
+          const timeStr = timeHours > 0 
+            ? `${timeHours}h ${timeMins}min` 
+            : `${timeMins} min`;
+          
+          const paceSeconds = activity.moving_time / (activity.distance / 1000);
+          const paceMinutes = Math.floor(paceSeconds / 60);
+          const paceSecs = Math.floor(paceSeconds % 60);
+          const paceStr = `${paceMinutes}:${paceSecs.toString().padStart(2, '0')}/km`;
+
+          return {
+            date: new Date(activity.start_date).toLocaleDateString('en-US', { 
+              month: 'short', 
+              day: 'numeric', 
+              year: 'numeric' 
+            }),
+            distance: `${distanceKm} km`,
+            time: timeStr,
+            pace: paceStr,
+            name: activity.name
+          };
+        });
+        setRecentActivities(formattedActivities);
+      }
+
+
+    } catch (error) {
+      console.error('Error loading dashboard data:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   // Redirect if not authenticated
   if (!isAuthenticated) {
@@ -30,18 +117,16 @@ export const Dashboard = () => {
     { label: 'SETTINGS', value: 'settings', link: '/settings' },
   ];
 
-  const stats = [
-    { label: 'Total Distance', value: '245.8 km', icon: '🏃' },
-    { label: 'Total Runs', value: '48', icon: '📊' },
-    { label: 'Clan Rank', value: '#3', icon: '🏆' },
-    { label: 'Weekly Goal', value: '75%', icon: '🎯' },
-  ];
-
-  const recentActivities = [
-    { date: 'Oct 28, 2025', distance: '8.5 km', time: '45 min', pace: '5:18/km' },
-    { date: 'Oct 26, 2025', distance: '12.3 km', time: '1h 15min', pace: '6:05/km' },
-    { date: 'Oct 24, 2025', distance: '6.2 km', time: '32 min', pace: '5:10/km' },
-    { date: 'Oct 22, 2025', distance: '10.8 km', time: '58 min', pace: '5:22/km' },
+  const displayStats = stats ? [
+    { label: 'Total Distance', value: stats.totalDistance, icon: '🏃' },
+    { label: 'Total Runs', value: stats.totalRuns.toString(), icon: '📊' },
+    { label: 'Clan Rank', value: stats.clanRank, icon: '🏆' },
+    { label: 'Weekly Goal', value: stats.weeklyGoal, icon: '🎯' },
+  ] : [
+    { label: 'Total Distance', value: 'Loading...', icon: '🏃' },
+    { label: 'Total Runs', value: 'Loading...', icon: '📊' },
+    { label: 'Clan Rank', value: 'Loading...', icon: '🏆' },
+    { label: 'Weekly Goal', value: 'Loading...', icon: '🎯' },
   ];
 
   return (
@@ -123,7 +208,7 @@ export const Dashboard = () => {
 
         {/* Stats Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
-          {stats.map((stat, index) => (
+          {displayStats.map((stat, index) => (
             <div
               key={index}
               className="bg-white/80 dark:bg-[#2a2a2a]/80 backdrop-blur-sm rounded-2xl p-6 border-2 border-[#56504a] dark:border-[#fcd96b] shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105"
@@ -145,7 +230,13 @@ export const Dashboard = () => {
             RECENT ACTIVITIES
           </h2>
           <div className="space-y-4">
-            {recentActivities.map((activity, index) => (
+            {loading ? (
+              <div className="text-center py-8">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#56504a] dark:border-[#fcd96b] mx-auto"></div>
+                <p className="mt-4 [font-family:'Poppins',Helvetica] text-[#56504a] dark:text-gray-300">Loading activities...</p>
+              </div>
+            ) : recentActivities.length > 0 ? (
+              recentActivities.map((activity, index) => (
               <div
                 key={index}
                 className="flex flex-col lg:flex-row lg:items-center justify-between p-4 bg-[#f7e2c6] dark:bg-[#3a3a3a] rounded-xl hover:bg-[#fcd96b] dark:hover:bg-[#4a4a4a] transition-colors duration-200"
@@ -173,7 +264,14 @@ export const Dashboard = () => {
                   </div>
                 </div>
               </div>
-            ))}
+              ))
+            ) : (
+              <div className="text-center py-8">
+                <p className="[font-family:'Poppins',Helvetica] text-[#56504a] dark:text-gray-300">
+                  No activities found. Start running to see your activities here!
+                </p>
+              </div>
+            )}
           </div>
         </div>
 

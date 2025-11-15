@@ -1,11 +1,15 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
+import React, { useEffect } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import Squares from '../../components/Squares';
 import { ThemeToggle } from '../../components/ThemeToggle';
+import { useAuth } from '../../contexts/AuthContext';
+import { apiClient } from '../../lib/api.js';
 
 export const ClanDashboard = () => {
+  const { user, isAuthenticated, logout } = useAuth();
+  const navigate = useNavigate();
   const [menuOpen, setMenuOpen] = React.useState(false);
-  const [hasClan, setHasClan] = React.useState(false); // Set to false to show create/join options
+  const [hasClan, setHasClan] = React.useState(false);
   const [showOptions, setShowOptions] = React.useState(true);
   const [creatingClan, setCreatingClan] = React.useState(false);
   const [joiningClan, setJoiningClan] = React.useState(false);
@@ -16,8 +20,117 @@ export const ClanDashboard = () => {
     type: 'Casual',
     description: '',
     requirement: '',
-    maxMembers: 50
+    maxMembers: 50,
+    is_private: false
   });
+  const [userStats, setUserStats] = React.useState(null);
+  const [clanInfo, setClanInfo] = React.useState(null);
+  const [clanMembers, setClanMembers] = React.useState([]);
+  const [availableClans, setAvailableClans] = React.useState([]);
+  const [loading, setLoading] = React.useState(true);
+
+  useEffect(() => {
+    if (!isAuthenticated) {
+      navigate('/login');
+      return;
+    }
+    loadClanData();
+    loadUserStats();
+  }, [isAuthenticated]);
+
+  const loadClanData = async () => {
+    try {
+      setLoading(true);
+      // Check if user has a clan
+      const userClanResponse = await apiClient.getUserClan();
+      if (userClanResponse.success && userClanResponse.clan) {
+        setHasClan(true);
+        setShowOptions(false);
+        
+        // Load detailed clan info
+        const clanResponse = await apiClient.getClan(userClanResponse.clan.id);
+        if (clanResponse.success) {
+          const clan = clanResponse.clan;
+          setClanInfo({
+            name: clan.name,
+            badge: '🏃',
+            level: Math.floor((clan.total_distance || 0) / 100000) + 1,
+            members: clan.member_count || 0,
+            totalKm: Math.round((clan.total_distance || 0) / 1000),
+            rank: null, // Will be calculated from leaderboard
+            motto: clan.description || ''
+          });
+          
+          // Format members with Strava data
+          const formattedMembers = clan.members.map(member => ({
+            name: `${member.firstname} ${member.lastname}`,
+            role: member.role === 'admin' ? 'Leader' : member.role === 'co_leader' ? 'Co-Leader' : member.role === 'elder' ? 'Elder' : 'Member',
+            km: Math.round((member.total_distance || 0) / 1000),
+            avatar: member.profile_picture || '👤'
+          }));
+          setClanMembers(formattedMembers);
+          
+          // Get clan rank from leaderboard
+          const leaderboardResponse = await apiClient.getClanLeaderboard('all', 100);
+          if (leaderboardResponse.success) {
+            const clanIndex = leaderboardResponse.leaderboard.findIndex(
+              c => c.id === clan.id
+            );
+            if (clanIndex !== -1) {
+              setClanInfo(prev => ({ ...prev, rank: clanIndex + 1 }));
+            }
+          }
+        }
+      } else {
+        // User doesn't have a clan - ensure states are set correctly
+        setHasClan(false);
+        setShowOptions(true);
+        setClanInfo(null);
+        setClanMembers([]);
+        
+        // Load available clans to join
+        const clansResponse = await apiClient.getClans(20, 0);
+        if (clansResponse.success) {
+          const formatted = clansResponse.clans.map(clan => ({
+            id: clan.id,
+            name: clan.name,
+            badge: '🏃',
+            members: clan.member_count || 0,
+            maxMembers: 50,
+            totalKm: Math.round((clan.total_distance || 0) / 1000),
+            level: Math.floor((clan.total_distance || 0) / 100000) + 1,
+            description: clan.description || '',
+            requirement: 'Connect with Strava',
+            type: clan.is_private ? 'Private' : 'Public'
+          }));
+          setAvailableClans(formatted);
+        }
+      }
+    } catch (error) {
+      console.error('Error loading clan data:', error);
+      // On error, ensure user can still create/join clans
+      setHasClan(false);
+      setShowOptions(true);
+      setLoading(false);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const loadUserStats = async () => {
+    try {
+      const statsResponse = await apiClient.getActivityStats();
+      if (statsResponse.success) {
+        setUserStats({
+          totalDistance: statsResponse.stats.total_distance || 0,
+          totalActivities: statsResponse.stats.total_activities || 0,
+          totalTime: statsResponse.stats.total_moving_time || 0
+        });
+      }
+    } catch (error) {
+      console.error('Error loading user stats:', error);
+    }
+  };
 
   const badgeOptions = ['⚡', '🌅', '🏅', '⚔️', '🏙️', '🌲', '🔥', '💪', '🎯', '🌟', '🦅', '🐺', '🦁', '🚀', '⭐'];
 
@@ -27,92 +140,53 @@ export const ClanDashboard = () => {
     { label: 'SETTINGS', link: '/settings' },
   ];
 
-  const clanInfo = {
-    name: 'Thunder Runners',
-    badge: '⚡',
-    level: 12,
-    members: 28,
-    totalKm: 1847,
-    rank: 3,
-    motto: 'Fast as Lightning, Strong as Thunder',
-  };
-
-  const clanMembers = [
-    { name: 'Sarah Lightning', role: 'Leader', km: 125.4, avatar: '👩' },
-    { name: 'Mike Storm', role: 'Co-Leader', km: 98.2, avatar: '👨' },
-    { name: 'John Runner', role: 'Elder', km: 87.5, avatar: '👤' },
-    { name: 'Emma Swift', role: 'Elder', km: 76.8, avatar: '👩' },
-    { name: 'Alex Thunder', role: 'Member', km: 65.3, avatar: '👨' },
-    { name: 'Lisa Flash', role: 'Member', km: 54.9, avatar: '👩' },
-  ];
-
-  const weeklyChallenge = {
-    title: 'October Running Challenge',
-    description: 'Complete 500km as a clan this month',
-    progress: 67,
-    current: 337,
-    goal: 500,
-  };
-
-  // Available clans to join
-  const availableClans = [
-    {
-      id: 1,
-      name: 'Thunder Runners',
-      badge: '⚡',
-      members: 45,
-      maxMembers: 50,
-      totalKm: 2450,
-      level: 15,
-      description: 'Elite runners pushing limits every day. Join us for weekly challenges!',
-      requirement: 'Minimum 50km/month',
-      type: 'Competitive',
-    },
-    {
-      id: 2,
-      name: 'Morning Joggers',
-      badge: '🌅',
-      members: 38,
-      maxMembers: 50,
-      totalKm: 1890,
-      level: 12,
-      description: 'Casual morning runs for everyone. All paces welcome!',
-      requirement: 'No requirements',
-      type: 'Casual',
-    },
-    {
-      id: 3,
-      name: 'Marathon Maniacs',
-      badge: '🏅',
-      members: 42,
-      maxMembers: 50,
-      totalKm: 3200,
-      level: 18,
-      description: 'Serious marathon training group. We aim for PRs!',
-      requirement: 'Marathon experience required',
-      type: 'Competitive',
-    },
-  ];
-
   const filteredClans = availableClans.filter(clan => 
-    clan.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    clan.type.toLowerCase().includes(searchQuery.toLowerCase())
+    clan.name && (
+      clan.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (clan.type && clan.type.toLowerCase().includes(searchQuery.toLowerCase()))
+    )
   );
 
-  const handleCreateClan = () => {
-    console.log('Creating clan:', newClan);
-    alert(`Clan "${newClan.name}" created successfully!`);
-    setHasClan(true);
-    setCreatingClan(false);
-    setShowOptions(false);
+  const handleCreateClan = async () => {
+    if (!newClan.name || !newClan.description) {
+      alert('Please fill in all required fields');
+      return;
+    }
+    
+    try {
+      const response = await apiClient.createClan({
+        name: newClan.name,
+        description: newClan.description,
+        is_private: newClan.is_private
+      });
+      
+      if (response.success) {
+        alert(`Clan "${newClan.name}" created successfully!`);
+        // Reload clan data
+        await loadClanData();
+        setCreatingClan(false);
+        setShowOptions(false);
+      }
+    } catch (error) {
+      console.error('Error creating clan:', error);
+      alert(error.message || 'Failed to create clan');
+    }
   };
 
-  const handleJoinClan = (clan) => {
-    console.log('Joining clan:', clan.name);
-    alert(`Successfully joined ${clan.name}!`);
-    setHasClan(true);
-    setJoiningClan(false);
-    setShowOptions(false);
+  const handleJoinClan = async (clan) => {
+    try {
+      const response = await apiClient.joinClan(clan.id);
+      if (response.success) {
+        alert(`Successfully joined ${clan.name}!`);
+        // Reload clan data
+        await loadClanData();
+        setJoiningClan(false);
+        setShowOptions(false);
+      }
+    } catch (error) {
+      console.error('Error joining clan:', error);
+      alert(error.message || 'Failed to join clan');
+    }
   };
 
   return (
@@ -168,6 +242,15 @@ export const ClanDashboard = () => {
                   </button>
                 </Link>
               ))}
+              <button
+                onClick={() => {
+                  setMenuOpen(false);
+                  logout();
+                }}
+                className="w-full text-left [font-family:'Porter_Sans_Block-Block',Helvetica] font-normal text-[#56504a] dark:text-[#fcd96b] text-sm uppercase tracking-wide px-8 py-4 hover:bg-[#fcd96b] dark:hover:bg-[#56504a] hover:text-[#56504a] dark:hover:text-[#fcd96b] transition-all duration-200 border-t border-[#56504a]/10 dark:border-[#fcd96b]/10"
+              >
+                LOG OUT
+              </button>
             </div>
           )}
         </div>
@@ -175,7 +258,12 @@ export const ClanDashboard = () => {
 
       {/* Main Content */}
       <main className="relative z-10 max-w-[1400px] mx-auto px-6 lg:px-12 py-12 lg:py-16">
-        {!hasClan ? (
+        {loading ? (
+          <div className="text-center py-16">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#56504a] dark:border-[#fcd96b] mx-auto"></div>
+            <p className="mt-4 [font-family:'Poppins',Helvetica] text-[#56504a] dark:text-gray-300">Loading...</p>
+          </div>
+        ) : !hasClan ? (
           /* No Clan - Show Options */
           <>
             {showOptions && !creatingClan && !joiningClan ? (
@@ -256,6 +344,37 @@ export const ClanDashboard = () => {
                 </div>
 
                 <div className="bg-white/80 backdrop-blur-sm rounded-3xl border-3 border-[#56504a] shadow-[8px_8px_0px_0px_rgba(86,80,74,1)] p-8">
+                  {/* User Strava Stats */}
+                  {userStats && (
+                    <div className="mb-8 p-6 bg-[#f7e2c6] rounded-2xl border-2 border-[#56504a]">
+                      <h3 className="[font-family:'Porter_Sans_Block-Block',Helvetica] font-normal text-[#56504a] text-xl uppercase mb-4">
+                        YOUR STRAVA STATS
+                      </h3>
+                      <div className="grid grid-cols-3 gap-4">
+                        <div>
+                          <p className="[font-family:'Poppins',Helvetica] text-[#56504a] text-sm mb-1">Total Distance</p>
+                          <p className="[font-family:'Porter_Sans_Block-Block',Helvetica] text-[#56504a] text-2xl">
+                            {(userStats.totalDistance / 1000).toFixed(1)} km
+                          </p>
+                        </div>
+                        <div>
+                          <p className="[font-family:'Poppins',Helvetica] text-[#56504a] text-sm mb-1">Total Runs</p>
+                          <p className="[font-family:'Porter_Sans_Block-Block',Helvetica] text-[#56504a] text-2xl">
+                            {userStats.totalActivities}
+                          </p>
+                        </div>
+                        <div>
+                          <p className="[font-family:'Poppins',Helvetica] text-[#56504a] text-sm mb-1">Total Time</p>
+                          <p className="[font-family:'Porter_Sans_Block-Block',Helvetica] text-[#56504a] text-2xl">
+                            {Math.floor(userStats.totalTime / 3600)}h
+                          </p>
+                        </div>
+                      </div>
+                      <p className="mt-4 [font-family:'Poppins',Helvetica] text-[#56504a] text-sm italic">
+                        Your Strava activities will automatically contribute to your clan's rankings!
+                      </p>
+                    </div>
+                  )}
                   <div className="space-y-6">
                     {/* Clan Name */}
                     <div>
@@ -451,7 +570,7 @@ export const ClanDashboard = () => {
                             Total KM:
                           </span>
                           <span className="[font-family:'Porter_Sans_Block-Block',Helvetica] text-[#fcd96b] text-lg">
-                            {clan.totalKm.toLocaleString()}
+                            {(clan.totalKm || 0).toLocaleString()}
                           </span>
                         </div>
                       </div>
@@ -489,7 +608,7 @@ export const ClanDashboard = () => {
               </div>
             ) : null}
           </>
-        ) : (
+        ) : clanInfo ? (
           /* Has Clan - Show Clan Dashboard */
           <>
         <h1 className="[font-family:'Porter_Sans_Block-Block',Helvetica] font-normal text-[#56504a] dark:text-[#fcd96b] text-4xl lg:text-6xl mb-8 transition-colors duration-300">
@@ -500,24 +619,24 @@ export const ClanDashboard = () => {
           {/* Clan Info Card */}
           <div className="lg:col-span-1">
             <div className="bg-white/80 dark:bg-[#2a2a2a]/80 backdrop-blur-sm rounded-2xl p-8 border-2 border-[#56504a] dark:border-[#fcd96b] shadow-lg text-center transition-colors duration-300">
-              <div className="text-8xl mb-4">{clanInfo.badge}</div>
+              <div className="text-8xl mb-4">{clanInfo.badge || '🏃'}</div>
               <h2 className="[font-family:'Porter_Sans_Block-Block',Helvetica] font-normal text-[#56504a] dark:text-[#fcd96b] text-2xl mb-2 transition-colors duration-300">
                 {clanInfo.name}
               </h2>
               <p className="[font-family:'Poppins',Helvetica] font-medium text-black dark:text-gray-300 text-sm italic mb-4 transition-colors duration-300">
-                "{clanInfo.motto}"
+                "{clanInfo.motto || 'Powered by Strava'}"
               </p>
               
               <div className="flex items-center justify-center gap-2 mb-4">
                 <span className="[font-family:'Porter_Sans_Block-Block',Helvetica] text-[#fcd96b] text-xl">
-                  LEVEL {clanInfo.level}
+                  LEVEL {clanInfo.level || 1}
                 </span>
               </div>
 
               <div className="grid grid-cols-3 gap-4 mb-6">
                 <div>
                   <div className="[font-family:'Porter_Sans_Block-Block',Helvetica] text-[#56504a] dark:text-[#fcd96b] text-2xl transition-colors duration-300">
-                    {clanInfo.members}
+                    {clanInfo.members || 0}
                   </div>
                   <div className="[font-family:'Poppins',Helvetica] text-black dark:text-gray-300 text-xs transition-colors duration-300">
                     Members
@@ -525,7 +644,7 @@ export const ClanDashboard = () => {
                 </div>
                 <div>
                   <div className="[font-family:'Porter_Sans_Block-Block',Helvetica] text-[#56504a] dark:text-[#fcd96b] text-2xl transition-colors duration-300">
-                    {clanInfo.totalKm}
+                    {clanInfo.totalKm?.toLocaleString() || 0}
                   </div>
                   <div className="[font-family:'Poppins',Helvetica] text-black dark:text-gray-300 text-xs transition-colors duration-300">
                     Total KM
@@ -533,7 +652,7 @@ export const ClanDashboard = () => {
                 </div>
                 <div>
                   <div className="[font-family:'Porter_Sans_Block-Block',Helvetica] text-[#56504a] dark:text-[#fcd96b] text-2xl transition-colors duration-300">
-                    #{clanInfo.rank}
+                    {clanInfo.rank ? `#${clanInfo.rank}` : 'N/A'}
                   </div>
                   <div className="[font-family:'Poppins',Helvetica] text-black dark:text-gray-300 text-xs transition-colors duration-300">
                     Rank
@@ -617,30 +736,40 @@ export const ClanDashboard = () => {
           <h3 className="[font-family:'Porter_Sans_Block-Block',Helvetica] font-normal text-[#56504a] dark:text-[#fcd96b] text-2xl mb-6 transition-colors duration-300">
             CLAN MEMBERS
           </h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {clanMembers.map((member, index) => (
-              <div
-                key={index}
-                className="p-4 bg-[#f7e2c6] dark:bg-[#3a3a3a] rounded-xl hover:bg-[#fcd96b] dark:hover:bg-[#4a4a4a] transition-colors duration-200 flex items-center gap-4"
-              >
-                <div className="text-4xl">{member.avatar}</div>
-                <div className="flex-1">
-                  <div className="[font-family:'Poppins',Helvetica] font-semibold text-black dark:text-white text-base transition-colors duration-300">
-                    {member.name}
-                  </div>
-                  <div className="[font-family:'Poppins',Helvetica] text-[#56504a] dark:text-gray-400 text-xs transition-colors duration-300">
-                    {member.role}
-                  </div>
-                  <div className="[font-family:'Porter_Sans_Block-Block',Helvetica] text-[#56504a] dark:text-[#fcd96b] text-sm mt-1 transition-colors duration-300">
-                    {member.km} KM
+          {clanMembers && clanMembers.length > 0 ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {clanMembers.map((member, index) => (
+                <div
+                  key={index}
+                  className="p-4 bg-[#f7e2c6] dark:bg-[#3a3a3a] rounded-xl hover:bg-[#fcd96b] dark:hover:bg-[#4a4a4a] transition-colors duration-200 flex items-center gap-4"
+                >
+                  {member.avatar && member.avatar.startsWith('http') ? (
+                    <img src={member.avatar} alt={member.name} className="w-12 h-12 rounded-full border-2 border-[#56504a]" />
+                  ) : (
+                    <div className="text-4xl">{member.avatar || '🏃'}</div>
+                  )}
+                  <div className="flex-1">
+                    <div className="[font-family:'Poppins',Helvetica] font-semibold text-black dark:text-white text-base transition-colors duration-300">
+                      {member.name}
+                    </div>
+                    <div className="[font-family:'Poppins',Helvetica] text-[#56504a] dark:text-gray-400 text-xs transition-colors duration-300">
+                      {member.role}
+                    </div>
+                    <div className="[font-family:'Porter_Sans_Block-Block',Helvetica] text-[#56504a] dark:text-[#fcd96b] text-sm mt-1 transition-colors duration-300">
+                      {member.km || 0} KM
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-8">
+              <p className="[font-family:'Poppins',Helvetica] text-[#56504a] dark:text-gray-300">No members found</p>
+            </div>
+          )}
         </div>
         </>
-        )}
+        ) : null}
       </main>
     </div>
   );

@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { Button } from "../../components/ui/button";
 import Squares from "../../components/Squares";
@@ -8,10 +8,37 @@ export const Login = () => {
   const { loginWithStrava, handleStravaCallback, loading, isAuthenticated } = useAuth();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
+  const [error, setError] = useState(null);
 
-  // Handle Strava callback if code is present in URL
+  // Handle Strava callback if code is present in URL (direct from Strava)
+  // Note: Usually the backend handles the OAuth callback and redirects with token/user
   useEffect(() => {
     const code = searchParams.get('code');
+    const token = searchParams.get('token');
+    const user = searchParams.get('user');
+    const error = searchParams.get('error');
+    
+    // Clear any previous errors when URL changes
+    setError(null);
+    
+    // If error from backend redirect
+    if (error) {
+      const errorMessage = decodeURIComponent(error);
+      console.error('Authentication error:', errorMessage);
+      setError(errorMessage);
+      // Clean up URL
+      window.history.replaceState({}, document.title, window.location.pathname);
+      return;
+    }
+    
+    // If token and user from backend redirect (normal flow)
+    if (token && user) {
+      // AuthContext will handle this in initAuth, but we can clean up URL here
+      // The AuthContext's initAuth will process the token and user
+      return;
+    }
+    
+    // If code is present (direct Strava redirect - should not happen in normal flow)
     if (code) {
       handleStravaCallback(code)
         .then(() => {
@@ -33,10 +60,16 @@ export const Login = () => {
 
   const handleStravaLogin = async () => {
     try {
+      setError(null);
       await loginWithStrava();
     } catch (error) {
       console.error('Login error:', error);
-      // You might want to show an error message to the user
+      // Show user-friendly error message
+      if (error.message && error.message.includes('Cannot connect to backend')) {
+        setError('Backend server is not running. Please start the backend server on port 3001.');
+      } else {
+        setError(error.message || 'Failed to connect with Strava. Please try again.');
+      }
     }
   };
 
@@ -71,17 +104,27 @@ export const Login = () => {
             WELCOME BACK
           </h1>
 
+          {/* Error Message */}
+          {error && (
+            <div className="mb-4 p-3 bg-red-50 border-2 border-red-300 rounded-lg">
+              <p className="[font-family:'Poppins',Helvetica] text-sm text-red-700 font-medium">
+                {error}
+              </p>
+            </div>
+          )}
+
           {/* Strava Login Button */}
           <button
             onClick={handleStravaLogin}
-            className="w-full bg-[#fc4c02] hover:bg-[#e34402] text-white rounded-[30px] px-6 py-4 border-[3px] border-black shadow-lg hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 flex items-center justify-center gap-3 mb-5"
+            disabled={loading}
+            className="w-full bg-[#fc4c02] hover:bg-[#e34402] disabled:bg-gray-400 disabled:cursor-not-allowed text-white rounded-[30px] px-6 py-4 border-[3px] border-black shadow-lg hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 flex items-center justify-center gap-3 mb-5"
           >
             {/* Strava Icon */}
             <svg width="28" height="28" viewBox="0 0 24 24" fill="currentColor">
               <path d="M15.387 17.944l-2.089-4.116h-3.065L15.387 24l5.15-10.172h-3.066m-7.008-5.599l2.836 5.598h4.172L10.463 0l-7 13.828h4.169"/>
             </svg>
             <span className="[font-family:'Porter_Sans_Block-Block',Helvetica] font-normal text-lg uppercase">
-              Connect with Strava
+              {loading ? 'Connecting...' : 'Connect with Strava'}
             </span>
           </button>
 

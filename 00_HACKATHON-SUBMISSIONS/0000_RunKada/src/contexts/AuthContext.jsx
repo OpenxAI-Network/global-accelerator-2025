@@ -20,21 +20,22 @@ export const AuthProvider = ({ children }) => {
   useEffect(() => {
     const initAuth = async () => {
       try {
-        // Check for token in URL parameters (from Strava callback)
+        // Check for token in URL parameters (from Strava callback via backend redirect)
         const urlParams = new URLSearchParams(window.location.search);
         const token = urlParams.get('token');
         const userParam = urlParams.get('user');
         const error = urlParams.get('error');
 
         if (error) {
-          console.error('Authentication error:', error);
+          console.error('Authentication error:', decodeURIComponent(error));
           // Clean up URL
           window.history.replaceState({}, document.title, window.location.pathname);
+          setLoading(false);
           return;
         }
 
         if (token && userParam) {
-          // Handle successful Strava callback
+          // Handle successful Strava callback from backend redirect
           try {
             const userData = JSON.parse(decodeURIComponent(userParam));
             apiClient.setToken(token);
@@ -42,17 +43,27 @@ export const AuthProvider = ({ children }) => {
             setIsAuthenticated(true);
             // Clean up URL and navigate to home without full reload
             window.history.replaceState({}, document.title, '/');
+            setLoading(false);
             return;
           } catch (parseError) {
             console.error('Error parsing user data:', parseError);
+            // Fall through to check existing token
           }
         }
 
-        // Check existing token
+        // Check existing token in localStorage
         if (apiClient.isAuthenticated() && !apiClient.isTokenExpired()) {
-          const response = await apiClient.getProfile();
-          setUser(response.user);
-          setIsAuthenticated(true);
+          try {
+            const response = await apiClient.getProfile();
+            setUser(response.user);
+            setIsAuthenticated(true);
+          } catch (profileError) {
+            console.error('Error fetching profile:', profileError);
+            // Token might be invalid, clear it
+            apiClient.setToken(null);
+            setUser(null);
+            setIsAuthenticated(false);
+          }
         } else {
           // Token is expired or doesn't exist
           apiClient.setToken(null);

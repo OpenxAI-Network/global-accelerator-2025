@@ -1,8 +1,10 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "../../components/ui/button";
 import Squares from "../../components/Squares";
 import { ThemeToggle } from "../../components/ThemeToggle";
+import { useAuth } from "../../contexts/AuthContext";
+import { apiClient } from "../../lib/api.js";
 
 const navigationItems = [
   { label: "Home", active: false, link: "/" },
@@ -25,112 +27,55 @@ const socialIcons = [
   },
 ];
 
-// Mock data for individual runners
-const individualRankings = [
-  {
-    rank: 1,
-    name: "Alex Martinez",
-    clan: "Speed Demons",
-    distance: "245.8 km",
-    avatar: "https://i.pravatar.cc/150?img=12",
-  },
-  {
-    rank: 2,
-    name: "Sarah Chen",
-    clan: "Marathon Masters",
-    distance: "238.5 km",
-    avatar: "https://i.pravatar.cc/150?img=5",
-  },
-  {
-    rank: 3,
-    name: "Marcus Johnson",
-    clan: "Urban Runners",
-    distance: "231.2 km",
-    avatar: "https://i.pravatar.cc/150?img=33",
-  },
-  {
-    rank: 4,
-    name: "Emma Rodriguez",
-    clan: "Trail Blazers",
-    distance: "225.7 km",
-    avatar: "https://i.pravatar.cc/150?img=9",
-  },
-  {
-    rank: 5,
-    name: "David Kim",
-    clan: "Speed Demons",
-    distance: "218.3 km",
-    avatar: "https://i.pravatar.cc/150?img=15",
-  },
-  {
-    rank: 6,
-    name: "Lisa Thompson",
-    clan: "Marathon Masters",
-    distance: "212.9 km",
-    avatar: "https://i.pravatar.cc/150?img=20",
-  },
-  {
-    rank: 7,
-    name: "James Wilson",
-    clan: "Urban Runners",
-    distance: "205.4 km",
-    avatar: "https://i.pravatar.cc/150?img=52",
-  },
-  {
-    rank: 8,
-    name: "Maria Garcia",
-    clan: "Trail Blazers",
-    distance: "198.6 km",
-    avatar: "https://i.pravatar.cc/150?img=47",
-  },
-];
-
-// Mock data for clan rankings
-const clanRankings = [
-  {
-    rank: 1,
-    name: "Speed Demons",
-    members: 24,
-    totalDistance: "5,847 km",
-    avgDistance: "243.6 km",
-    color: "#fcd96b",
-  },
-  {
-    rank: 2,
-    name: "Marathon Masters",
-    members: 31,
-    totalDistance: "5,621 km",
-    avgDistance: "181.3 km",
-    color: "#f7e2c6",
-  },
-  {
-    rank: 3,
-    name: "Urban Runners",
-    members: 19,
-    totalDistance: "4,892 km",
-    avgDistance: "257.5 km",
-    color: "#56504a",
-  },
-  {
-    rank: 4,
-    name: "Trail Blazers",
-    members: 28,
-    totalDistance: "4,673 km",
-    avgDistance: "166.9 km",
-    color: "#fcd96b",
-  },
-  {
-    rank: 5,
-    name: "City Striders",
-    members: 22,
-    totalDistance: "4,201 km",
-    avgDistance: "191.0 km",
-    color: "#f7e2c6",
-  },
-];
 
 export const Rank = () => {
   const [activeTab, setActiveTab] = useState("individual");
+  const { isAuthenticated, logout } = useAuth();
+  const [individualRankings, setIndividualRankings] = useState([]);
+  const [clanRankings, setClanRankings] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [period, setPeriod] = useState('all');
+
+  useEffect(() => {
+    loadRankings();
+  }, [period]);
+
+  const loadRankings = async () => {
+    try {
+      setLoading(true);
+      
+      // Load individual leaderboard
+      const individualResponse = await apiClient.getLeaderboard(period, 50);
+      if (individualResponse.success) {
+        const formatted = individualResponse.leaderboard.map((entry, index) => ({
+          rank: entry.rank || index + 1,
+          name: entry.name || 'Unknown Runner',
+          clan: entry.clan || 'No Clan',
+          distance: (entry.total_distance / 1000).toFixed(1) + ' km',
+          avatar: entry.profile_picture || `https://i.pravatar.cc/150?img=${index + 1}`
+        }));
+        setIndividualRankings(formatted);
+      }
+
+      // Load clan leaderboard
+      const clanResponse = await apiClient.getClanLeaderboard(period, 50);
+      if (clanResponse.success) {
+        const formatted = clanResponse.leaderboard.map((clan, index) => ({
+          rank: clan.rank || index + 1,
+          name: clan.name,
+          members: clan.member_count || 0,
+          totalDistance: (clan.total_distance / 1000).toFixed(0) + ' km',
+          avgDistance: (clan.avg_distance / 1000).toFixed(1) + ' km',
+          color: index === 0 ? '#fcd96b' : index === 1 ? '#f7e2c6' : index === 2 ? '#56504a' : '#fcd96b'
+        }));
+        setClanRankings(formatted);
+      }
+    } catch (error) {
+      console.error('Error loading rankings:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <div className="bg-[#f5f5f5] dark:bg-[#1a1a1a] overflow-hidden w-full min-h-screen relative transition-colors duration-300">
@@ -171,19 +116,31 @@ export const Rank = () => {
             ))}
           </div>
 
-          {/* Login on Right */}
+          {/* Login/Logout on Right */}
           <div className="absolute top-16 right-16 flex items-center gap-4">
             <ThemeToggle />
-            <Link to="/login">
+            {isAuthenticated ? (
               <Button
                 variant="outline"
                 className="px-8 py-4 rounded-[30px] border-2 border-[#56504a] dark:border-[#fcd96b] bg-transparent hover:bg-[#f7e2c6] dark:hover:bg-[#56504a] transition-colors"
+                onClick={logout}
               >
                 <span className="[font-family:'Porter_Sans_Block-Block',Helvetica] font-normal text-[#56504a] dark:text-[#fcd96b] text-base uppercase">
-                  log in
+                  log out
                 </span>
               </Button>
-            </Link>
+            ) : (
+              <Link to="/login">
+                <Button
+                  variant="outline"
+                  className="px-8 py-4 rounded-[30px] border-2 border-[#56504a] dark:border-[#fcd96b] bg-transparent hover:bg-[#f7e2c6] dark:hover:bg-[#56504a] transition-colors"
+                >
+                  <span className="[font-family:'Porter_Sans_Block-Block',Helvetica] font-normal text-[#56504a] dark:text-[#fcd96b] text-base uppercase">
+                    log in
+                  </span>
+                </Button>
+              </Link>
+            )}
           </div>
         </div>
 
@@ -197,16 +154,28 @@ export const Rank = () => {
             />
             <div className="flex items-center gap-3">
               <ThemeToggle />
-              <Link to="/login">
+              {isAuthenticated ? (
                 <Button
                   variant="outline"
                   className="px-6 py-2 rounded-full border-2 border-[#56504a] dark:border-[#fcd96b] bg-transparent hover:bg-[#f7e2c6] dark:hover:bg-[#56504a] transition-colors text-sm"
+                  onClick={logout}
                 >
                   <span className="[font-family:'Porter_Sans_Block-Block',Helvetica] font-normal text-[#56504a] dark:text-[#fcd96b]">
-                    LOG IN
+                    LOG OUT
                   </span>
                 </Button>
-              </Link>
+              ) : (
+                <Link to="/login">
+                  <Button
+                    variant="outline"
+                    className="px-6 py-2 rounded-full border-2 border-[#56504a] dark:border-[#fcd96b] bg-transparent hover:bg-[#f7e2c6] dark:hover:bg-[#56504a] transition-colors text-sm"
+                  >
+                    <span className="[font-family:'Porter_Sans_Block-Block',Helvetica] font-normal text-[#56504a] dark:text-[#fcd96b]">
+                      LOG IN
+                    </span>
+                  </Button>
+                </Link>
+              )}
             </div>
           </div>
 
@@ -239,6 +208,25 @@ export const Rank = () => {
           </p>
         </div>
 
+        {/* Period Selector */}
+        <div className="max-w-4xl mx-auto mb-6 translate-y-[-1rem] animate-fade-in opacity-0 [--animation-delay:250ms]">
+          <div className="flex items-center justify-center gap-2 bg-[#f7e2c680] rounded-[30px] p-2">
+            {['all', 'month', 'week'].map((p) => (
+              <button
+                key={p}
+                onClick={() => setPeriod(p)}
+                className={`[font-family:'Porter_Sans_Block-Block',Helvetica] font-normal text-sm uppercase px-6 py-2 rounded-[30px] transition-all duration-200 ${
+                  period === p
+                    ? "bg-[#fcd96b] text-[#56504a]"
+                    : "bg-transparent text-[#56504a] hover:bg-[#f7e2c6]"
+                }`}
+              >
+                {p === 'all' ? 'All Time' : p === 'month' ? 'This Month' : 'This Week'}
+              </button>
+            ))}
+          </div>
+        </div>
+
         {/* Tab Switcher */}
         <div className="max-w-4xl mx-auto mb-12 translate-y-[-1rem] animate-fade-in opacity-0 [--animation-delay:300ms]">
           <div className="flex items-center justify-center gap-4 bg-[#f7e2c680] rounded-[30px] p-2">
@@ -268,8 +256,14 @@ export const Rank = () => {
         {/* Individual Rankings */}
         {activeTab === "individual" && (
           <div className="max-w-4xl mx-auto translate-y-[-1rem] animate-fade-in opacity-0 [--animation-delay:400ms]">
-            <div className="space-y-4">
-              {individualRankings.map((runner) => (
+            {loading ? (
+              <div className="text-center py-16">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#56504a] mx-auto"></div>
+                <p className="mt-4 [font-family:'Poppins',Helvetica] text-[#56504a]">Loading rankings...</p>
+              </div>
+            ) : individualRankings.length > 0 ? (
+              <div className="space-y-4">
+                {individualRankings.map((runner) => (
                 <div
                   key={runner.rank}
                   className={`border-[3px] border-black rounded-[20px] p-6 bg-white hover:shadow-lg transition-all duration-200 ${
@@ -328,14 +322,25 @@ export const Rank = () => {
                 </div>
               ))}
             </div>
+            ) : (
+              <div className="text-center py-16">
+                <p className="[font-family:'Poppins',Helvetica] text-[#56504a]">No rankings available</p>
+              </div>
+            )}
           </div>
         )}
 
         {/* Clan Rankings */}
         {activeTab === "clan" && (
           <div className="max-w-4xl mx-auto translate-y-[-1rem] animate-fade-in opacity-0 [--animation-delay:400ms]">
-            <div className="space-y-4">
-              {clanRankings.map((clan) => (
+            {loading ? (
+              <div className="text-center py-16">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#56504a] mx-auto"></div>
+                <p className="mt-4 [font-family:'Poppins',Helvetica] text-[#56504a]">Loading clan rankings...</p>
+              </div>
+            ) : clanRankings.length > 0 ? (
+              <div className="space-y-4">
+                {clanRankings.map((clan) => (
                 <div
                   key={clan.rank}
                   className={`border-[3px] border-black rounded-[20px] p-6 bg-white hover:shadow-lg transition-all duration-200 ${
@@ -397,8 +402,15 @@ export const Rank = () => {
                     </div>
                   </div>
                 </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-16">
+                <p className="[font-family:'Poppins',Helvetica] text-[#56504a] text-lg">
+                  No clan rankings available yet. Create or join a clan to compete!
+                </p>
+              </div>
+            )}
           </div>
         )}
       </main>

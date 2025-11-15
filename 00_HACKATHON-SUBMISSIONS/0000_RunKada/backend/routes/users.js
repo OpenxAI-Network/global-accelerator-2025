@@ -73,8 +73,8 @@ router.put('/profile', authenticateToken, async (req, res) => {
   }
 });
 
-// Get user leaderboard data
-router.get('/leaderboard', authenticateToken, async (req, res) => {
+// Get user leaderboard data (public endpoint)
+router.get('/leaderboard', async (req, res) => {
   try {
     const { period = 'all', limit = 50 } = req.query;
     
@@ -94,7 +94,7 @@ router.get('/leaderboard', authenticateToken, async (req, res) => {
       dateFilter.gte = yearAgo.toISOString();
     }
 
-    // Get user statistics for leaderboard
+    // Get user statistics for leaderboard with clan information
     const { data: leaderboard, error } = await supabaseAdmin
       .from(TABLES.ACTIVITIES)
       .select(`
@@ -110,17 +110,36 @@ router.get('/leaderboard', authenticateToken, async (req, res) => {
       .order('total_distance', { ascending: false })
       .limit(parseInt(limit));
 
+    // Get clan information for each user
+    const userIds = leaderboard.map(entry => entry.user_id);
+    const { data: clanMemberships, error: clanError } = await supabaseAdmin
+      .from(TABLES.CLAN_MEMBERS)
+      .select(`
+        user_id,
+        clans(name)
+      `)
+      .in('user_id', userIds);
+
+    // Create a map of user_id to clan name
+    const userClanMap = {};
+    if (clanMemberships && !clanError) {
+      clanMemberships.forEach(membership => {
+        userClanMap[membership.user_id] = membership.clans?.name || null;
+      });
+    }
+
     if (error) {
       console.error('Error fetching leaderboard:', error);
       return res.status(500).json({ error: 'Failed to fetch leaderboard' });
     }
 
-    // Format leaderboard data
+    // Format leaderboard data with clan information
     const formattedLeaderboard = leaderboard.map((entry, index) => ({
       rank: index + 1,
       user_id: entry.user_id,
       name: `${entry.users.firstname} ${entry.users.lastname}`,
       profile_picture: entry.users.profile_picture,
+      clan: userClanMap[entry.user_id] || null,
       activity_count: parseInt(entry.activity_count),
       total_distance: parseFloat(entry.total_distance) || 0,
       total_moving_time: parseInt(entry.total_moving_time) || 0,

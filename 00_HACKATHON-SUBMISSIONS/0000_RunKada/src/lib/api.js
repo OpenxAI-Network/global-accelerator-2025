@@ -40,7 +40,17 @@ class ApiClient {
 
     try {
       const response = await fetch(url, config);
-      const data = await response.json();
+      
+      // Check if response is JSON before parsing
+      const contentType = response.headers.get('content-type');
+      let data;
+      
+      if (contentType && contentType.includes('application/json')) {
+        data = await response.json();
+      } else {
+        const text = await response.text();
+        throw new Error(`Expected JSON response but got: ${text.substring(0, 100)}`);
+      }
 
       if (!response.ok) {
         throw new Error(data.error || `HTTP error! status: ${response.status}`);
@@ -48,6 +58,12 @@ class ApiClient {
 
       return data;
     } catch (error) {
+      // Provide more helpful error messages
+      if (error.name === 'TypeError' && error.message === 'Failed to fetch') {
+        console.error(`API request failed: Cannot connect to backend at ${url}`);
+        console.error('Make sure the backend server is running on port 3001');
+        throw new Error(`Cannot connect to backend server. Please ensure the backend is running at ${this.baseURL}`);
+      }
       console.error('API request failed:', error);
       throw error;
     }
@@ -116,6 +132,10 @@ class ApiClient {
   // Clan methods
   async getClans(limit = 20, offset = 0) {
     return this.request(`/clans?limit=${limit}&offset=${offset}`);
+  }
+
+  async getClanLeaderboard(period = 'all', limit = 50) {
+    return this.request(`/clans/leaderboard?period=${period}&limit=${limit}`);
   }
 
   async getClan(clanId) {

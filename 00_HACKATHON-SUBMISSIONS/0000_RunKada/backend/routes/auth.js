@@ -138,7 +138,7 @@ router.get('/strava/callback', async (req, res) => {
 
     // Redirect to frontend with success
     const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
-    res.redirect(`${frontendUrl}/?token=${jwtToken}&user=${encodeURIComponent(JSON.stringify({
+    res.redirect(`${frontendUrl}/login?token=${jwtToken}&user=${encodeURIComponent(JSON.stringify({
       id: userId,
       firstname: athleteData.firstname,
       lastname: athleteData.lastname,
