@@ -1,0 +1,26 @@
+# empire chain
+.env
+env
+build
+dist
+*.egg-info
+pycache
+__pycache__
+sample.pdf
+input.pdf
+.pypirc
+token.pickle
+client_secret.json
+audio.mp3
+video.mp4
+*.txt
+*.json
+*.yaml
+*.yml
+*.csv
+*.tsv
+*.log
+*.ini
+*.cfg
+*.env
+venv
