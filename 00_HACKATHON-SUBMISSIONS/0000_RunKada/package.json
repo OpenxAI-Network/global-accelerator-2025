@@ -1,0 +1,42 @@
+{
+  "version": "1.0.0",
+  "source": "./index.html",
+  "type": "module",
+  "name": "runkada",
+  "description": "RunKada group running web app",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "dev:backend": "cd backend && npm run dev",
+    "dev:full": "concurrently \"npm run dev\" \"npm run dev:backend\"",
+    "install:backend": "cd backend && npm install",
+    "start:backend": "cd backend && npm start"
+  },
+  "dependencies": {
+    "@radix-ui/react-accordion": "^1.2.1",
+    "@radix-ui/react-slot": "^1.1.0",
+    "class-variance-authority": "^0.7.0",
+    "clsx": "2.1.1",
+    "lucide-react": "^0.453.0",
+    "motion": "^12.23.24",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-router-dom": "^6.8.1",
+    "tailwind-merge": "2.5.4",
+    "tailwindcss-animate": "1.0.7"
+  },
+  "devDependencies": {
+    "@animaapp/vite-plugin-screen-graph": "^0.1.5",
+    "@vitejs/plugin-react": "4.3.4",
+    "autoprefixer": "^10.4.21",
+    "concurrently": "^8.2.2",
+    "esbuild": "0.24.0",
+    "globals": "15.12.0",
+    "postcss": "^8.5.6",
+    "tailwindcss": "^3.4.18",
+    "vite": "6.0.4"
+  },
+  "alias": {
+    "@/*": "./src/components/ui/$1"
+  }
+}
