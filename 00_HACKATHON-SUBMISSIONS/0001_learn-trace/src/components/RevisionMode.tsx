@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { Brain, Check, X, RotateCcw, BookOpen } from "lucide-react";
 import { supabase } from "@/lib/supabaseClient";
-import { fetchFromPerplexity } from "@/lib/perplexity";
+import { fetchFromPerplexity } from "@/lib/inceptionlabs";
 
 interface RevisionModeProps {
   selectedNodes: any[];

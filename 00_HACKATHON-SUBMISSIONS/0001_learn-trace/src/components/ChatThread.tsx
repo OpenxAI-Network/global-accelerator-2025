@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabaseClient";
-import { fetchFromPerplexity } from "@/lib/perplexity";
+import { fetchFromPerplexity } from "@/lib/inceptionlabs";
 import ChatBox from "./ChatBox";
 import { useRouter, useSearchParams } from "next/navigation";
 import ReactMarkdown from "react-markdown";
@@ -20,6 +20,7 @@ export default function ChatThread({ chatId }: { chatId: string | null }) {
 
   // Get test user ID from environment variable
   const testUserId = process.env.NEXT_PUBLIC_TEST_USER_ID;
+  console.log("Printing test user id: ", process.env.NEXT_PUBLIC_TEST_USER_ID);
 
   const [showPreview, setShowPreview] = useState(false);
 
