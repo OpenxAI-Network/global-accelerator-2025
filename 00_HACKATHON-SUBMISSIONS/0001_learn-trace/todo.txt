@@ -1,0 +1,29 @@
+features to be added
+- profile and learning analytics dashboard
+- adding llama model
+- adding personal notes to nodes 
+    - show by dotted lines
+    - external resources along with personal notes
+- revision mode
+    - quiz for that chats
+        - show the accuracy / completion of node in revision mode
+    - reminder for revision
+        - emails to remind
+- chats
+    - 
+
+THINGS TO FIX: 
+- using local model
+- revision mode (ask questions when turned on)
+- can I implement decentralization somehow
+- user profile and signout
+- improve the question summary mechanism
+- implement middleware for authentication
+- notes integration somehow
+- share option for chats
+
+UI
+- add loading after asking query
+- change logo
+- change the theme
+    - have some shade of green, olive or something
